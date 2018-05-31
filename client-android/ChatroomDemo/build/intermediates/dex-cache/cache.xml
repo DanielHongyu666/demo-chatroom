@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="ec5e59e58635d08f4fa7304fe69bbc323730c45f">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_6472e9aeb26dc0058839e0fe7cc4459dce8bcb35/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="42a25dc3219429f0e5d060061f71acb49bf010a0">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/hamcrest-core-1.3_76e002b3a269cf9531be1b80840b1797752e395d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="5a9a605f9a0f9eb281972ae5e74eb5cfc1dad002">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_ad6fb9cc818835cdeab25dbc7d86f8e63eced693/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/com.android.support/support-annotations/26.0.0/db09a97f4f0db8892c1a0111a4b966f97920d082/support-annotations-26.0.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="db09a97f4f0db8892c1a0111a4b966f97920d082">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-26.0.0_63d4df4ddb57df8270cfa3460f280aad26828c9e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Applications/Android Studio.app/Contents/gradle/m2repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="a60a5e993c98c864010053cb901b7eab25306568">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/gson-2.2.4_d0ce76b63ce905fbab3c5d385c8e1b8692010f19/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-integration/1.3/5de0c73fef18917cd85d0ab70bb23818685e4dfd/hamcrest-integration-1.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="5de0c73fef18917cd85d0ab70bb23818685e4dfd">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/hamcrest-integration-1.3_cd863093e3cb909ee43db8fb81228fc9349cd38e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="2973d150c0dc1fefe998f834810d68f278ea58ec">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/junit-4.12_e1fbf8a2e101696d1513b9afc0de98bab145893d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support.test/runner/0.5/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="796f9229948e907471c5595fbe94655ccf03ff73">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support.test-runner-0.5_7e905e5d96c65164cec4a074608acbb3e848a3ba/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support.test.espresso/espresso-core/2.2.2/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="d115b0e9e1501135fe91254ba884fcbd83d374c0">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support.test.espresso-espresso-core-2.2.2_a995f9d7709ccbb208b075e5c8114a18e8756cec/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="47471eb19df288158b00b8d9cfa41bce7373f5cc">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-26.0.0-alpha1_26a3606e441a4ab0ce00eefb6e1a68ac36a91c6a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support.test/exposed-instrumentation-api-publish/0.5/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="905f3e63973d47fedf2d945fa31d8c0f0c98816e">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support.test-exposed-instrumentation-api-publish-0.5_7ca74839d7c486fdfaea0101950eb6dd3557936f/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="b102f892442929c3457de1ef6a94f5dda3dd8864">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-ui-26.0.0_65bf03f57fdb3e5ae00f2d4334114fb53e0aed5a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-core-utils/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="1a94a06ec585c9423a3c03bde1f7bf9268f83d66">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-utils-26.0.0_95aaedadb34354f43a28bf095d9f54b98e2cb8df/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/com.squareup/javawriter/2.1.1/67ff45d9ae02e583d0f9b3432a5ebbe05c30c966/javawriter-2.1.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="67ff45d9ae02e583d0f9b3432a5ebbe05c30c966">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/javawriter-2.1.1_0af112ee3da118622c75cec7421f685ddb87034b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.github.hust201010701/XDanmuku/-SNAPSHOT/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="3df2944868ab207ef3f0ab690b40a0c9551f3f7f">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.github.hust201010701-XDanmuku--SNAPSHOT_a1da16a1aa467a0f31e06c4985dcc251fc09e697/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-media-compat/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="cbb26a4f659b17abc1f75ff735a607aa299697ac">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-media-compat-26.0.0_f23426ecdc8bbd0a0c07d10e00e755c6a0497b9d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="6975da39a7040257bd51d21a231b76c915872d38">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/javax.inject-1_fe96634241c972045665075dc2b671dc7979fb0e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-library/1.3/4785a3c21320980282f9f33d0d1264a69040538f/hamcrest-library-1.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="4785a3c21320980282f9f33d0d1264a69040538f">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/hamcrest-library-1.3_96b2ebaed36de379c7e893d84c6acd502a845731/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/2.0.1/516c03b21d50a644d538de0f0369c620989cd8f0/jsr305-2.0.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="516c03b21d50a644d538de0f0369c620989cd8f0">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/jsr305-2.0.1_84c2d2ff6efa27e0a1d834a45ed78cfe79b74f47/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-v4/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-26.0.0_d41813a2da5c4f621d3094bcfd8bb79a6f2a4de4/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/javax.annotation/javax.annotation-api/1.2/479c1e06db31c432330183f5cae684163f186146/javax.annotation-api-1.2.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="479c1e06db31c432330183f5cae684163f186146">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/javax.annotation-api-1.2_98ca66d5dd96bd75a4b2ce6a5a6e1ff2f071cbca/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-compat/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="8602ab07133e6ee182726fa27588420dba9d6d55">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-compat-26.0.0_5a55ea9dcbee9941b2b2c937e4aa4b3910c65bd2/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/.gradle/caches/modules-2/files-2.1/org.greenrobot/eventbus/3.0.0/ddd99896e9569eaababbe81b35d80e1b91c4ad85/eventbus-3.0.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="ddd99896e9569eaababbe81b35d80e1b91c4ad85">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/eventbus-3.0.0_bf20667725071eab57f782cd1711cdbf6e2bceee/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support.test.espresso/espresso-idling-resource/2.2.2/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="a890ee8445927649d9ed50f625a315d8758688be">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support.test.espresso-espresso-idling-resource-2.2.2_a389d97f53d7b16e21df05c7bef0874823b32e1a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support.test/rules/0.5/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="7e11799d8a26bfa5d48acafe012ee5545b9bf468">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support.test-rules-0.5_9e7649fc42843b13113bc36123bde7fff2d6a5b6/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="88246166d5afb106f532f6e6deae683c66b42c89">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-animated-vector-drawable-26.0.0-alpha1_01e24a54cd0caec069342e19da37e6ac449bac30/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/ChatroomDemo/IMLib/unspecified/jars/libs/Rong_IMLib.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="c9c3290e9f840d2887537345121080af87f60699">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/8/Rong_IMLib_c0b9a0cd6ab79e24a9e25090edeac7c0b3f93112/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-fragment/26.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="f7b86f1beb2b3625c6a1a5da6b5fc5294b64aea9">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-fragment-26.0.0_ff5b16f2ee9db02f684148ec5e1a29ad01251173/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="27.0.0"
+        sha1="952944218ecedea1554a513dec0c14d570642843">
+        <dex dex="/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-vector-drawable-26.0.0-alpha1_4d340cd729379fd24bac006eded6a82576040433/classes.dex" />
+    </item>
+
+</items>

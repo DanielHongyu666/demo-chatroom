@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/duanliuyi/Desktop/demo-chatroom/client-android/ChatroomDemo/IMLib/build/intermediates/res/merged/androidTest/debug/drawable-v21/notification_action_background.xml",
+        "source": "/Users/duanliuyi/Desktop/demo-chatroom/client-android/ChatroomDemo/IMLib/build/intermediates/exploded-aar/com.android.support/support-compat/26.0.0/res/drawable-v21/notification_action_background.xml"
+    },
+    {
+        "merged": "/Users/duanliuyi/Desktop/ChatroomDemo/IMLib/build/intermediates/res/merged/androidTest/debug/drawable-v21/notification_action_background.xml",
+        "source": "/Users/duanliuyi/Desktop/ChatroomDemo/IMLib/build/intermediates/exploded-aar/com.android.support/support-compat/26.0.0/res/drawable-v21/notification_action_background.xml"
+    }
+]
