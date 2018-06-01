@@ -28,7 +28,7 @@ public class SplashActivity extends FragmentActivity {
 
         DataInterface.initUserInfo();
         int random = DataInterface.getRandomNum(50);
-        String currentToken = DataInterface.getUserModes().get(random + 51).getToken();
+        String currentToken = DataInterface.getUserModes().get(random + 50).getToken();
 
 
         ChatroomKit.connect(currentToken, new RongIMClient.ConnectCallback() {
