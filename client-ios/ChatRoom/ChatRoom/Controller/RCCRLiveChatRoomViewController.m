@@ -892,16 +892,18 @@ static int clickPraiseBtnTimes  = 0 ;
  */
 - (void)praiseBtnPressed:(id)sender {
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
+        
         NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
         __weak __typeof(&*self)weakSelf = self;
-        
-        NSLog(@"111---lasttime = %f, currentTime = %f, clickPraiseBtnTimes = %d",self.lastClickPraiseTime, currentTime, clickPraiseBtnTimes);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.21 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             if ([[NSDate date] timeIntervalSince1970] - self.lastClickPraiseTime >= 0.2) {
-                NSLog(@"222---lasttime = %f, currentTime = %f, clickPraiseBtnTimes = %d",[[NSDate date] timeIntervalSince1970], currentTime, clickPraiseBtnTimes);
+            
                 RCChatroomLike *praiseSendMessage = [[RCChatroomLike alloc] init];
                 praiseSendMessage.counts = clickPraiseBtnTimes;
                 [weakSelf sendMessage:praiseSendMessage pushContent:nil success:nil error:nil];
+                RCCRLiveModel *liveModel = weakSelf.hostInformationView.hostModel;
+                liveModel.praiseAmount += clickPraiseBtnTimes;
+                [weakSelf.hostInformationView setDataModel:liveModel];
                 clickPraiseBtnTimes = 0;
             }
         });
@@ -909,8 +911,7 @@ static int clickPraiseBtnTimes  = 0 ;
         clickPraiseBtnTimes++;
         self.lastClickPraiseTime = currentTime;
         [self presentLikeMessageAnimation:praiseMessage];
-        NSLog(@"333---lasttime = %f, currentTime = %f, clickPraiseBtnTimes = %d",self.lastClickPraiseTime, currentTime, clickPraiseBtnTimes);
-        
+    
     } else {
         CGRect frame = self.hostInformationView.frame;
         frame.origin.y = self.view.bounds.size.height;
@@ -1047,12 +1048,15 @@ static int clickPraiseBtnTimes  = 0 ;
 #pragma mark - RCCRgiftViewDelegate
 //  发送礼物消息
 - (void)sendGift:(RCCRGiftModel *)giftModel {
-        RCChatroomGift *giftMessage = [[RCChatroomGift alloc] init];
-        giftMessage.number = (int)giftModel.giftNumber;
-        giftMessage.id = giftModel.giftId;
-        [self sendMessage:giftMessage pushContent:nil success:nil error:nil];
-        
-        [self presentGiftAnimation:giftModel];
+    RCChatroomGift *giftMessage = [[RCChatroomGift alloc] init];
+    giftMessage.number = (int)giftModel.giftNumber;
+    giftMessage.id = giftModel.giftId;
+    [self sendMessage:giftMessage pushContent:nil success:nil error:nil];
+    
+    [self presentGiftAnimation:giftModel];
+    RCCRLiveModel *liveModel = self.hostInformationView.hostModel;
+    liveModel.giftAmount += giftModel.giftNumber;
+    [self.hostInformationView setDataModel:liveModel];
 }
 
 
