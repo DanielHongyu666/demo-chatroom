@@ -8,10 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		6E11A8AE20BD07D6006181BD /* RCCRGiftNumberLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11A8AD20BD07D6006181BD /* RCCRGiftNumberLabel.m */; };
-		6E11A93220BD41F1006181BD /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11A93120BD41F1006181BD /* VideoToolbox.framework */; };
-		6E11A93420BD422F006181BD /* libstdc++.6.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11A93320BD422F006181BD /* libstdc++.6.tbd */; };
-		6E11A93620BD4255006181BD /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11A93520BD4254006181BD /* libbz2.tbd */; };
-		6E11A93820BD42B0006181BD /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11A93720BD42B0006181BD /* MediaPlayer.framework */; };
 		6E11A93A20BFEEBD006181BD /* users.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E11A93920BFEEBD006181BD /* users.json */; };
 		6E2F97CC20A29EDF00B073FD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2F97CB20A29EDF00B073FD /* AppDelegate.m */; };
 		6E2F97CF20A29EE000B073FD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2F97CE20A29EE000B073FD /* ViewController.m */; };
@@ -25,9 +21,7 @@
 		6E2F980B20A2A0A400B073FD /* RCConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6E2F980020A2A0A300B073FD /* RCConfig.plist */; };
 		6E2F980C20A2A0A400B073FD /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2F980120A2A0A300B073FD /* libopencore-amrnb.a */; };
 		6E2F980D20A2A0A400B073FD /* RCColor.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6E2F980220A2A0A300B073FD /* RCColor.plist */; };
-		6E2F980E20A2A0A400B073FD /* RongCloud.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6E2F980320A2A0A300B073FD /* RongCloud.bundle */; };
 		6E2F980F20A2A0A400B073FD /* Emoji.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6E2F980420A2A0A300B073FD /* Emoji.plist */; };
-		6E2F981020A2A0A400B073FD /* RongIMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2F980520A2A0A300B073FD /* RongIMKit.framework */; };
 		6E2F981120A2A0A400B073FD /* RongIMLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2F980620A2A0A300B073FD /* RongIMLib.framework */; };
 		6E2F981220A2A0A400B073FD /* RongCloudKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E2F980820A2A0A400B073FD /* RongCloudKit.strings */; };
 		6E2F981520A2A17800B073FD /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2F981420A2A17700B073FD /* AssetsLibrary.framework */; };
@@ -144,9 +138,7 @@
 		6E2F980020A2A0A300B073FD /* RCConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = RCConfig.plist; sourceTree = "<group>"; };
 		6E2F980120A2A0A300B073FD /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
 		6E2F980220A2A0A300B073FD /* RCColor.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = RCColor.plist; sourceTree = "<group>"; };
-		6E2F980320A2A0A300B073FD /* RongCloud.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = RongCloud.bundle; sourceTree = "<group>"; };
 		6E2F980420A2A0A300B073FD /* Emoji.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Emoji.plist; sourceTree = "<group>"; };
-		6E2F980520A2A0A300B073FD /* RongIMKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RongIMKit.framework; sourceTree = "<group>"; };
 		6E2F980620A2A0A300B073FD /* RongIMLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RongIMLib.framework; sourceTree = "<group>"; };
 		6E2F980920A2A0A400B073FD /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = RongCloudKit.strings; sourceTree = "<group>"; };
 		6E2F981420A2A17700B073FD /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
@@ -266,10 +258,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E11A93820BD42B0006181BD /* MediaPlayer.framework in Frameworks */,
-				6E11A93620BD4255006181BD /* libbz2.tbd in Frameworks */,
-				6E11A93420BD422F006181BD /* libstdc++.6.tbd in Frameworks */,
-				6E11A93220BD41F1006181BD /* VideoToolbox.framework in Frameworks */,
 				6E2F984320A2A2A700B073FD /* SafariServices.framework in Frameworks */,
 				6E2F984120A2A2A000B073FD /* Photos.framework in Frameworks */,
 				6E2F983F20A2A29500B073FD /* UIKit.framework in Frameworks */,
@@ -296,7 +284,6 @@
 				6E2F981520A2A17800B073FD /* AssetsLibrary.framework in Frameworks */,
 				6E2F980C20A2A0A400B073FD /* libopencore-amrnb.a in Frameworks */,
 				6E2F981120A2A0A400B073FD /* RongIMLib.framework in Frameworks */,
-				6E2F981020A2A0A400B073FD /* RongIMKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,8 +380,6 @@
 				6E2F980120A2A0A300B073FD /* libopencore-amrnb.a */,
 				6E2F980220A2A0A300B073FD /* RCColor.plist */,
 				6E2F980020A2A0A300B073FD /* RCConfig.plist */,
-				6E2F980320A2A0A300B073FD /* RongCloud.bundle */,
-				6E2F980520A2A0A300B073FD /* RongIMKit.framework */,
 				6E2F980620A2A0A300B073FD /* RongIMLib.framework */,
 				6E2F980720A2A0A400B073FD /* zh-Hans.lproj */,
 			);
@@ -723,7 +708,6 @@
 			files = (
 				6E11A93A20BFEEBD006181BD /* users.json in Resources */,
 				6E2F981220A2A0A400B073FD /* RongCloudKit.strings in Resources */,
-				6E2F980E20A2A0A400B073FD /* RongCloud.bundle in Resources */,
 				6E2F980F20A2A0A400B073FD /* Emoji.plist in Resources */,
 				6E2F980B20A2A0A400B073FD /* RCConfig.plist in Resources */,
 				6E2F980D20A2A0A400B073FD /* RCColor.plist in Resources */,

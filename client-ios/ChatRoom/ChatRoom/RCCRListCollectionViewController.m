@@ -8,7 +8,7 @@
 
 #import "RCCRListCollectionViewController.h"
 #import "RCCRListCollectionViewCell.h"
-#import <RongIMKit/RongIMKit.h>
+#import <RongIMLib/RongIMLib.h>
 #import "RCCRLiveChatRoomViewController.h"
 #import "RCCRRongCloudIMManager.h"
 #import "RCCRManager.h"

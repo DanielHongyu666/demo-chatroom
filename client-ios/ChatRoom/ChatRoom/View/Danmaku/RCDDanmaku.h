@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <RongIMKit/RongIMKit.h>
+#import <RongIMLib/RongIMLib.h>
 
 typedef enum : NSInteger {
     RCDDanmakuPositionNone = 0,//从右往左

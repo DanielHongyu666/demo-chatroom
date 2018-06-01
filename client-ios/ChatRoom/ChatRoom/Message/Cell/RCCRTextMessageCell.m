@@ -7,7 +7,7 @@
 //
 
 #import "RCCRTextMessageCell.h"
-#import <RongIMKit/RongIMKit.h>
+#import <RongIMLib/RongIMLib.h>
 #import "RCCRManager.h"
 #import "RCChatroomWelcome.h"
 #import "RCChatroomFollow.h"
