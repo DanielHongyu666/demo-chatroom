@@ -25,3 +25,17 @@ xcuserdata/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+DS_Store
+.gradle/
+.idea/
+gradlew.bat
+local.properties
+tags
+*.iml
+**/build/
+*.pyc
+push/.externalNativeBuild
+*.so
+doc/internal/sdk/_book/
+
