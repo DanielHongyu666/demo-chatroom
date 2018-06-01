@@ -1,7 +1,0 @@
-#Thu May 31 17:54:03 CST 2018
-base.0=/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_ad6fb9cc818835cdeab25dbc7d86f8e63eced693
-renamed.1=classes.dex
-renamed.0=classes2.dex
-file.1=/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_6472e9aeb26dc0058839e0fe7cc4459dce8bcb35/classes.dex
-base.1=/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_6472e9aeb26dc0058839e0fe7cc4459dce8bcb35
-file.0=/Users/duanliuyi/Desktop/ChatroomDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_ad6fb9cc818835cdeab25dbc7d86f8e63eced693/classes.dex
