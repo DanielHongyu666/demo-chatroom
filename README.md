@@ -7,6 +7,8 @@
 * client-android：Android 用户端聊天室 Demo 示例
 * client-ios：iOS 用户端聊天室 Demo 示例
 
+聊天室消息库使用指南：http://www.rongcloud.cn/docs/messages/index.html
+
 Demo 下载地址：
 
 Android：http://downloads.rongcloud.cn/demo_chatroom.apk
