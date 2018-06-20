@@ -6,11 +6,19 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import cn.rongcloud.chatroomdemo.messageview.AdminAddView;
+import cn.rongcloud.chatroomdemo.messageview.AdminRemoveView;
 import cn.rongcloud.chatroomdemo.messageview.BaseMsgView;
+import cn.rongcloud.chatroomdemo.messageview.EndView;
 import cn.rongcloud.chatroomdemo.messageview.FollowMsgView;
 import cn.rongcloud.chatroomdemo.messageview.LikeMsgView;
+import cn.rongcloud.chatroomdemo.messageview.StartMsgView;
 import cn.rongcloud.chatroomdemo.messageview.TextMsgView;
+import cn.rongcloud.chatroomdemo.messageview.UserBanView;
+import cn.rongcloud.chatroomdemo.messageview.UserBlockView;
 import cn.rongcloud.chatroomdemo.messageview.UserQuitMsgView;
+import cn.rongcloud.chatroomdemo.messageview.UserUnBanView;
+import cn.rongcloud.chatroomdemo.messageview.UserUnBlockView;
 import cn.rongcloud.chatroomdemo.messageview.WelcomeMsgView;
 import cn.rongcloud.chatroomdemo.ui.panel.EmojiManager;
 import io.rong.imlib.AnnotationNotFoundException;
@@ -20,11 +28,19 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
+import io.rong.message.ChatroomAdminAdd;
+import io.rong.message.ChatroomAdminRemove;
 import io.rong.message.ChatroomBarrage;
+import io.rong.message.ChatroomEnd;
 import io.rong.message.ChatroomFollow;
 import io.rong.message.ChatroomGift;
 import io.rong.message.ChatroomLike;
+import io.rong.message.ChatroomStart;
+import io.rong.message.ChatroomUserBan;
+import io.rong.message.ChatroomUserBlock;
 import io.rong.message.ChatroomUserQuit;
+import io.rong.message.ChatroomUserUnBan;
+import io.rong.message.ChatroomUserUnBlock;
 import io.rong.message.ChatroomWelcome;
 import io.rong.message.TextMessage;
 
@@ -110,10 +126,32 @@ public class ChatroomKit {
         registerMessageType(ChatroomUserQuit.class);
         registerMessageView(ChatroomUserQuit.class, UserQuitMsgView.class);
 
-        //    registerMessageType(GiftMessage.class);
         registerMessageView(TextMessage.class, TextMsgView.class);
-        //  registerMessageView(InformationNotificationMessage.class, InfoMsgView.class);
-        //  registerMessageView(GiftMessage.class, GiftMsgView.class);
+
+        registerMessageType(ChatroomStart.class);
+        registerMessageView(ChatroomStart.class, StartMsgView.class);
+
+        registerMessageType(ChatroomAdminAdd.class);
+        registerMessageView(ChatroomAdminAdd.class, AdminAddView.class);
+
+        registerMessageType(ChatroomAdminRemove.class);
+        registerMessageView(ChatroomAdminRemove.class, AdminRemoveView.class);
+
+        registerMessageType(ChatroomUserBan.class);
+        registerMessageView(ChatroomUserBan.class, UserBanView.class);
+
+        registerMessageType(ChatroomUserUnBan.class);
+        registerMessageView(ChatroomUserUnBan.class, UserUnBanView.class);
+
+        registerMessageType(ChatroomUserBlock.class);
+        registerMessageView(ChatroomUserBlock.class, UserBlockView.class);
+
+        registerMessageType(ChatroomUserUnBlock.class);
+        registerMessageView(ChatroomUserUnBlock.class, UserUnBlockView.class);
+
+        registerMessageType(ChatroomEnd.class);
+        registerMessageView(ChatroomEnd.class, EndView.class);
+
     }
 
     /**
