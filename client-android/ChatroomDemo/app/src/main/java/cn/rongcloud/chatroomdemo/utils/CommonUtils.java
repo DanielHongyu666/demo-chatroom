@@ -1,5 +1,8 @@
 package cn.rongcloud.chatroomdemo.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import cn.rongcloud.chatroomdemo.ChatroomApp;
 
 public class CommonUtils {
@@ -56,5 +59,12 @@ public class CommonUtils {
             return hour + minute + ":0" + second;
         }
         return hour + minute + ":" + second;
+    }
+
+
+    public static String getDateToString(long milSecond, String pattern) {
+        Date date = new Date(milSecond);
+        SimpleDateFormat format = new SimpleDateFormat(pattern);
+        return format.format(date);
     }
 }

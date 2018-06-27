@@ -57,6 +57,16 @@ public class DataInterface {
         DataInterface.loginStatus = loginStatus;
     }
 
+    /*是否禁言*/
+    private static boolean banStatus = false;
+
+    public static boolean isBanStatus() {
+        return banStatus;
+    }
+
+    public static void setBanStatus(boolean banStatus) {
+        DataInterface.banStatus = banStatus;
+    }
 
     static private ArrayList<UserInfo> userInfoList;
     static private ArrayList<UserMode> userModes;

@@ -1,4 +1,4 @@
-package cn.rongcloud.chatroomdemo.messageview;
+package cn.rongcloud.chatroomdemo.model;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,19 +6,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import cn.rongcloud.chatroomdemo.R;
-import cn.rongcloud.chatroomdemo.utils.CommonUtils;
+import cn.rongcloud.chatroomdemo.messageview.BaseMsgView;
 import io.rong.imlib.model.MessageContent;
-import io.rong.message.ChatroomEnd;
 
 /**
- * Created by duanliuyi on 2018/6/20.
+ * Created by duanliuyi on 2018/6/25.
  */
 
-public class EndView extends BaseMsgView {
-
+public class BanWarnView extends BaseMsgView {
     private TextView tvInfo;
 
-    public EndView(Context context) {
+    public BanWarnView(Context context) {
         super(context);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.msg_system_view, this);
         tvInfo = (TextView) view.findViewById(R.id.tv_system_info);
@@ -26,14 +24,9 @@ public class EndView extends BaseMsgView {
 
     @Override
     public void setContent(MessageContent msgContent, String senderUserId) {
-        if (msgContent instanceof ChatroomEnd) {
-            int duration = ((ChatroomEnd) msgContent).getDuration();
-            String time = CommonUtils.getTime(duration / 1000);
-
-            tvInfo.setText("系统消息  本次直播已结束，直播时长" + time);
-        }
+        tvInfo.setText("系统消息  已被管理员禁言");
+        tvInfo.setTextColor(getResources().getColor(R.color.red));
 
     }
-
 
 }

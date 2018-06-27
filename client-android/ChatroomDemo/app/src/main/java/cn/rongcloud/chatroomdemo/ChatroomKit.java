@@ -20,6 +20,8 @@ import cn.rongcloud.chatroomdemo.messageview.UserQuitMsgView;
 import cn.rongcloud.chatroomdemo.messageview.UserUnBanView;
 import cn.rongcloud.chatroomdemo.messageview.UserUnBlockView;
 import cn.rongcloud.chatroomdemo.messageview.WelcomeMsgView;
+import cn.rongcloud.chatroomdemo.model.BanWarnMessage;
+import cn.rongcloud.chatroomdemo.model.BanWarnView;
 import cn.rongcloud.chatroomdemo.ui.panel.EmojiManager;
 import io.rong.imlib.AnnotationNotFoundException;
 import io.rong.imlib.IRongCallback;
@@ -151,6 +153,9 @@ public class ChatroomKit {
 
         registerMessageType(ChatroomEnd.class);
         registerMessageView(ChatroomEnd.class, EndView.class);
+
+        registerMessageType(BanWarnMessage.class);
+        registerMessageView(BanWarnMessage.class, BanWarnView.class);
 
     }
 

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import cn.rongcloud.chatroomdemo.R;
+import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ChatroomStart;
 
@@ -20,14 +21,17 @@ public class StartMsgView extends BaseMsgView {
     public StartMsgView(Context context) {
         super(context);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.msg_system_view, this);
-        tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        tvInfo = (TextView) view.findViewById(R.id.tv_system_info);
     }
 
     @Override
     public void setContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomStart) {
             String time = ((ChatroomStart) msgContent).getTime();
-            tvInfo.setText("系统消息  " + time + "  开始直播");
+            long timeLong = Long.valueOf(time);
+            String timeString = CommonUtils.getDateToString(timeLong, "yyyy-MM-dd HH:mm:ss");
+
+            tvInfo.setText("系统消息  " + timeString + "  开始直播");
         }
 
     }

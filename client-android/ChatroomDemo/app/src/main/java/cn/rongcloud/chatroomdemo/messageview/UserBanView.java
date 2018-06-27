@@ -21,7 +21,7 @@ public class UserBanView extends BaseMsgView {
     public UserBanView(Context context) {
         super(context);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.msg_system_view, this);
-        tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        tvInfo = (TextView) view.findViewById(R.id.tv_system_info);
     }
 
     @Override
@@ -34,7 +34,8 @@ public class UserBanView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + "被禁言");
+            int duration = ((ChatroomUserBan) msgContent).getDuration();
+            tvInfo.setText("系统消息  " + name + " 被禁言 " + duration / 1000 / 60 + " 分钟");
         }
 
     }

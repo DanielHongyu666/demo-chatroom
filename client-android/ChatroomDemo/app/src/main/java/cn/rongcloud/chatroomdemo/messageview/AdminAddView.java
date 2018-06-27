@@ -21,7 +21,7 @@ public class AdminAddView extends BaseMsgView {
     public AdminAddView(Context context) {
         super(context);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.msg_system_view, this);
-        tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        tvInfo = (TextView) view.findViewById(R.id.tv_system_info);
     }
 
     @Override

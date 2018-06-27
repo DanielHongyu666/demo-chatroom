@@ -21,7 +21,7 @@ public class UserUnBanView extends BaseMsgView {
     public UserUnBanView(Context context) {
         super(context);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.msg_system_view, this);
-        tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        tvInfo = (TextView) view.findViewById(R.id.tv_system_info);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class UserUnBanView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + "取消禁言");
+            tvInfo.setText("系统消息  " + name + " 已被解除禁言");
         }
 
     }
