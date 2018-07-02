@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import cn.rongcloud.chatroomdemo.R;
-import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ChatroomEnd;
 
@@ -28,9 +27,9 @@ public class EndView extends BaseMsgView {
     public void setContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomEnd) {
             int duration = ((ChatroomEnd) msgContent).getDuration();
-            String time = CommonUtils.getTime(duration / 1000);
+            //  String time = CommonUtils.getTime(duration / 1000);
 
-            tvInfo.setText("系统消息  本次直播已结束，直播时长" + time);
+            tvInfo.setText("系统消息  本次直播已结束，直播时长" + duration + "分钟");
         }
 
     }

@@ -277,7 +277,7 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                     DataInterface.setBanStatus(false);
                 }
             }
-        }, duration);
+        }, duration * 1000 * 60);
     }
 
     @Override

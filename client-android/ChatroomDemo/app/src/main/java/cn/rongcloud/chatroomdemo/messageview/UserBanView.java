@@ -35,7 +35,7 @@ public class UserBanView extends BaseMsgView {
                 name = id;
             }
             int duration = ((ChatroomUserBan) msgContent).getDuration();
-            tvInfo.setText("系统消息  " + name + " 被禁言 " + duration / 1000 / 60 + " 分钟");
+            tvInfo.setText("系统消息  " + name + " 被禁言 " + duration + " 分钟");
         }
 
     }
