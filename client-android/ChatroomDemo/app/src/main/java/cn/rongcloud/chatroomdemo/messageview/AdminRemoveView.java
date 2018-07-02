@@ -34,7 +34,7 @@ public class AdminRemoveView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + "聊天室管理员身份被取消");
+            tvInfo.setText("系统通知  " + name + "聊天室管理员身份被取消");
         }
 
     }

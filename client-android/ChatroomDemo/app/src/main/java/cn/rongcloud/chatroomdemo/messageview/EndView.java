@@ -29,7 +29,7 @@ public class EndView extends BaseMsgView {
             int duration = ((ChatroomEnd) msgContent).getDuration();
             //  String time = CommonUtils.getTime(duration / 1000);
 
-            tvInfo.setText("系统消息  本次直播已结束，直播时长" + duration + "分钟");
+            tvInfo.setText("系统通知  本次直播已结束，直播时长" + duration + "分钟");
         }
 
     }

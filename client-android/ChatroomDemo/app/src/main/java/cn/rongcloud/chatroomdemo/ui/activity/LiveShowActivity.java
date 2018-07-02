@@ -87,10 +87,10 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
     private String roomId;
     //  private KSYMediaPlayer ksyMediaPlayer;
     private SurfaceHolder surfaceHolder;
-    private int onlineNum = 500;
-    private int fansNum = 100;
-    private int likeNum = 100;
-    private int giftNum = 100;
+    private int onlineNum = 0;
+    private int fansNum = 0;
+    private int likeNum = 0;
+    private int giftNum = 0;
 
     private DanmuContainerView danmuContainerView;
     private GiftView giftView;

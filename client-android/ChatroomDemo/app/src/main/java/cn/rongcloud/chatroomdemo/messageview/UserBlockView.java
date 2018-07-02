@@ -34,7 +34,7 @@ public class UserBlockView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + "被禁封");
+            tvInfo.setText("系统通知  " + name + "被踢出聊天室");
         }
 
     }

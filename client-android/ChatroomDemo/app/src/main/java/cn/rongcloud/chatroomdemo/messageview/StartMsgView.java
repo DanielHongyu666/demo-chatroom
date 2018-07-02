@@ -31,7 +31,7 @@ public class StartMsgView extends BaseMsgView {
             long timeLong = Long.valueOf(time);
             String timeString = CommonUtils.getDateToString(timeLong, "yyyy-MM-dd HH:mm:ss");
 
-            tvInfo.setText("系统消息  " + timeString + "  开始直播");
+            tvInfo.setText("系统通知  " + timeString + "  开始直播");
         }
 
     }

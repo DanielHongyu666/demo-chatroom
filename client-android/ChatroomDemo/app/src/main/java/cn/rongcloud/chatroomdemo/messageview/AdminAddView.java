@@ -34,7 +34,7 @@ public class AdminAddView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + " 成为聊天室管理员");
+            tvInfo.setText("系统通知  " + name + " 成为聊天室管理员");
         }
 
     }

@@ -34,7 +34,7 @@ public class UserUnBanView extends BaseMsgView {
             } else {
                 name = id;
             }
-            tvInfo.setText("系统消息  " + name + " 已被解除禁言");
+            tvInfo.setText("系统通知  " + name + " 已被解除禁言");
         }
 
     }
