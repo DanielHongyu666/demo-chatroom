@@ -4,7 +4,7 @@
 @interface RCChatroomStart : RCMessageContent
 
 
-@property(nonatomic, copy) NSString *time;
+@property(nonatomic, assign) long time;
 
 
 

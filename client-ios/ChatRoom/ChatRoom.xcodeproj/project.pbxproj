@@ -91,6 +91,8 @@
 		6EC4E24820B548A500EB0F76 /* RCChatroomBarrage.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4E23620B548A400EB0F76 /* RCChatroomBarrage.m */; };
 		6EC4E24920B548A500EB0F76 /* RCChatroomUserUnBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4E23820B548A400EB0F76 /* RCChatroomUserUnBlock.m */; };
 		6EC4E24F20B565C200EB0F76 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4E24B20B565C200EB0F76 /* MBProgressHUD.m */; };
+		98120CD020E250EB00B0AA7B /* RCChatroomNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 98120CCF20E250EB00B0AA7B /* RCChatroomNotification.m */; };
+		98A739CC20EA092B008942CE /* anchors.json in Resources */ = {isa = PBXBuildFile; fileRef = 98A739CB20EA092B008942CE /* anchors.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -251,6 +253,9 @@
 		6EC4E23A20B548A500EB0F76 /* RCChatroomGift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCChatroomGift.h; sourceTree = "<group>"; };
 		6EC4E24B20B565C200EB0F76 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		6EC4E24D20B565C200EB0F76 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		98120CCE20E250EB00B0AA7B /* RCChatroomNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCChatroomNotification.h; sourceTree = "<group>"; };
+		98120CCF20E250EB00B0AA7B /* RCChatroomNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCChatroomNotification.m; sourceTree = "<group>"; };
+		98A739CB20EA092B008942CE /* anchors.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = anchors.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -345,6 +350,7 @@
 				6E2F985720A3DCFA00B073FD /* RCCRManager.h */,
 				6E2F985820A3DCFA00B073FD /* RCCRManager.m */,
 				6E11A93920BFEEBD006181BD /* users.json */,
+				98A739CB20EA092B008942CE /* anchors.json */,
 				6E2F97D020A29EE000B073FD /* Main.storyboard */,
 				6E2F97D320A29EE200B073FD /* Assets.xcassets */,
 				6E2F97D520A29EE200B073FD /* LaunchScreen.storyboard */,
@@ -553,6 +559,8 @@
 				6EC4E23820B548A400EB0F76 /* RCChatroomUserUnBlock.m */,
 				6EC4E22F20B548A200EB0F76 /* RCChatroomWelcome.h */,
 				6EC4E22A20B548A100EB0F76 /* RCChatroomWelcome.m */,
+				98120CCE20E250EB00B0AA7B /* RCChatroomNotification.h */,
+				98120CCF20E250EB00B0AA7B /* RCChatroomNotification.m */,
 				6E2F986920A439C500B073FD /* Cell */,
 			);
 			path = Message;
@@ -708,6 +716,7 @@
 			files = (
 				6E11A93A20BFEEBD006181BD /* users.json in Resources */,
 				6E2F981220A2A0A400B073FD /* RongCloudKit.strings in Resources */,
+				98A739CC20EA092B008942CE /* anchors.json in Resources */,
 				6E2F980F20A2A0A400B073FD /* Emoji.plist in Resources */,
 				6E2F980B20A2A0A400B073FD /* RCConfig.plist in Resources */,
 				6E2F980D20A2A0A400B073FD /* RCColor.plist in Resources */,
@@ -767,6 +776,7 @@
 				6E2F985320A2F82600B073FD /* RCCRRongCloudIMManager.m in Sources */,
 				6EC4E24F20B565C200EB0F76 /* MBProgressHUD.m in Sources */,
 				6E3BBE7520AD7BC200064D54 /* RCCRAudienceViewCell.m in Sources */,
+				98120CD020E250EB00B0AA7B /* RCChatroomNotification.m in Sources */,
 				6EC4E20C20B3C65B00EB0F76 /* RCCRTextMessageCell.m in Sources */,
 				6E2F986020A3EB4800B073FD /* RCCRMessageModel.m in Sources */,
 				6E2F985D20A3EABF00B073FD /* RCCRInputBarControl.m in Sources */,
