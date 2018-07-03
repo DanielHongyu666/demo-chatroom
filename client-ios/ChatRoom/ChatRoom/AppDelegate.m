@@ -15,6 +15,13 @@
 #import "RCChatroomBarrage.h"
 #import "RCChatroomFollow.h"
 #import "RCChatroomUserQuit.h"
+#import "RCChatroomStart.h"
+#import "RCChatroomEnd.h"
+#import "RCChatroomUserBan.h"
+#import "RCChatroomUserUnBan.h"
+#import "RCChatroomUserBlock.h"
+#import "RCChatroomUserUnBlock.h"
+#import "RCChatroomNotification.h"
 
 #define APPKEY @"tdrvipkstfsu5"
 @interface AppDelegate ()
@@ -35,6 +42,13 @@
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomBarrage class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomFollow class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserQuit class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomStart class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomEnd class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserBan class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserUnBan class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserBlock class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserUnBlock class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomNotification class]];
     RCCRListCollectionViewController *viewController = [[RCCRListCollectionViewController alloc] init];
     
     // 初始化 UINavigationController。

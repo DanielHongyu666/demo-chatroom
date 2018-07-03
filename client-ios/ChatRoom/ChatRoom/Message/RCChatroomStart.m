@@ -8,7 +8,7 @@
   
       
         if (self.time) {
-          [dataDict setObject:self.time forKey:@"time"];
+          [dataDict setObject:@(self.time) forKey:@"time"];
         } else {
            [dataDict setObject:@"" forKey:@"time"];
         }
@@ -37,7 +37,7 @@
   if (json) {
     
       
-        self.time = [json objectForKey:@"time"];
+        self.time = [[json objectForKey:@"time"] longValue];
       
       
       

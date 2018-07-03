@@ -34,6 +34,14 @@ static NSString * const portraitCollectionViewCell = @"portraitCollectionViewCel
 #import "RCChatroomFollow.h"
 #import "RCChatroomUserQuit.h"
 #import "RCCRGiftNumberLabel.h"
+#import "RCChatroomStart.h"
+#import "RCChatroomEnd.h"
+#import "RCChatroomUserBan.h"
+#import "RCChatroomUserUnBan.h"
+#import "RCChatroomUserBlock.h"
+#import "RCChatroomUserUnBlock.h"
+#import "RCChatroomNotification.h"
+static NSString * const banNotifyContent = @"您已被管理员禁言";
 
 #define kRandomColor [UIColor colorWithRed:arc4random_uniform(256) / 255.0 green:arc4random_uniform(256) / 255.0 blue:arc4random_uniform(256) / 255.0 alpha:1]
 
@@ -45,6 +53,8 @@ static NSString * const ConversationMessageCollectionViewCell = @"ConversationMe
  *  文本cell标示
  */
 static NSString *const textCellIndentifier = @"textCellIndentifier";
+
+static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier";
 
 @interface RCCRLiveChatRoomViewController () <UICollectionViewDelegate, UICollectionViewDataSource, RCCRInputBarControlDelegate, UIGestureRecognizerDelegate, RCCRLoginViewDelegate, RCCRGiftViewDelegate, RCCRHostInformationViewDelegate>
 
@@ -308,6 +318,7 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.navigationController setNavigationBarHidden:NO];
     //退出页面，弹幕停止
     [self.view stopDanmaku];
+    [[RCCRManager sharedRCCRManager] setUserUnban];
 }
 
 /**
@@ -327,6 +338,7 @@ static int clickPraiseBtnTimes  = 0 ;
     if (self.conversationType == ConversationType_CHATROOM) {
         //退出聊天室
         RCChatroomUserQuit *quitMessage = [[RCChatroomUserQuit alloc] init];
+        quitMessage.id = [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId;
         [self sendMessage:quitMessage pushContent:nil success:nil error:nil];
         [[RCIMClient sharedRCIMClient] quitChatRoom:self.targetId
                                             success:^{
@@ -366,8 +378,23 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.conversationDataRepository objectAtIndex:indexPath.row];
     RCMessageContent *messageContent = model.content;
     RCCRMessageBaseCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ConversationMessageCollectionViewCell forIndexPath:indexPath];;
-    if ([messageContent isMemberOfClass:[RCTextMessage class]] || [messageContent isMemberOfClass:[RCChatroomWelcome class]] || [messageContent isMemberOfClass:[RCChatroomFollow class]] || [messageContent isMemberOfClass:[RCChatroomLike class]]){
-        RCCRTextMessageCell *__cell = [collectionView dequeueReusableCellWithReuseIdentifier:textCellIndentifier forIndexPath:indexPath];
+    if ([messageContent isMemberOfClass:[RCTextMessage class]] || [messageContent isMemberOfClass:[RCChatroomWelcome class]] || [messageContent isMemberOfClass:[RCChatroomFollow class]] || [messageContent isMemberOfClass:[RCChatroomLike class]] ||
+        [messageContent isMemberOfClass:[RCChatroomStart class]] ||
+        [messageContent isMemberOfClass:[RCChatroomUserBan class]] ||
+        [messageContent isMemberOfClass:[RCChatroomUserUnBan class]] ||
+        [messageContent isMemberOfClass:[RCChatroomUserBlock class]] ||
+        [messageContent isMemberOfClass:[RCChatroomUserUnBlock class]] ||
+        [messageContent isMemberOfClass:[RCChatroomNotification class]] ||
+        [messageContent isMemberOfClass:[RCChatroomEnd class]]){
+        RCCRTextMessageCell *__cell = nil;
+        NSString *indentifier = nil;
+        if ([messageContent isMemberOfClass:[RCChatroomStart class]] ||
+            [messageContent isMemberOfClass:[RCChatroomEnd class]]) {
+            indentifier = startAndEndCellIndentifier;
+        } else {
+            indentifier = textCellIndentifier;
+        }
+        __cell = [collectionView dequeueReusableCellWithReuseIdentifier:indentifier forIndexPath:indexPath];
         [__cell setDataModel:model];
         cell = __cell;
     }
@@ -380,7 +407,11 @@ static int clickPraiseBtnTimes  = 0 ;
     if ([collectionView isEqual:self.portraitCollectionView]) {
         return CGSizeMake(35,35);
     }
-    return CGSizeMake(240,35);
+    RCCRMessageModel *model = self.conversationDataRepository[indexPath.row];
+    if ([model.content isKindOfClass:[RCChatroomStart class]] || [model.content isKindOfClass:[RCChatroomEnd class]]) {
+        return CGSizeMake(300,70);
+    }
+    return CGSizeMake(300,40);
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -388,6 +419,10 @@ static int clickPraiseBtnTimes  = 0 ;
         RCCRAudienceModel *model = self.audienceList[indexPath.row];
         [self audiencePotraitClick:model];
     }
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return -14.f;
 }
 
 /**
@@ -441,15 +476,25 @@ static int clickPraiseBtnTimes  = 0 ;
 
 //  发送消息
 - (void)onTouchSendButton:(NSString *)text {
-    [self touristSendMessage:text];
+    //判断是否禁言
+    if ([RCCRManager sharedRCCRManager].isBan) {
+        [self insertNotificationMessage:banNotifyContent];
+    } else {
+        [self touristSendMessage:text];
+    }
 }
 
 - (void)touristSendMessage:(NSString *)text {
     if (self.isSendDanmaku) {
-        RCChatroomBarrage *barrageMessage = [[RCChatroomBarrage alloc] init];
-        barrageMessage.content = text;
-        [self showDanmaku:text userId:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId];
-        [self sendMessage:barrageMessage pushContent:nil success:nil error:nil];
+        //判断是否禁言
+        if ([RCCRManager sharedRCCRManager].isBan) {
+            [self insertNotificationMessage:banNotifyContent];
+        } else {
+            RCChatroomBarrage *barrageMessage = [[RCChatroomBarrage alloc] init];
+            barrageMessage.content = text;
+            [self showDanmaku:text userId:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId];
+            [self sendMessage:barrageMessage pushContent:nil success:nil error:nil];
+        }
         
     } else {
         RCTextMessage *rcTextMessage = [RCTextMessage messageWithContent:text];
@@ -519,7 +564,7 @@ static int clickPraiseBtnTimes  = 0 ;
         [model.targetId isEqual:self.targetId]) {
         __weak typeof(&*self) __blockSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            //  对礼物消息,赞消息进行拦截，展示动画，不插入到数据源中
+            //  对礼物消息,赞消息进行拦截，展示动画，不插入到数据源中,对封禁消息，弹出alert
             if (rcMessage) {
                 if ([rcMessage.content isMemberOfClass:[RCChatroomGift class]])  {
                     RCChatroomGift *giftMessage = (RCChatroomGift *)rcMessage.content;
@@ -561,6 +606,11 @@ static int clickPraiseBtnTimes  = 0 ;
                 } else if ([rcMessage.content isMemberOfClass:[RCChatroomUserQuit class]]) {
                     //  退出聊天室消息直接过滤
                     return;
+                } else if ([rcMessage.content isMemberOfClass:[RCChatroomUserBlock class]]) {
+                    RCChatroomUserBlock *blockMessage = (RCChatroomUserBlock*)rcMessage.content;
+                    if ([blockMessage.id isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId]) {
+                        [__blockSelf presentAlert:@"您被管理员踢出聊天室"];
+                    }
                 }
                 
                 NSDictionary *leftDic = notification.userInfo;
@@ -822,9 +872,14 @@ static int clickPraiseBtnTimes  = 0 ;
 - (void)commentBtnPressed:(id)sender {
     //  判断是否登录了
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
-        [_inputBar setHidden:NO];
-        [_inputBar setInputBarStatus:RCCRBottomBarStatusKeyboard];
-        self.isSendDanmaku = NO;
+        //判断是否禁言
+        if ([RCCRManager sharedRCCRManager].isBan) {
+            [self insertNotificationMessage:banNotifyContent];
+        } else {
+            [_inputBar setHidden:NO];
+            [_inputBar setInputBarStatus:RCCRBottomBarStatusKeyboard];
+            self.isSendDanmaku = NO;
+        }
     } else {
         CGRect frame = self.loginView.frame;
         frame.origin.y -= frame.size.height;
@@ -841,9 +896,14 @@ static int clickPraiseBtnTimes  = 0 ;
  */
 - (void)danmakuBtnPressed:(id)sender {
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
-        [_inputBar setHidden:NO];
-        [_inputBar setInputBarStatus:RCCRBottomBarStatusKeyboard];
-        self.isSendDanmaku = YES;
+        //判断是否禁言
+        if ([RCCRManager sharedRCCRManager].isBan) {
+            [self insertNotificationMessage:banNotifyContent];
+        } else {
+            [_inputBar setHidden:NO];
+            [_inputBar setInputBarStatus:RCCRBottomBarStatusKeyboard];
+            self.isSendDanmaku = YES;
+        }
     } else {
         CGRect frame = self.loginView.frame;
         frame.origin.y -= frame.size.height;
@@ -892,12 +952,11 @@ static int clickPraiseBtnTimes  = 0 ;
  */
 - (void)praiseBtnPressed:(id)sender {
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
-        
         NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
         __weak __typeof(&*self)weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.21 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             if ([[NSDate date] timeIntervalSince1970] - self.lastClickPraiseTime >= 0.2) {
-            
+                
                 RCChatroomLike *praiseSendMessage = [[RCChatroomLike alloc] init];
                 praiseSendMessage.counts = clickPraiseBtnTimes;
                 [weakSelf sendMessage:praiseSendMessage pushContent:nil success:nil error:nil];
@@ -911,7 +970,6 @@ static int clickPraiseBtnTimes  = 0 ;
         clickPraiseBtnTimes++;
         self.lastClickPraiseTime = currentTime;
         [self presentLikeMessageAnimation:praiseMessage];
-    
     } else {
         CGRect frame = self.hostInformationView.frame;
         frame.origin.y = self.view.bounds.size.height;
@@ -1108,6 +1166,29 @@ static int clickPraiseBtnTimes  = 0 ;
     });
 }
 
+#pragma mark - ban and block notice
+
+- (void)presentAlert:(NSString *)content {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:content message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self quitConversationViewAndClear];
+    }];
+    [alert addAction:action];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)insertNotificationMessage:(NSString *)content {
+    RCChatroomNotification *notify = [RCChatroomNotification new];
+    notify.content = content;
+    RCMessage *message = [[RCMessage alloc] initWithType:self.conversationType
+                                                targetId:self.targetId
+                                               direction:MessageDirection_SEND
+                                               messageId:-1
+                                                 content:notify];
+    message.senderUserId = [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId;
+    [self appendAndDisplayMessage:message];
+}
+
 #pragma mark - views init
 /**
  *  注册cell
@@ -1186,7 +1267,7 @@ static int clickPraiseBtnTimes  = 0 ;
     [_messageContentView setFrame:CGRectMake(0, size.height - 237 - bottomExtraDistance, size.width, 237)];
     
     [_messageContentView addSubview:self.conversationMessageCollectionView];
-    [_conversationMessageCollectionView setFrame:CGRectMake(0, 0, 240, 237 - 50)];
+    [_conversationMessageCollectionView setFrame:CGRectMake(0, 0, 300, 237 - 50)];
     UICollectionViewFlowLayout *customFlowLayout = [[UICollectionViewFlowLayout alloc] init];
     customFlowLayout.minimumLineSpacing = 2;
     customFlowLayout.sectionInset = UIEdgeInsetsMake(10.0f, 0.0f,5.0f, 0.0f);
@@ -1241,6 +1322,7 @@ static int clickPraiseBtnTimes  = 0 ;
     [_giftListView setHidden:YES];
     
     [self registerClass:[RCCRTextMessageCell class]forCellWithReuseIdentifier:textCellIndentifier];
+    [self registerClass:[RCCRTextMessageCell class]forCellWithReuseIdentifier:startAndEndCellIndentifier];
 }
 
 - (UIView *)liveView {

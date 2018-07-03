@@ -88,11 +88,11 @@ static NSString * const RCCRListCollectionViewCellReuseIdentifier = @"RCCRListCo
         RCCRLiveModel *model = [[RCCRLiveModel alloc] init];
         model.hostName = [NSString stringWithFormat:@"%d号主播",num];
         model.hostPortrait = [NSString stringWithFormat:@"hostIcon%d",i%6 + 1];
-        model.audienceAmount = 500;
-        model.fansAmount = 100;
-        model.giftAmount = 100;
-        model.praiseAmount = 100;
-        model.attentionAmount = 100;
+        model.audienceAmount = 0;
+        model.fansAmount = 0;
+        model.giftAmount = 0;
+        model.praiseAmount = 0;
+        model.attentionAmount = 0;
         [self.hostArray addObject:model];
     }
     [self.collectionView reloadData];

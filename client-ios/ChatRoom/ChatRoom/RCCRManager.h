@@ -21,8 +21,14 @@
 
 @property (nonatomic, copy) NSString *portraitUri;
 
+@property (nonatomic, assign) BOOL isBan;
+
 - (RCUserInfo *)getRandomUserInfo;
 
 - (RCUserInfo *)getUserInfo:(NSString *)userId;
+
+- (BOOL)setUserBan:(int)time;
+
+- (BOOL)setUserUnban;
 
 @end
