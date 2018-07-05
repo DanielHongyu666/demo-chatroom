@@ -33,7 +33,7 @@ import io.rong.imlib.model.UserInfo;
 public class DataInterface {
 
     /*appkey   需要改成开发者自己的appKey*/
-    public static String appKey = "tdrvipkstfsu5";
+    public static String appKey = "e5t4ouvptkm2a";
 
     public static final int Avatar_1 = R.drawable.avatar_1;
     public static final int Avatar_2 = R.drawable.avatar_2;
