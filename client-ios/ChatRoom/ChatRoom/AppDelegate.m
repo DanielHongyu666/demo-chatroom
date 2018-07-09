@@ -23,7 +23,7 @@
 #import "RCChatroomUserUnBlock.h"
 #import "RCChatroomNotification.h"
 
-#define APPKEY @"tdrvipkstfsu5"
+#define APPKEY @"e5t4ouvptkm2a"
 @interface AppDelegate ()
 
 @end
