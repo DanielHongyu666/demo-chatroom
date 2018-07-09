@@ -25,7 +25,16 @@ public class BottomPanelFragment extends Fragment {
     private ImageView btnGift;
     private ImageView btnHeart;
     private ImageView btnBarrage;
+    private BanListener banListener;
 
+
+    public interface BanListener {
+        void addBanWarn();
+    }
+
+    public void setBanListener(BanListener banListener) {
+        this.banListener = banListener;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,7 +50,7 @@ public class BottomPanelFragment extends Fragment {
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isLogin()) {
+                if (isLoginAndCanInput()) {
                     inputPanel.setVisibility(View.VISIBLE);
                     inputPanel.setType(InputPanel.TYPE_TEXTMESSAGE);
                 }
@@ -51,7 +60,7 @@ public class BottomPanelFragment extends Fragment {
         btnBarrage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isLogin()) {
+                if (isLoginAndCanInput()) {
                     inputPanel.setVisibility(View.VISIBLE);
                     inputPanel.setType(InputPanel.TYPE_BARRAGE);
                 }
@@ -71,6 +80,21 @@ public class BottomPanelFragment extends Fragment {
 
     public boolean isLogin() {
         if (DataInterface.isLoginStatus()) {
+            return true;
+        } else {
+            EventBus.getDefault().post(new NeedLoginEvent(true));
+            return false;
+        }
+    }
+
+    public boolean isLoginAndCanInput() {
+        if (DataInterface.isLoginStatus()) {
+            if (DataInterface.isBanStatus()) {
+                if (banListener != null) {
+                    banListener.addBanWarn();
+                }
+                return false;
+            }
             return true;
         } else {
             EventBus.getDefault().post(new NeedLoginEvent(true));

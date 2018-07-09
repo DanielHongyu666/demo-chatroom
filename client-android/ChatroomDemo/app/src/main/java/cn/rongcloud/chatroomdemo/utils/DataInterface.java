@@ -33,7 +33,7 @@ import io.rong.imlib.model.UserInfo;
 public class DataInterface {
 
     /*appkey   需要改成开发者自己的appKey*/
-    public static String appKey = "tdrvipkstfsu5";
+    public static String appKey = "e5t4ouvptkm2a";
 
     public static final int Avatar_1 = R.drawable.avatar_1;
     public static final int Avatar_2 = R.drawable.avatar_2;
@@ -57,6 +57,16 @@ public class DataInterface {
         DataInterface.loginStatus = loginStatus;
     }
 
+    /*是否禁言*/
+    private static boolean banStatus = false;
+
+    public static boolean isBanStatus() {
+        return banStatus;
+    }
+
+    public static void setBanStatus(boolean banStatus) {
+        DataInterface.banStatus = banStatus;
+    }
 
     static private ArrayList<UserInfo> userInfoList;
     static private ArrayList<UserMode> userModes;

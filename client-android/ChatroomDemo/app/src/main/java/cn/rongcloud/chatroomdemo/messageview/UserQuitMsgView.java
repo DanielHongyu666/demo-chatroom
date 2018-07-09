@@ -30,7 +30,13 @@ public class UserQuitMsgView extends BaseMsgView {
 
     @Override
     public void setContent(MessageContent msgContent, String senderUserId) {
-        username.setText(DataInterface.getUserInfo(senderUserId).getName() + "  ");
+        String name = "";
+        if (DataInterface.getUserInfo(senderUserId) != null) {
+            name = DataInterface.getUserInfo(senderUserId).getName();
+        } else {
+            name = senderUserId;
+        }
+        username.setText(name + "  ");
         msgText.setText("离开了直播间");
 
     }

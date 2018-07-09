@@ -1,9 +1,11 @@
 package cn.rongcloud.chatroomdemo.ui.activity;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,9 +27,9 @@ import java.util.Random;
 
 import cn.rongcloud.chatroomdemo.ChatroomKit;
 import cn.rongcloud.chatroomdemo.R;
+import cn.rongcloud.chatroomdemo.model.BanWarnMessage;
 import cn.rongcloud.chatroomdemo.model.HostInfo;
 import cn.rongcloud.chatroomdemo.model.NeedLoginEvent;
-import cn.rongcloud.chatroomdemo.ui.panel.CircleImageView;
 import cn.rongcloud.chatroomdemo.ui.adapter.ChatListAdapter;
 import cn.rongcloud.chatroomdemo.ui.adapter.MemberAdapter;
 import cn.rongcloud.chatroomdemo.ui.danmu.DanmuAdapter;
@@ -36,6 +38,7 @@ import cn.rongcloud.chatroomdemo.ui.gift.GiftSendModel;
 import cn.rongcloud.chatroomdemo.ui.gift.GiftView;
 import cn.rongcloud.chatroomdemo.ui.like.HeartLayout;
 import cn.rongcloud.chatroomdemo.ui.panel.BottomPanelFragment;
+import cn.rongcloud.chatroomdemo.ui.panel.CircleImageView;
 import cn.rongcloud.chatroomdemo.ui.panel.HorizontalListView;
 import cn.rongcloud.chatroomdemo.ui.panel.HostPanel;
 import cn.rongcloud.chatroomdemo.ui.panel.InputPanel;
@@ -43,13 +46,17 @@ import cn.rongcloud.chatroomdemo.ui.panel.LoginPanel;
 import cn.rongcloud.chatroomdemo.ui.panel.OnlineUserPanel;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ChatroomBarrage;
 import io.rong.message.ChatroomFollow;
 import io.rong.message.ChatroomGift;
 import io.rong.message.ChatroomLike;
+import io.rong.message.ChatroomUserBan;
+import io.rong.message.ChatroomUserBlock;
 import io.rong.message.ChatroomUserQuit;
+import io.rong.message.ChatroomUserUnBan;
 import io.rong.message.ChatroomWelcome;
 import io.rong.message.TextMessage;
 
@@ -80,10 +87,10 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
     private String roomId;
     //  private KSYMediaPlayer ksyMediaPlayer;
     private SurfaceHolder surfaceHolder;
-    private int onlineNum = 500;
-    private int fansNum = 100;
-    private int likeNum = 100;
-    private int giftNum = 100;
+    private int onlineNum = 0;
+    private int fansNum = 0;
+    private int likeNum = 0;
+    private int giftNum = 0;
 
     private DanmuContainerView danmuContainerView;
     private GiftView giftView;
@@ -97,6 +104,7 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         EventBus.getDefault().register(this);
         ChatroomKit.addEventHandler(handler);
         DataInterface.setLoginStatus(false);
+        DataInterface.setBanStatus(false);
         roomId = getIntent().getStringExtra("liveid");
         initView();
         startLiveShow();
@@ -146,6 +154,14 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         bottomPanel.setInputPanelListener(new InputPanel.InputPanelListener() {
             @Override
             public void onSendClick(String text, int type) {
+                if (DataInterface.isBanStatus()) {
+                    BanWarnMessage banWarnMessage = new BanWarnMessage();
+                    Message message = Message.obtain(ChatroomKit.getCurrentUser().getUserId(), Conversation.ConversationType.CHATROOM, banWarnMessage);
+                    chatListAdapter.addMessage(message);
+                    chatListAdapter.notifyDataSetChanged();
+                    return;
+                }
+
 
                 if (type == InputPanel.TYPE_TEXTMESSAGE) {
                     final TextMessage content = TextMessage.obtain(text);
@@ -156,6 +172,16 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                     ChatroomKit.sendMessage(barrage);
                 }
 
+            }
+        });
+
+        bottomPanel.setBanListener(new BottomPanelFragment.BanListener() {
+            @Override
+            public void addBanWarn() {
+                BanWarnMessage banWarnMessage = new BanWarnMessage();
+                Message message = Message.obtain(ChatroomKit.getCurrentUser().getUserId(), Conversation.ConversationType.CHATROOM, banWarnMessage);
+                chatListAdapter.addMessage(message);
+                chatListAdapter.notifyDataSetChanged();
             }
         });
 
@@ -237,6 +263,21 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                 }
             }
         }, 500);
+    }
+
+    long banStartTime = 0;
+
+    public void startBan(final long thisBanStartTime, long duration) {
+        DataInterface.setBanStatus(true);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (banStartTime == thisBanStartTime) {
+                    DataInterface.setBanStatus(false);
+                }
+            }
+        }, duration * 1000 * 60);
     }
 
     @Override
@@ -336,6 +377,25 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                                     heartLayout.addHeart(rgb);
                                 }
                             });
+                        }
+                    } else if (messageContent instanceof ChatroomUserBan) {
+                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBan) messageContent).getId())) {
+                            banStartTime = System.currentTimeMillis();
+                            startBan(banStartTime, ((ChatroomUserBan) messageContent).getDuration());
+                        }
+                    } else if (messageContent instanceof ChatroomUserUnBan) {
+                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserUnBan) messageContent).getId())) {
+                            DataInterface.setBanStatus(false);
+                        }
+                    } else if (messageContent instanceof ChatroomUserBlock) {
+                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBlock) messageContent).getId())) {
+                            new AlertDialog.Builder(LiveShowActivity.this).setTitle("已被管理员禁封").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    finish();
+                                }
+                            }).setCancelable(false).show();
+
                         }
                     }
                 }
