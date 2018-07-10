@@ -1,0 +1,10 @@
+<div class="user-box">
+    <div class="user-content" v-for="user, index in onlineUsers">
+        <i class="user-portrait" :style="'background-image: url(' + user.portrait + ')'">
+        </i>
+        <div class="user-desc user-online-desc" @click="showBlockPanel(index)">
+            <span class="user-name">{{user.name}}</span>
+        </div>
+        <component v-if="user.isShowBlockPanel" is="blockPanel" :hide="hidePanel" :user="user"></component>
+    </div>
+</div>

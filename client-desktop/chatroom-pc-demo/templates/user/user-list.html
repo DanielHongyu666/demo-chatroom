@@ -1,0 +1,8 @@
+<div class="user-list">
+    <div class="rong-tab">
+        <li v-for="tab in TabList" :class="{ 'rong-tab-sel': selectedType === tab.type }" @click="switchUserTab(tab.type)">
+            {{tab.name}}
+        </li>
+    </div>
+    <component :is="selectedComponent" :blockType="selectedType" class=""></component>
+</div>

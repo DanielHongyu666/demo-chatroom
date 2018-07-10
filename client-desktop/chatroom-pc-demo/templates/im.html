@@ -1,0 +1,13 @@
+<div class="rong-titlebar" v-if="platform !== 'web'">
+    <div class="rong-titlebar-logo" :class="'rong-titlebar-logo-' + platform"></div>
+    <div class="rong-titlebar-buttons">
+        <template v-if="platform === 'win32'">
+            <a @click.prevent="min" class="rong-titlebar-min" href="" title="最小化"></a>
+            <a @click.prevent="restore" v-if="isMaxWindow" class="rong-titlebar-restore" href="" title="还原"></a>
+            <a @click.prevent="max" v-else class="rong-titlebar-max" href="" title="最大化"></a>
+            <a @click.prevent="close" class="rong-titlebar-close" href="" title="关闭"></a>
+        </template>
+    </div>
+</div>
+<!-- 自动路由, login 或  -->
+<router-view></router-view>

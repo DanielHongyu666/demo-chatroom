@@ -1,0 +1,11 @@
+<div class="user-box ban-list">
+    <div class="user-content" v-for="user in blockUsers">
+        <i class="user-portrait" :style="'background-image: url(' + user.portrait + ')'">
+        </i>
+        <div class="user-desc">
+            <p class="user-name">{{user.name}}</p>
+            <p class="user-untime">{{getReleaseTime(user)}} 解禁</p>
+            <button class="user-un-btn" @click="unBlock(user)">立即解禁</button>
+        </div>
+    </div>
+</div>

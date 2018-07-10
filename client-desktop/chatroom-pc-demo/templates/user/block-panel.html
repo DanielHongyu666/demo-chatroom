@@ -1,0 +1,27 @@
+<div class="block-panel" :class="{ 'block-time-panel': blockType }">
+    <template v-if="!blockType">
+        <div class="block-panel-content">
+            <i class="block-panel-icon"></i>
+            <p @click="selectBlock()">实施封禁</p>
+        </div>
+        <div class="block-panel-content">
+            <i class="block-panel-ban-icon"></i>
+            <p @click="selectBan()">实施禁言</p>
+        </div>
+    </template>
+    <template v-else>
+        <p class="block-time-title">
+            设置{{blockTitle}}时长
+        </p>
+        <div class="block-time-select">
+            <select name="" id="" v-model="selectTime">
+                <option v-for="time in blockTimeList" :value="time">{{time}}</option>
+            </select>
+            <span>分钟</span>
+        </div>
+        <div class="block-time-opt">
+            <button class="block-time-confirm" @click="block()">确定</button>
+            <button class="block-time-cancel" @click="hide()">取消</button>
+        </div>
+    </template>
+</div>

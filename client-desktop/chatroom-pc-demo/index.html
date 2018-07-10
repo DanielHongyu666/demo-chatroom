@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <title>直播聊天室 Demo</title>
+    
+    <!-- 设置项引入, 包含假数据 -->
+    <script src="mock/user.js"></script>
+    <script src="mock/anchor.js"></script>
+    <script src="mock/chatroom.js"></script>
+    <script src="setting.js"></script>
+    <script src="config.js"></script>
+    
+    <!-- 暴露 桌面版 中的方法 -->
+    <script src='js/web.js'></script>
+
+    <!-- 样式 -->
+    <link rel="stylesheet" href="css/chatroom.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/user.css">
+    <link rel="stylesheet" href="css/live.css">
+    <link rel="stylesheet" href="css/chat.css">
+
+    <!-- lib -->
+    <script src="lib/jquery-3.1.1.js"></script>
+    <script src="lib/vue-2.3.3.js"></script>
+    <script src="lib/vue-router-2.1.1.js"></script>
+    <script src="lib/RongIMLib-2.3.2.js"></script>
+    <script src="lib/RongEmoji-2.2.6.js"></script>
+    <script src="lib/message-types.js"></script>
+
+    <!-- 工具方法 -->
+    <script src="js/utils.js"></script>
+    <!-- api 再封装, 数据处理 -->
+    <script src="js/datamodel.js"></script>
+
+    <!-- 所有 Vue 组件 -->
+    <script src="js/chatroom.js"></script>
+    <script src="js/login/login.js"></script>
+
+    <script src="js/user/user-list.js"></script>
+    <script src="js/user/user-online.js"></script>
+    <script src="js/user/user-block.js"></script>
+    <script src="js/user/block-panel.js"></script>
+
+    <script src="js/live/live.js"></script>
+    <script src="js/live/live-anchor.js"></script>
+    <script src="js/live/live-video.js"></script>
+    <script src="js/live/live-operate.js"></script>
+    <script src="js/live/like.js"></script>
+    <script src="js/live/gift.js"></script>
+
+    <script src="js/chat/chat.js"></script>
+    <script src="js/chat/message.js"></script>
+    <script src="js/chat/message-list.js"></script>
+    <script src="js/chat/message-input.js"></script>
+    <script src="js/chat/gift.js"></script>
+    <script src="js/chat/gift-detail.js"></script>
+    <script src="js/chat/emoji-panel.js"></script>
+
+    <script src="js/message/room-welcome.js"></script>
+    <script src="js/message/room-quit.js"></script>
+    <script src="js/message/text.js"></script>
+    <script src="js/message/like.js"></script>
+    <script src="js/message/follow.js"></script>
+    <script src="js/message/ban.js"></script>
+    <script src="js/message/un-ban.js"></script>
+    <script src="js/message/block.js"></script>
+    <script src="js/message/un-block.js"></script>
+    <script src="js/message/start-live.js"></script>
+    <script src="js/message/end-live.js"></script>
+
+    <!-- 路由设置 -->
+    <script src="js/routes.js"></script>
+    <script src="js/im.js"></script>
+    
+</head>
+<body>
+    <!-- vue 页面 -->
+    <div id="im" class="rong-chat" @click="$emit('imclick', $event)">
+        <div class="rong-titlebar" v-if="platform !== 'web'">
+            <div class="rong-titlebar-logo" :class="'rong-titlebar-logo-' + platform"></div>
+            <div class="rong-titlebar-buttons">
+                <template v-if="platform === 'win32'">
+                    <a @click.prevent="min" class="rong-titlebar-min" href="" title="最小化"></a>
+                    <a @click.prevent="restore" v-if="isMaxWindow" class="rong-titlebar-restore" href="" title="还原"></a>
+                    <a @click.prevent="max" v-else class="rong-titlebar-max" href="" title="最大化"></a>
+                    <a @click.prevent="close" class="rong-titlebar-close" href="" title="关闭"></a>
+                </template>
+            </div>
+        </div>
+        <!-- 自动路由, login 或  -->
+        <router-view></router-view>
+    </div>
+</body>
+
+<script>
+    var config = $.extend({}, RongIM.config, {
+        el: '#im'
+    });
+    RongIMLib.RongIMEmoji.init({
+        size: 22,
+        url: './img/emoji-48.png'
+    });
+    RongIM.init(config);
+</script>
+</html>

@@ -1,0 +1,3 @@
+<div class="emoji-panel">
+    <span class="emoji-content" v-for="item in emojiList" :title="item.symbol" v-html="getNodeHtml(item.node)" @click="setEmoji(item.emoji)"></span>
+</div>

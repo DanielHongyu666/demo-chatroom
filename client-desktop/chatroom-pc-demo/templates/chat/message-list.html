@@ -1,0 +1,8 @@
+<div class="message-list">
+    <div v-for="message in filterMessageList" class="message-box">
+        <div class="message-item">
+            <component :is="message.messageType" :message="message""></component>
+        </div>
+    </div>
+    <div id="rong-message-bottom"></div>
+</div>

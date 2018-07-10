@@ -1,0 +1,9 @@
+<div class="chat-list">
+    <div class="rong-tab rong-chat-tab">
+        <li v-for="tab in TabList" :class="{ 'rong-tab-sel': selectedType === tab.type }" @click="switchTab(tab.type)">
+            <i class="rong-tab-icon" :class="'rong-tab-icon-' + tab.type"></i>
+            {{tab.name}}
+        </li>
+    </div>
+    <component :is="selectedComponent" class=""></component>
+</div>

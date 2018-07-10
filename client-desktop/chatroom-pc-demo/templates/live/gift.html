@@ -1,0 +1,9 @@
+<div class="live-gift" v-if="isShow">
+    <div class="live-user-icon" :style="'background-image: url(' + user.portrait + ')'"></div>
+    <div class="live-user-detail">
+        <p class="live-user-name">{{user.name}}:</p>
+        <p>
+            <i class="gift-icon" :style="'background-image: url(./img/gift/' + gift.icon + ')'"></i> <span>{{gift.name}} x{{gift.number}}</span>
+        </p>
+    </div>
+</div>

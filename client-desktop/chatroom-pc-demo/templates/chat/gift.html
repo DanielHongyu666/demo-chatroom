@@ -1,0 +1,11 @@
+<div class="chat-box">
+    <div class="gift-content" v-for="gift, index in giftList">
+        <span class="gift-rank">{{index + 1}}</span>
+        <i class="gift-portrait" :style="'background-image: url(' + gift.user.portrait + ');'"></i>
+        <span class="gift-user-name">{{gift.user.name}}</span>
+        <span class="gift-send">
+            发送礼物<span class="gift-count" @click="showGiftPanel(gift)">{{gift.number}}</span>个
+        </span>
+        <component v-if="gift.isShowPanel" is="giftDetail" :gift="gift"></component>
+    </div>
+</div>

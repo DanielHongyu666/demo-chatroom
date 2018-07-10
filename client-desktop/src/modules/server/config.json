@@ -1,0 +1,5 @@
+{
+  "port": "6080",
+  "root": "../../../chatroom-pc-demo",
+  "open": true
+}

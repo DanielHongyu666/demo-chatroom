@@ -1,0 +1,22 @@
+<div class="rong-login">
+    <!-- 登录页圆形背景 -->
+    <div class="rong-log-bg-left"></div>
+    <div class="rong-log-bg-right">
+        <div class="rong-log-bg-inr">
+            <div class="rong-log-bg-inr">
+                <div class="rong-log-bg-tri"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录页主播列表 -->
+    <div class="rong-login-box">
+        <p class="rong-login-title">融云直播聊天室主播端, 选择主播进入聊天室</p>
+        <div class="rong-login-list">
+            <div class="rong-login-user" v-for="chat, index in chatroomList" @click="login(chat, index+1)">
+                <div class="rong-user-port" :style="getPortraitStyle(chat)"></div>
+                <p class="rong-user-name">{{chat.name}}</p>
+            </div>
+        </div>
+    </div>
+</div>

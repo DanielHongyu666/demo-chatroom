@@ -1,0 +1,10 @@
+<div class="message-input">
+    <textarea v-model="content" cols="30" rows="10" maxlength="100" placeholder="输入文字内容" @keydown="enter($event)"></textarea>
+    <div class="input-send">
+        <a href="" @click.prevent="showEmojiPanel()"></a>
+        <button @click.prevent="sendText()" :disabled="!content">
+            发 送
+        </button>
+        <component v-if="isShowEmojiPanel" is="emojiPanel" :setEmoji="setEmoji" :hide="hideEmojiPanel"></component>
+    </div>
+</div>
