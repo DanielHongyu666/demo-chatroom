@@ -264,7 +264,7 @@ static int clickPraiseBtnTimes  = 0 ;
 //        __weak __typeof(&*self)weakSelf = self;
         [[RCIMClient sharedRCIMClient]
          joinChatRoom:self.targetId
-         messageCount:-1
+         messageCount:10
          success:^{
              dispatch_async(dispatch_get_main_queue(), ^{
                  
@@ -1003,6 +1003,7 @@ static int clickPraiseBtnTimes  = 0 ;
     imageView.backgroundColor = [UIColor clearColor];
     imageView.clipsToBounds = YES;
     [self.view addSubview:imageView];
+    [self.view insertSubview:imageView atIndex:1];
     //  随机数来决定动画过程
     CGFloat startX = round(random() % 200);
     CGFloat scale = round(random() % 2) + 1.0;
