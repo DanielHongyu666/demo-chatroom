@@ -385,7 +385,8 @@ static int clickPraiseBtnTimes  = 0 ;
         [messageContent isMemberOfClass:[RCChatroomUserBlock class]] ||
         [messageContent isMemberOfClass:[RCChatroomUserUnBlock class]] ||
         [messageContent isMemberOfClass:[RCChatroomNotification class]] ||
-        [messageContent isMemberOfClass:[RCChatroomEnd class]]){
+        [messageContent isMemberOfClass:[RCChatroomEnd class]] ||
+        [messageContent isMemberOfClass:[RCChatroomUserQuit class]]){
         RCCRTextMessageCell *__cell = nil;
         NSString *indentifier = nil;
         if ([messageContent isMemberOfClass:[RCChatroomStart class]] ||
@@ -603,9 +604,6 @@ static int clickPraiseBtnTimes  = 0 ;
                     RCCRLiveModel *hostModel = __blockSelf.hostInformationView.hostModel;
                     hostModel.fansAmount++;
                     [self.hostInformationView setDataModel:hostModel];
-                } else if ([rcMessage.content isMemberOfClass:[RCChatroomUserQuit class]]) {
-                    //  退出聊天室消息直接过滤
-                    return;
                 } else if ([rcMessage.content isMemberOfClass:[RCChatroomUserBlock class]]) {
                     RCChatroomUserBlock *blockMessage = (RCChatroomUserBlock*)rcMessage.content;
                     if ([blockMessage.id isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId]) {

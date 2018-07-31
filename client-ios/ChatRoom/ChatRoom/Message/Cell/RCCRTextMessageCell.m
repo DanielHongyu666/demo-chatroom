@@ -10,6 +10,7 @@
 #import <RongIMLib/RongIMLib.h>
 #import "RCCRManager.h"
 #import "RCChatroomWelcome.h"
+#import "RCChatroomUserQuit.h"
 #import "RCChatroomFollow.h"
 #import "RCChatroomLike.h"
 #import "RCChatroomStart.h"
@@ -56,6 +57,17 @@ alpha:1.0]
         RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
         NSString *userName = userInfo.name;
         NSString *localizedMessage = @"进入直播间";
+        NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
+        
+        [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
+        [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0xffffff)) range:[str rangeOfString:localizedMessage]];
+        [self.textLabel setAttributedText:attributedString.copy];
+        return;
+    } else if ([model.content isMemberOfClass:[RCChatroomUserQuit class]]) {
+        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
+        NSString *userName = userInfo.name;
+        NSString *localizedMessage = @"退出直播间";
         NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
         
