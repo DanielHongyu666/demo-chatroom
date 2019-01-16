@@ -40,3 +40,9 @@ push/.externalNativeBuild
 *.so
 doc/internal/sdk/_book/
 
+
+## desktop
+client-desktop/node_modules/
+client-desktop/package-lock.json
+client-desktop/undefined/
+
