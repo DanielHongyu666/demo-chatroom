@@ -45,4 +45,5 @@ doc/internal/sdk/_book/
 client-desktop/node_modules/
 client-desktop/package-lock.json
 client-desktop/undefined/
+client-desktop/src/modules/ronglib/navi-conf.json
 
