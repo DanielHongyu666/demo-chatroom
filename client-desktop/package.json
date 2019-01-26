@@ -7,7 +7,7 @@
   "license": "MIT",
   "package": {
     "runtime": "electron",
-    "runtimeVersion": "1.4.15"
+    "runtimeVersion": "1.8.8"
   },
   "scripts": {
     "start": "electron .",
@@ -34,7 +34,7 @@
     "IM"
   ],
   "devDependencies": {
-    "electron": "=1.4.15",
+    "electron": "=1.8.8",
     "electron-builder": "^2.6.0",
     "electron-log": "^1.2.2",
     "electron-packager": "^8.3.0",

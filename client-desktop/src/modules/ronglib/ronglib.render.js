@@ -4,6 +4,7 @@ const {
 const path = require('path');
 const config = require('../../config');
 const Navi = require('./navi');
+const rongSDKVersion = '2.9.3';
 
 let imsdk = null;
 try {
@@ -110,7 +111,7 @@ class IMLib {
           case 32061:
             getNavi().then((navi) => {
               let options = Cache.options;
-              imsdk.connectWithToken(options.token, navi.userId, navi.serverList, !!navi.openMp, !!navi.openMp);
+              imsdk.connectWithToken(options.token, navi.userId, navi.serverList, rongSDKVersion, !!navi.openMp, !!navi.openMp);
             }, (error) => {
               handlerError(error);
             });
@@ -135,7 +136,7 @@ class IMLib {
       options.token = token;
       options.userId = userId;
       getNavi().then((navi) => {
-        imsdk.connectWithToken(token, navi.userId, navi.serverList, !!navi.openMp, !!navi.openMp);
+        imsdk.connectWithToken(token, navi.userId, navi.serverList, rongSDKVersion, !!navi.openMp, !!navi.openMp);
       }, (error) => {
         handlerError(error);
       });
@@ -467,7 +468,7 @@ class IMLib {
     }
   }
   static setServerInfo(info) {
-    if (imsdk) {
+    if (imsdk && imsdk.setServerInfo) {
       return imsdk.setServerInfo(info);
     }
   }
