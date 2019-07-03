@@ -93,6 +93,8 @@
 		6EC4E24F20B565C200EB0F76 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4E24B20B565C200EB0F76 /* MBProgressHUD.m */; };
 		98120CD020E250EB00B0AA7B /* RCChatroomNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 98120CCF20E250EB00B0AA7B /* RCChatroomNotification.m */; };
 		98A739CC20EA092B008942CE /* anchors.json in Resources */ = {isa = PBXBuildFile; fileRef = 98A739CB20EA092B008942CE /* anchors.json */; };
+		9BF6A89E22CC9C520059F2D8 /* libopencore-amrwb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BF6A89C22CC9C510059F2D8 /* libopencore-amrwb.a */; };
+		9BF6A89F22CC9C520059F2D8 /* libvo-amrwbenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BF6A89D22CC9C520059F2D8 /* libvo-amrwbenc.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -256,6 +258,8 @@
 		98120CCE20E250EB00B0AA7B /* RCChatroomNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCChatroomNotification.h; sourceTree = "<group>"; };
 		98120CCF20E250EB00B0AA7B /* RCChatroomNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCChatroomNotification.m; sourceTree = "<group>"; };
 		98A739CB20EA092B008942CE /* anchors.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = anchors.json; sourceTree = "<group>"; };
+		9BF6A89C22CC9C510059F2D8 /* libopencore-amrwb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopencore-amrwb.a"; path = "Framework/libopencore-amrwb.a"; sourceTree = "<group>"; };
+		9BF6A89D22CC9C520059F2D8 /* libvo-amrwbenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libvo-amrwbenc.a"; path = "Framework/libvo-amrwbenc.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,6 +267,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BF6A89E22CC9C520059F2D8 /* libopencore-amrwb.a in Frameworks */,
+				9BF6A89F22CC9C520059F2D8 /* libvo-amrwbenc.a in Frameworks */,
 				6E2F984320A2A2A700B073FD /* SafariServices.framework in Frameworks */,
 				6E2F984120A2A2A000B073FD /* Photos.framework in Frameworks */,
 				6E2F983F20A2A29500B073FD /* UIKit.framework in Frameworks */,
@@ -411,6 +417,8 @@
 		6E2F981320A2A17700B073FD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9BF6A89C22CC9C510059F2D8 /* libopencore-amrwb.a */,
+				9BF6A89D22CC9C520059F2D8 /* libvo-amrwbenc.a */,
 				6E11A93720BD42B0006181BD /* MediaPlayer.framework */,
 				6E11A93520BD4254006181BD /* libbz2.tbd */,
 				6E11A93320BD422F006181BD /* libstdc++.6.tbd */,

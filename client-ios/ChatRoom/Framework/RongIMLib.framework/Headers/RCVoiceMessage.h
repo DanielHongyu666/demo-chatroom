@@ -37,7 +37,7 @@
 /*!
  语音消息的附加信息
  */
-@property(nonatomic, strong) NSString *extra;
+@property(nonatomic, copy) NSString *extra;
 
 /*!
  初始化语音消息
@@ -58,7 +58,7 @@
                             AVLinearPCMBitDepthKey: @16,
                             AVLinearPCMIsNonInterleaved: @NO,
                             AVLinearPCMIsFloatKey: @NO,
-                            AVLinearPC'MIsBigEndianKey: @NO};
+                            AVLinearPCMIsBigEndianKey: @NO};
  */
 + (instancetype)messageWithAudio:(NSData *)audioData duration:(long)duration;
 

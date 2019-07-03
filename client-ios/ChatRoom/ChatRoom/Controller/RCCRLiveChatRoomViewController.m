@@ -355,6 +355,14 @@ static int clickPraiseBtnTimes  = 0 ;
     }
 }
 
+- (float)getIPhonexExtraBottomHeight {
+    float height = 0;
+    if (@available(iOS 11.0, *)) {
+        height = [[[UIApplication sharedApplication] keyWindow] safeAreaInsets].bottom;
+    }
+    return height;
+}
+
 #pragma mark <UIScrollViewDelegate,UICollectionViewDataSource>
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
@@ -1210,8 +1218,13 @@ static int clickPraiseBtnTimes  = 0 ;
     
     CGSize size = self.view.bounds.size;
 //    CGRect bounds = self.view.bounds;
-    CGFloat topExtraDistance = ISX ? 44 : 20;
-    CGFloat bottomExtraDistance = ISX ? 34 : 0;
+    
+    
+    CGFloat topExtraDistance = [UIApplication sharedApplication].statusBarFrame.size.height;
+    CGFloat bottomExtraDistance  = 0;
+    if (@available(iOS 11.0, *)) {
+        bottomExtraDistance = [self getIPhonexExtraBottomHeight];
+    }
 
     //  这里默认使用了一张背景图，你可以将live设置为你的播放器
     [self.view addSubview:self.liveView];
@@ -1266,7 +1279,8 @@ static int clickPraiseBtnTimes  = 0 ;
     [_messageContentView setFrame:CGRectMake(0, size.height - 237 - bottomExtraDistance, size.width, 237)];
     
     [_messageContentView addSubview:self.conversationMessageCollectionView];
-    [_conversationMessageCollectionView setFrame:CGRectMake(0, 0, 300, 237 - 50)];
+    CGFloat distance = [self getIPhonexExtraBottomHeight] > 0 ? 70 : 50;
+    [_conversationMessageCollectionView setFrame:CGRectMake(0, 0, 300, 237 - distance)];
     UICollectionViewFlowLayout *customFlowLayout = [[UICollectionViewFlowLayout alloc] init];
     customFlowLayout.minimumLineSpacing = 2;
     customFlowLayout.sectionInset = UIEdgeInsetsMake(10.0f, 0.0f,5.0f, 0.0f);
@@ -1301,12 +1315,12 @@ static int clickPraiseBtnTimes  = 0 ;
     
     //  底部隐藏控件
     [self.view addSubview:self.hostInformationView];
-    [_hostInformationView setFrame:CGRectMake(10, size.height, size.width - 20, ISX ? 234 : 200)];
+    [_hostInformationView setFrame:CGRectMake(10, size.height, size.width - 20, [self getIPhonexExtraBottomHeight] > 0 ? 234 : 200)];
     [_hostInformationView setBackgroundColor:[UIColor blackColor]];
     [_hostInformationView setHidden:YES];
     
     [self.view addSubview:self.audienceListView];
-    [_audienceListView setFrame:CGRectMake(10, size.height, size.width - 20, ISX ? 334 : 300)];
+    [_audienceListView setFrame:CGRectMake(10, size.height, size.width - 20, [self getIPhonexExtraBottomHeight] > 0 ? 334 : 300)];
     [_audienceListView setBackgroundColor:[UIColor blackColor]];
     [_audienceListView setHidden:YES];
     
@@ -1316,7 +1330,7 @@ static int clickPraiseBtnTimes  = 0 ;
     [_loginView setHidden:YES];
     
     [self.view addSubview:self.giftListView];
-    [_giftListView setFrame:CGRectMake(10, size.height, size.width - 20, ISX ? 274 : 240)];
+    [_giftListView setFrame:CGRectMake(10, size.height, size.width - 20, [self getIPhonexExtraBottomHeight] > 0 ? 274 : 240)];
 //    [_giftListView setBackgroundColor:[UIColor blackColor]];
     [_giftListView setHidden:YES];
     
