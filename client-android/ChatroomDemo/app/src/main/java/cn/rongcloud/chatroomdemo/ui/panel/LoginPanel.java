@@ -33,13 +33,16 @@ public class LoginPanel extends LinearLayout {
         btnLogin.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "已登录", Toast.LENGTH_SHORT).show();
-                layout.setVisibility(GONE);
-                DataInterface.setLoginStatus(true);
-
-                ChatroomWelcome welcomeMessage = new ChatroomWelcome();
-                welcomeMessage.setId(ChatroomKit.getCurrentUser().getUserId());
-                ChatroomKit.sendMessage(welcomeMessage);
+                if (ChatroomKit.getCurrentUser() != null) {
+                    Toast.makeText(getContext(), "已登录", Toast.LENGTH_SHORT).show();
+                    layout.setVisibility(GONE);
+                    DataInterface.setLoginStatus(true);
+                    ChatroomWelcome welcomeMessage = new ChatroomWelcome();
+                    welcomeMessage.setId(ChatroomKit.getCurrentUser().getUserId());
+                    ChatroomKit.sendMessage(welcomeMessage);
+                } else {
+                    Toast.makeText(getContext(), "网络异常", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
