@@ -1,13 +1,14 @@
 (function (RongIM, dependencies, components) {
 'use strict';
 var utils = RongIM.utils;
-var chatroomList = RongIM.config.chatroomList;
-var dataModel = RongIM.dataModel;
 var TabType = utils.BlockType;
 var TabList = [
     { name: '在线用户', type: TabType.Online },
     { name: '禁言用户', type: TabType.Ban },
     { name: '封禁用户', type: TabType.Block }
+];
+var AudienceTabList = [
+    { name: '在线用户', type: TabType.Online }
 ];
 
 components.getUserList = function(resolve, reject) {
@@ -20,8 +21,11 @@ components.getUserList = function(resolve, reject) {
             }
         },
         computed: {
+            isAudience: function () {
+                return RongIM.instance.isAudience;
+            },
             TabList: function() {
-                return TabList;
+                return this.isAudience ? AudienceTabList : TabList;
             },
             selectedComponent: function() {
                 return {

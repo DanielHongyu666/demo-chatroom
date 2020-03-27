@@ -13,17 +13,83 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="精彩直播"
-            android:textColor="#3A91F3"
+            android:textColor="@color/blink_black"
             android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/iv_refresh"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/refresh"
+            android:paddingRight="8dp"
+            android:paddingLeft="8dp"
+            android:scaleType="center"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
 
     </RelativeLayout>
 
-
-    <GridView
-        android:id="@+id/gridview_live"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:numColumns="2" />
+        android:layout_height="0.5dp"
+        android:background="@color/line"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="还没有直播间,可以创建一个属于您的直播"
+            android:textSize="18sp"
+            android:layout_centerInParent="true"
+            android:textColor="@color/blink_blue"
+            android:autoLink="all"
+            android:visibility="visible"/>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:layout_alignParentBottom="true"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/tv_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:text="v2.0.0"/>
+        </RelativeLayout>
+
+        <GridView
+            android:id="@+id/gridview_live"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_above="@id/rl_bottom"
+            android:numColumns="2" />
+
+        <ImageView
+            android:id="@+id/createroom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/create_room"
+            android:layout_above="@id/rl_bottom"
+            android:text="创建直播"/>
+
+
+
+    </RelativeLayout>
+
 
 
 </LinearLayout>

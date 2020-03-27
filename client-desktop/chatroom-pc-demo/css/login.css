@@ -2,38 +2,116 @@
   text-align: center;
   position: relative;
   height: 100%;
+  background: url('../img/background.png');
+  background-size: cover;
 }
 
 .rong-login-box {
+  width: 800px;
+  height: 438px;
+  padding-top: 86px;
+  margin: 0 auto;
   position: relative;
-  top: 46%;
-  -webkit-transform: translateY(-50%);
-      -ms-transform: translateY(-50%);
-          transform: translateY(-50%);
+  top: 50%; 
+  transform: translateY(-50%);
+  background: #FFFFFF;
+  box-shadow: 0 8px 20px 0 #4D66D3;
+  border-radius: 12px;
 }
+
 .rong-login-box .rong-login-title {
+  height: 80px;
+  line-height: 80px;
+  font-family: PingFangSC-Regular;
+  font-size: 20px;
+  color: #333333;
+  text-align: center;
+}
+
+.rong-login-box img {
+  vertical-align: top;
+  width: 260px;
+  height: 260px;
+  border-radius: 10px;
+  border: 1px solid #e2e0e0
+}
+
+.rong-box-info {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 30px;
+}
+.rong-login-version{
+  height: 40px;
+    line-height: 40px;
+    margin-top: 50px;
+    color: #929292;
+}
+.rong-login-box button {
+  width: 130px;
+  height: 36px;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 12px;
+  background: -webkit-gradient(linear, right top, left top, from(#0ca4ff), to(#52e4ff));
+  margin: 0 auto;
+  display: block;
+}
+
+.rong-login-box input {
+  height: 46px;
+  padding-left: 5px;
+  color: #a9a9a9;
+  border: 1px solid #B2B2B2;
+  border-radius: 24px;
+  width: 360px;
+  line-height: 46px;
+  padding: 0 20px;
+}
+
+/* .rong-login-create {
+  text-align: left;
+} */
+
+.rong-login-create span {
+  display: inline-block;
+  width: 90px;
   color: #8e929f;
-  margin-bottom: 50px;
+}
+
+.rong-login-tip {
+  height: 26px;
+  line-height: 26px;
+  width: 200px;
+  margin-left: 100px;
+  color: #c50909;
+  font-size: 12px;
 }
 
 .rong-login-list {
   margin: 0 10%;
+  max-height: 155px;
+  overflow: auto;
 }
+
 .rong-login-list .rong-login-user {
   display: inline-block;
   width: 140px;
   cursor: pointer;
   height: 150px;
   margin: 0 20px 20px 20px;
-  -webkit-box-shadow: 0 3px 7px rgba(51, 112, 240, 0.2);
-          box-shadow: 0 3px 7px rgba(51, 112, 240, 0.2);
+  box-shadow: 0 3px 7px rgba(51, 112, 240, 0.2);
   border-radius: 5px;
 }
+
 .rong-login-list .rong-login-user .rong-user-port {
   width: 100%;
   height: 104px;
   margin: 0;
+  background-size: cover;
 }
+
 .rong-login-list .rong-login-user .rong-user-name {
   width: 100%;
   height: 46px;
@@ -60,6 +138,7 @@
   border-radius: 50%;
   background-color: #ccebff;
 }
+
 .rong-log-bg-right .rong-log-bg-inr {
   position: absolute;
   right: 168px;
@@ -69,6 +148,7 @@
   border-radius: 50%;
   background-color: #e5f5ff;
 }
+
 .rong-log-bg-right .rong-log-bg-inr .rong-log-bg-inr {
   top: 38px;
   right: 38px;
@@ -76,6 +156,7 @@
   height: 65px;
   background-color: white;
 }
+
 .rong-log-bg-right .rong-log-bg-inr .rong-log-bg-tri {
   position: absolute;
   background-image: url("../img/icon.svg");
@@ -85,9 +166,5 @@
   height: 24px;
   top: 54%;
   left: 47%;
-  -webkit-transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
-
-/*# sourceMappingURL=login.css.map */

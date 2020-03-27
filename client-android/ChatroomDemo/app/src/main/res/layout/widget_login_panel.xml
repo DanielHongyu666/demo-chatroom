@@ -1,27 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:background="#000"
+    android:layout_height="wrap_content"
     android:gravity="center"
+    android:background="#FFFFFF"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="登录后可发送消息"
-        android:textColor="#fff"
-        android:textSize="16sp" />
+        android:padding="8dp">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="观众登录"
+            android:textColor="@color/blink_black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_close"
+            android:padding="8dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/iv_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/avatar_1"/>
+
+        <EditText
+            android:id="@+id/ev_username"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@drawable/shape_corner_input_gray"
+            android:hint="请输入用户名称（1-10个字符）"
+            android:imeOptions="actionDone"
+            android:maxLength="10"
+            android:inputType="text"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="20dp"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textSize="14sp"
+            android:textColor="@color/blink_text_grey"
+            android:layout_toRightOf="@id/iv_header"
+            android:textColorHint="@color/blink_grey" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/line"/>
 
     <Button
         android:id="@+id/btn_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:paddingLeft="40dp"
         android:paddingRight="40dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/transparent"
+        android:enabled="false"
         android:text="登录"
-        android:textColor="#fff"
-        android:textSize="14sp" />
+        android:textStyle="bold"
+        android:textColor="@color/blink_black"
+        android:textSize="16sp" />
 
 </LinearLayout>

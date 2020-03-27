@@ -11,6 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import cn.rongcloud.chatroomdemo.R;
 import cn.rongcloud.chatroomdemo.model.NeedLoginEvent;
+import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
 
 
@@ -26,6 +27,18 @@ public class BottomPanelFragment extends Fragment {
     private ImageView btnHeart;
     private ImageView btnBarrage;
     private BanListener banListener;
+    private View mLlOptions;
+    private View mIvSetting;
+    private LayoutConfigDialog.ConfigChangeListener mConfigChangeListener;
+
+    private int mVideoWidth;
+    private int mVideoHeight;
+    private LayoutConfigDialog.ConfigParams mConfigParams;
+
+    public void setVideoFrameSize(int videoWidth, int videoHeight) {
+        mVideoHeight = videoHeight;
+        mVideoWidth = videoWidth;
+    }
 
 
     public interface BanListener {
@@ -46,6 +59,8 @@ public class BottomPanelFragment extends Fragment {
         btnGift = (ImageView) view.findViewById(R.id.btn_gift);
         btnHeart = (ImageView) view.findViewById(R.id.btn_heart);
         btnBarrage = (ImageView) view.findViewById(R.id.btn_barrage);
+        mLlOptions = view.findViewById(R.id.ll_options);
+        mIvSetting = view.findViewById(R.id.iv_setting);
 
         btnInput.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,11 +90,31 @@ public class BottomPanelFragment extends Fragment {
                 }
             }
         });
+
+        mIvSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mVideoHeight == 0 || mVideoWidth == 0)
+                    return;
+                LayoutConfigDialog.newInstance(mVideoWidth,mVideoHeight,mConfigParams)
+                        .setConfigChangeListener(new LayoutConfigDialog.ConfigChangeListener() {
+                            @Override
+                            public void onChange(LayoutConfigDialog.ConfigParams params) {
+                                mConfigParams = params;
+                                if (mConfigChangeListener != null){
+                                    mConfigChangeListener.onChange(params);
+                                }
+                            }
+                        })
+                        .show(getFragmentManager(),"LayoutConfigDialog");
+            }
+        });
+
         return view;
     }
 
     public boolean isLogin() {
-        if (DataInterface.isLoginStatus()) {
+        if (DataInterface.isLogin()) {
             return true;
         } else {
             EventBus.getDefault().post(new NeedLoginEvent(true));
@@ -88,7 +123,7 @@ public class BottomPanelFragment extends Fragment {
     }
 
     public boolean isLoginAndCanInput() {
-        if (DataInterface.isLoginStatus()) {
+        if (DataInterface.isLogin()) {
             if (DataInterface.isBanStatus()) {
                 if (banListener != null) {
                     banListener.addBanWarn();
@@ -100,6 +135,16 @@ public class BottomPanelFragment extends Fragment {
             EventBus.getDefault().post(new NeedLoginEvent(true));
             return false;
         }
+    }
+
+    public void setOptionViewIsDisplay(boolean isDisplay){
+//        if (mLlOptions != null) {
+//            btnGift.setVisibility(isDisplay ? View.VISIBLE : View.GONE);
+//            btnHeart.setVisibility(isDisplay ? View.VISIBLE : View.GONE);
+//            btnBarrage.setVisibility(!isDisplay ? View.VISIBLE : View.GONE);
+//        }
+        mLlOptions.setVisibility(isDisplay ? View.VISIBLE: View.INVISIBLE);
+        mIvSetting.setVisibility(isDisplay ? View.INVISIBLE : View.VISIBLE);
     }
 
 
@@ -116,6 +161,7 @@ public class BottomPanelFragment extends Fragment {
             inputPanel.setVisibility(View.GONE);
             giftPanel.setVisibility(View.GONE);
             buttonPanel.setVisibility(View.VISIBLE);
+            CommonUtils.hideInputMethod(getActivity(),inputPanel);
             return true;
         }
         return false;
@@ -126,4 +172,11 @@ public class BottomPanelFragment extends Fragment {
     }
 
 
+    public LayoutConfigDialog.ConfigChangeListener getConfigChangeListener() {
+        return mConfigChangeListener;
+    }
+
+    public void setConfigChangeListener(LayoutConfigDialog.ConfigChangeListener configChangeListener) {
+        mConfigChangeListener = configChangeListener;
+    }
 }

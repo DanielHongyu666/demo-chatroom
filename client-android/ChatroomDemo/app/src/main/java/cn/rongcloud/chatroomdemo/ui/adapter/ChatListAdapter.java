@@ -52,7 +52,7 @@ public class ChatListAdapter extends BaseAdapter {
                 throw new RuntimeException("baseMsgView newInstance failed.");
             }
         }
-        baseMsgView.setContent(message.getContent(), message.getSenderUserId());
+        baseMsgView.bindContent(message.getContent(), message.getSenderUserId());
 
 //        ViewHolder viewHolder = null;
 //        if (convertView == null) {

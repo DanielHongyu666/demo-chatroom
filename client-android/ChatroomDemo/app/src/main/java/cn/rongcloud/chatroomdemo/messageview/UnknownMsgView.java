@@ -14,6 +14,6 @@ public class UnknownMsgView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
     }
 }

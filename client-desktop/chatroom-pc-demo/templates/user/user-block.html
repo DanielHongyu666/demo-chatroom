@@ -1,6 +1,6 @@
 <div class="user-box ban-list">
     <div class="user-content" v-for="user in blockUsers">
-        <i class="user-portrait" :style="'background-image: url(' + user.portrait + ')'">
+        <i class="user-portrait" :style="'background-image: url(./img/avatar/avatar_' + (parseInt(user.portrait)+1) + '.png)'">
         </i>
         <div class="user-desc">
             <p class="user-name">{{user.name}}</p>

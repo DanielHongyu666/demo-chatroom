@@ -11,8 +11,8 @@ components.getChatBlockMessage = function(resolve, reject) {
         props: ['message'],
         computed: {
             blockUser: function() {
-                var userId = this.message.content.id;
-                return dataModel.User.getDetail(userId);
+                // var userId = this.message.content.id;
+                return this.message.content;
             }
         }
     };

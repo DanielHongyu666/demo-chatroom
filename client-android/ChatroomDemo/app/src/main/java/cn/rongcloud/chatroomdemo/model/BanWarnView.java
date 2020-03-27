@@ -23,7 +23,7 @@ public class BanWarnView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
         tvInfo.setText("系统消息  已被管理员禁言");
         tvInfo.setTextColor(getResources().getColor(R.color.red));
 

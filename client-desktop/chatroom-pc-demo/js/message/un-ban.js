@@ -11,8 +11,7 @@ components.getChatUnBanMessage = function(resolve, reject) {
         props: ['message'],
         computed: {
             banUser: function() {
-                var userId = this.message.content.id;
-                return dataModel.User.getDetail(userId);
+                return this.message.content;
             }
         }
     };

@@ -57,7 +57,7 @@ function setGiftList(context) {
         for (var userId in gift) {
             var userGift = gift[userId];
             list.push({
-                user: getUserDetail(userId),
+                user: userGift.user,
                 number: getUserGiftTotal(userGift),
                 isShowPanel: false
             });
@@ -70,15 +70,14 @@ function setGiftList(context) {
     });
 }
 
-function getUserDetail(userId) {
-    return dataModel.User.getDetail(userId);
-}
 
 function getUserGiftTotal(userGift) {
     var total = 0;
     for (var giftId in userGift) {
-        var gift = userGift[giftId];
-        total += gift.number;
+        if('user'!=giftId){
+            var gift = userGift[giftId];
+            total += gift.number;
+        }
     }
     return total;
 }

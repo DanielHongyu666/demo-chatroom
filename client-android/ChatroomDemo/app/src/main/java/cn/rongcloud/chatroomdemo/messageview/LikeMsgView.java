@@ -28,13 +28,8 @@ public class LikeMsgView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
-        String name = "";
-        if (DataInterface.getUserInfo(senderUserId) != null) {
-            name = DataInterface.getUserInfo(senderUserId).getName();
-        } else {
-            name = senderUserId;
-        }
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
+        String name = getSendUserName();
         username.setText(name + "  ");
         infoText.setText("给主播点了" + ((ChatroomLike) msgContent).getCounts() + "个赞");
 

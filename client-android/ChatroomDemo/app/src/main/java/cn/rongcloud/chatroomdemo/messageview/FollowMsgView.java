@@ -22,13 +22,8 @@ public class FollowMsgView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
-        String name = "";
-        if (DataInterface.getUserInfo(senderUserId) != null) {
-            name = DataInterface.getUserInfo(senderUserId).getName();
-        } else {
-            name = senderUserId;
-        }
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
+        String name = getSendUserName();
 
         username.setText(name + "  ");
         infoText.setText("关注了主播");

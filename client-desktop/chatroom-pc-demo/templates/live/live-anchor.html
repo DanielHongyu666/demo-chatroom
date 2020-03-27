@@ -1,9 +1,12 @@
 <div class="live-anchor">
-    <div class="anchor-portrait" :style="'background-image: url(' + anchor.portrait + ');'"></div>
+    <div class="anchor-portrait" :style="'background-image: url(./img/avatar/avatar_' + (parseInt(anchor.portrait)+1) + '.png);'"></div>
     <div class="anchor-detail">
         <p class="anchor-name">{{anchor.name}}</p>
-        <i class="anchor-attention-icon"></i><span>关注: </span><span>{{followList.length}}</span>
-        <i class="anchor-gift-icon"></i><span>礼物: </span><span>{{giftCount}}</span>
-        <i class="anchor-up-icon"></i><span>获赞: </span><span>{{likeCount}}</span>
+        <template v-if="!isAudience">
+            <i class="anchor-attention-icon"></i><span>关注: </span><span>{{followList.length}}</span>
+            <i class="anchor-gift-icon"></i><span>礼物: </span><span>{{giftCount}}</span>
+            <i class="anchor-up-icon"></i><span>获赞: </span><span>{{likeCount}}</span>
+        </template>
+        <div class="anchor-setting" @click="clickSetting()"></div>
     </div>
 </div>

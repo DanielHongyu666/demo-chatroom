@@ -25,15 +25,9 @@ public class UserBanView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomUserBan) {
-            String id = ((ChatroomUserBan) msgContent).getId();
-            String name = "";
-            if (DataInterface.getUserInfo(id) != null) {
-                name = DataInterface.getUserInfo(id).getName();
-            } else {
-                name = id;
-            }
+            String name = getSendUserName();
             int duration = ((ChatroomUserBan) msgContent).getDuration();
             tvInfo.setText("系统通知  " + name + " 被禁言 " + duration + " 分钟");
         }

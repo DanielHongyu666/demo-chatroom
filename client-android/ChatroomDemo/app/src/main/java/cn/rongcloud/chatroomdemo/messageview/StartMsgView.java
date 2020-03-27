@@ -25,7 +25,7 @@ public class StartMsgView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomStart) {
             String time = ((ChatroomStart) msgContent).getTime();
             long timeLong = Long.valueOf(time);

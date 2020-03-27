@@ -1,7 +1,6 @@
 (function (RongIM, dependencies, components) {
 'use strict';
 var utils = RongIM.utils;
-var chatroomList = RongIM.config.chatroomList;
 var dataModel = RongIM.dataModel;
 
 components.getGiftDetail = function(resolve, reject) {

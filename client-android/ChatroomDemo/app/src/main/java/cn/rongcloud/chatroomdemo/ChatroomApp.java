@@ -2,52 +2,68 @@ package cn.rongcloud.chatroomdemo;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
+import android.os.Build;
+import android.support.multidex.MultiDexApplication;
 
+import com.tencent.bugly.crashreport.CrashReport;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
-import io.rong.imlib.RongIMClient;
+import cn.rongcloud.rtc.media.RongMediaSignalClient;
 
 /**
  * Created by duanliuyi on 2018/5/10.
  */
 
-public class ChatroomApp extends Application {
-    private static final String TAG = "ChatroomApp";
+public class ChatroomApp extends MultiDexApplication {
+
     private static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
         context = this;
-        ChatroomKit.init(this, DataInterface.appKey);
-        RongIMClient.getInstance().setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
-            @Override
-            public void onChanged(ConnectionStatus status) {
-                switch (status) {
-                    case CONNECTED://连接成功。
-                        Log.i(TAG, "连接成功");
-                        String currentUserId = RongIMClient.getInstance().getCurrentUserId();
-                        ChatroomKit.setCurrentUser(DataInterface.getUserInfo(currentUserId));
-                        break;
-                    case DISCONNECTED://断开连接。
-                        Log.i(TAG, "断开连接");
-                        break;
-                    case CONNECTING://连接中。
-                        Log.i(TAG, "连接中");
-                        break;
-                    case NETWORK_UNAVAILABLE://网络不可用。
-                        Log.i(TAG, "网络不可用");
-                        break;
-                    case KICKED_OFFLINE_BY_OTHER_CLIENT://用户账户在其他设备登录，本机会被踢掉线
-                        Log.i(TAG, "用户账户在其他设备登录");
-                        break;
-                }
-            }
-        });
+
+        DataInterface.init(this);
+        ChatroomKit.init(this, DataInterface.APP_KEY);
+
+        //bugly 配置，查看对应崩溃日志。
+        String processName = CommonUtils.getCurProcessName(this);
+        // 设置是否为上报进程
+        CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(this);
+        strategy.setUploadProcess(processName.equals(getPackageName()));
+        // 初始化Bugly
+        CrashReport.initCrashReport(this, DataInterface.BuglyKey, true, strategy);
+
+        disableAPIDialog();
+
 
     }
 
     public static Context getContext() {
         return context;
     }
+
+    /**
+     * 反射 禁止弹窗
+     */
+    private void disableAPIDialog() {
+        if (Build.VERSION.SDK_INT < 28)
+            return;
+        try {
+            Class clazz = Class.forName("android.app.ActivityThread");
+            Method currentActivityThread = clazz.getDeclaredMethod("currentActivityThread");
+            currentActivityThread.setAccessible(true);
+            Object activityThread = currentActivityThread.invoke(null);
+            Field mHiddenApiWarningShown = clazz.getDeclaredField("mHiddenApiWarningShown");
+            mHiddenApiWarningShown.setAccessible(true);
+            mHiddenApiWarningShown.setBoolean(activityThread, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
+

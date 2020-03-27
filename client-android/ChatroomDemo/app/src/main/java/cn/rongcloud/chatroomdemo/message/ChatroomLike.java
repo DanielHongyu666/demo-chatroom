@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import io.rong.common.ParcelUtils;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
 
 @MessageTag(value = "RC:Chatroom:Like", flag = 3)
 public class ChatroomLike extends MessageContent {
@@ -33,7 +34,9 @@ public class ChatroomLike extends MessageContent {
           if (jsonObj.has("extra")){
             extra = jsonObj.optString("extra");
           }
-        
+        if (jsonObj.has("user")){
+            setUserInfo(parseJsonToUserInfo(jsonObj.optJSONObject("user")));
+        }
     } catch (JSONException e) {
         e.printStackTrace();
     }
@@ -46,7 +49,7 @@ public class ChatroomLike extends MessageContent {
             jsonObj.put("counts", counts);
         
             jsonObj.put("extra", extra);
-        
+        jsonObj.putOpt("user",getJSONUserInfo());
     } catch (JSONException e) {
         e.printStackTrace();
     }
@@ -70,8 +73,8 @@ public class ChatroomLike extends MessageContent {
     
       
          ParcelUtils.writeToParcel(dest, extra);
-      
-    
+
+      dest.writeParcelable(getUserInfo(),0);
   }
   protected ChatroomLike(Parcel in) {
     
@@ -83,7 +86,7 @@ public class ChatroomLike extends MessageContent {
     
       
         extra = ParcelUtils.readFromParcel(in);
-      
+      setUserInfo((UserInfo) in.readParcelable(UserInfo.class.getClassLoader()));
     
   }
   public static final Creator<ChatroomLike> CREATOR = new Creator<ChatroomLike>() {

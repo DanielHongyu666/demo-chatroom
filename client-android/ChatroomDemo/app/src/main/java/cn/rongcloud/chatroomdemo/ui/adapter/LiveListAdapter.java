@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.rongcloud.chatroomdemo.R;
 import cn.rongcloud.chatroomdemo.model.ChatroomInfo;
@@ -49,8 +50,8 @@ public class LiveListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             view = LayoutInflater.from(mContext).inflate(R.layout.item_live_list, null);
             viewHolder.tvLiveName = view.findViewById(R.id.tv_live_name);
-            viewHolder.tvOnlineNum = view.findViewById(R.id.tv_live_onlinenum);
-            viewHolder.tvLiveStatus = view.findViewById(R.id.tv_live_status);
+//            viewHolder.tvOnlineNum = view.findViewById(R.id.tv_live_onlinenum);
+//            viewHolder.tvLiveStatus = view.findViewById(R.id.tv_live_status);
             viewHolder.ivPic = view.findViewById(R.id.iv_live_pic);
             view.setTag(viewHolder);
         } else {
@@ -59,18 +60,25 @@ public class LiveListAdapter extends BaseAdapter {
 
         ChatroomInfo info = chatroomInfos.get(i);
         viewHolder.tvLiveName.setText(info.getLiveName());
-        viewHolder.tvLiveStatus.setText(info.getLiveStatus());
-        viewHolder.tvOnlineNum.setText(info.getOnlineNum() + "");
-        viewHolder.ivPic.setImageURI(info.getChatUri());
+//        viewHolder.tvLiveStatus.setText(info.getLiveStatus());
+//        viewHolder.tvOnlineNum.setText(info.getOnlineNum() + "");
+        viewHolder.ivPic.setImageURI(info.getCover());
 
         return view;
+    }
+
+    public void refreshData(List<ChatroomInfo> roomList) {
+        chatroomInfos.clear();
+        if (roomList !=null)
+            chatroomInfos.addAll(roomList);
+        notifyDataSetChanged();
     }
 
 
     class ViewHolder {
         TextView tvLiveName;
-        TextView tvLiveStatus;
-        TextView tvOnlineNum;
+//        TextView tvLiveStatus;
+//        TextView tvOnlineNum;
         ImageView ivPic;
     }
 }

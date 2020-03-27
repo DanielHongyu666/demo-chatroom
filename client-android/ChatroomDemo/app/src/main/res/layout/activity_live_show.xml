@@ -4,13 +4,13 @@
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000">
+    >
 
-    <SurfaceView
-        android:id="@+id/player_surface"
+    <FrameLayout
+        android:id="@+id/fl_largeview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/pic_demo" />
+        android:background="#00003E"/>
 
     <ImageView
         android:id="@+id/fake"
@@ -61,24 +61,55 @@
             android:textSize="11sp" />
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/back"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"/>
+
     <cn.rongcloud.chatroomdemo.ui.panel.HorizontalListView
         android:id="@+id/gv_room_member"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="10dp"
+        android:layout_toRightOf="@id/layout_host"
+        android:layout_toLeftOf="@id/iv_back"/>
+
+
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_host">
+
+        <LinearLayout
+            android:id="@+id/ll_smallviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible" />
+    </HorizontalScrollView>
+
+
 
     <com.orzangleli.xdanmuku.DanmuContainerView
         android:id="@+id/danmuContainerView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_below="@id/layout_host" />
+        android:layout_below="@id/horizontalScrollView" />
+
 
     <cn.rongcloud.chatroomdemo.ui.gift.GiftView
         android:id="@+id/giftView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_host" />
+        android:layout_below="@id/horizontalScrollView" />
+
 
     <ListView
         android:id="@+id/chat_listview"

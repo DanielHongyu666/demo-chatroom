@@ -6,6 +6,8 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import cn.rongcloud.chatroomdemo.message.ChatroomSyncUserInfo;
+import cn.rongcloud.chatroomdemo.message.LiveCmdMessage;
 import cn.rongcloud.chatroomdemo.messageview.AdminAddView;
 import cn.rongcloud.chatroomdemo.messageview.AdminRemoveView;
 import cn.rongcloud.chatroomdemo.messageview.BaseMsgView;
@@ -23,6 +25,7 @@ import cn.rongcloud.chatroomdemo.messageview.WelcomeMsgView;
 import cn.rongcloud.chatroomdemo.model.BanWarnMessage;
 import cn.rongcloud.chatroomdemo.model.BanWarnView;
 import cn.rongcloud.chatroomdemo.ui.panel.EmojiManager;
+import cn.rongcloud.chatroomdemo.utils.DataInterface;
 import io.rong.imlib.AnnotationNotFoundException;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -157,6 +160,10 @@ public class ChatroomKit {
         registerMessageType(BanWarnMessage.class);
         registerMessageView(BanWarnMessage.class, BanWarnView.class);
 
+
+        registerMessageType(LiveCmdMessage.class);
+        registerMessageType(ChatroomSyncUserInfo.class);
+
     }
 
     /**
@@ -231,6 +238,7 @@ public class ChatroomKit {
      * 断开与融云服务器的连接，并且不再接收 Push 消息。
      */
     public static void logout() {
+        setCurrentUser(null);
         RongIMClient.getInstance().logout();
     }
 
@@ -261,12 +269,17 @@ public class ChatroomKit {
      * @param msgContent 消息对象
      */
     public static void sendMessage(final MessageContent msgContent) {
+        sendMessage(Message.obtain(currentRoomId, Conversation.ConversationType.CHATROOM, msgContent));
+    }
+
+    public static void sendMessage(Message msg) {
         if (currentUser == null) {
             throw new RuntimeException("currentUser should not be null.");
         }
 
-        Message msg = Message.obtain(currentRoomId, Conversation.ConversationType.CHATROOM, msgContent);
-
+        if (msg.getContent() != null){
+            msg.getContent().setUserInfo (currentUser);
+        }
         RongIMClient.getInstance().sendMessage(msg, null, null, new IRongCallback.ISendMessageCallback() {
             @Override
             public void onAttached(Message message) {

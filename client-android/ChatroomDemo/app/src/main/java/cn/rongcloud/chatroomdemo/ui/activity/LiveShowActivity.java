@@ -2,13 +2,13 @@ package cn.rongcloud.chatroomdemo.ui.activity;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,13 +23,17 @@ import com.orzangleli.xdanmuku.DanmuContainerView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.Random;
 
+import cn.rongcloud.chatroomdemo.ChatroomApp;
 import cn.rongcloud.chatroomdemo.ChatroomKit;
 import cn.rongcloud.chatroomdemo.R;
+import cn.rongcloud.chatroomdemo.message.ChatroomSyncUserInfo;
 import cn.rongcloud.chatroomdemo.model.BanWarnMessage;
-import cn.rongcloud.chatroomdemo.model.HostInfo;
+import cn.rongcloud.chatroomdemo.model.ChatroomInfo;
 import cn.rongcloud.chatroomdemo.model.NeedLoginEvent;
+import cn.rongcloud.chatroomdemo.model.OnlineUserInfo;
 import cn.rongcloud.chatroomdemo.ui.adapter.ChatListAdapter;
 import cn.rongcloud.chatroomdemo.ui.adapter.MemberAdapter;
 import cn.rongcloud.chatroomdemo.ui.danmu.DanmuAdapter;
@@ -45,6 +49,9 @@ import cn.rongcloud.chatroomdemo.ui.panel.InputPanel;
 import cn.rongcloud.chatroomdemo.ui.panel.LoginPanel;
 import cn.rongcloud.chatroomdemo.ui.panel.OnlineUserPanel;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
+import cn.rongcloud.chatroomdemo.utils.DialogUtils;
+import cn.rongcloud.chatroomdemo.utils.LogUtils;
+import cn.rongcloud.rtc.utils.FinLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -60,41 +67,47 @@ import io.rong.message.ChatroomUserUnBan;
 import io.rong.message.ChatroomWelcome;
 import io.rong.message.TextMessage;
 
-public class LiveShowActivity extends FragmentActivity implements View.OnClickListener, Handler.Callback {
+import static cn.rongcloud.chatroomdemo.utils.DataInterface.DEfALUT_AVATAR;
+import static cn.rongcloud.chatroomdemo.utils.DataInterface.getUri;
 
-    public static final String LIVE_URL = "live_url";
+public class LiveShowActivity extends BaseActivity implements View.OnClickListener, Handler.Callback {
+
+    public static String TAG = "LiveShowActivity";
+    public static final String  LIVE_URL = "live_url";
 
     private ViewGroup background;
     private ListView chatListView;
-    private BottomPanelFragment bottomPanel;
+    protected BottomPanelFragment bottomPanel;
     // private ImageView btnGift;
     private ImageView btnHeart;
     private HeartLayout heartLayout;
-    private SurfaceView surfaceView;
     private RelativeLayout layoutHost;
     private CircleImageView ivHostAvater;
     private TextView tvHostName;
     private HostPanel hostPanel;
     private HorizontalListView hlvMember;
     private MemberAdapter memberAdapter;
-    private OnlineUserPanel onlineUserPanel;
+    protected OnlineUserPanel onlineUserPanel;
     private LoginPanel loginPanel;
-    private TextView tvOnlineNum;
+    protected TextView tvOnlineNum;
 
     private Random random = new Random();
-    private Handler handler = new Handler(this);
+    protected Handler handler = new Handler(this);
     private ChatListAdapter chatListAdapter;
-    private String roomId;
+    protected String roomId;
     //  private KSYMediaPlayer ksyMediaPlayer;
     private SurfaceHolder surfaceHolder;
-    private int onlineNum = 0;
     private int fansNum = 0;
     private int likeNum = 0;
     private int giftNum = 0;
 
     private DanmuContainerView danmuContainerView;
     private GiftView giftView;
-    private String TAG = "LiveShowActivity";
+
+
+    protected ChatroomInfo mInfo;
+
+
 
 
     @Override
@@ -103,21 +116,23 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         setContentView(R.layout.activity_live_show);
         EventBus.getDefault().register(this);
         ChatroomKit.addEventHandler(handler);
-        DataInterface.setLoginStatus(false);
         DataInterface.setBanStatus(false);
-        roomId = getIntent().getStringExtra("liveid");
-        initView();
-        startLiveShow();
+//        roomId = getIntent().getStringExtra("liveid");
     }
 
-    private void initView() {
+
+    protected void initData() {
+        mInfo = getIntent().getParcelableExtra("roominfo");
+        roomId = mInfo.getLiveId();
+    }
+
+    protected void initView() {
         background = (ViewGroup) findViewById(R.id.background);
         chatListView = (ListView) findViewById(R.id.chat_listview);
         bottomPanel = (BottomPanelFragment) getSupportFragmentManager().findFragmentById(R.id.bottom_bar);
         // btnGift = (ImageView) bottomPanel.getView().findViewById(R.id.btn_gift);
         btnHeart = (ImageView) bottomPanel.getView().findViewById(R.id.btn_heart);
         heartLayout = (HeartLayout) findViewById(R.id.heart_layout);
-        surfaceView = (SurfaceView) findViewById(R.id.player_surface);
         danmuContainerView = (DanmuContainerView) findViewById(R.id.danmuContainerView);
         layoutHost = (RelativeLayout) findViewById(R.id.layout_host);
         tvHostName = (TextView) findViewById(R.id.tv_holder_name);
@@ -128,13 +143,13 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         loginPanel = (LoginPanel) findViewById(R.id.login_panel);
         tvOnlineNum = (TextView) findViewById(R.id.tv_room_onlive_people);
 
-        HostInfo hostInfo = DataInterface.getHostInfoByRoomId(roomId);
-        tvHostName.setText(hostInfo.getName());
-        ivHostAvater.setImageResource(hostInfo.getAvatarRes());
-        hostPanel.setHostInfo(hostInfo.getName(), hostInfo.getAvatarRes());
+//        HostInfo hostInfo = DataInterface.getHostInfoByRoomId(roomId);
+        tvHostName.setText(mInfo.getLiveName());
+        ivHostAvater.setImageURI(mInfo.getCover());
+        hostPanel.setHostInfo(mInfo.getLiveName(),mInfo.getCover());
 
 
-        tvOnlineNum.setText(onlineNum + "");
+        tvOnlineNum.setText("0");
         hostPanel.setHostPanelNum(fansNum, likeNum, giftNum);
 
         danmuContainerView.setAdapter(new DanmuAdapter(this));
@@ -143,7 +158,8 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         giftView.setViewCount(2);
         giftView.init();
 
-        memberAdapter = new MemberAdapter(this, DataInterface.getUserList(roomId), true);
+//        memberAdapter = new MemberAdapter(this, DataInterface.getUserList(roomId), true);
+        memberAdapter = new MemberAdapter(this, new ArrayList<OnlineUserInfo>(), true);
         hlvMember.setAdapter(memberAdapter);
 
         chatListAdapter = new ChatListAdapter(this);
@@ -196,26 +212,23 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         hlvMember.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onlineUserPanel.setVisibility(View.VISIBLE);
-                hostPanel.setVisibility(View.GONE);
+                onClickHlvMember();
             }
         });
-
-
+        findViewById(R.id.iv_back).setOnClickListener(this);
     }
 
-    private void startLiveShow() {
-        //        String liveUrl = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
-        String liveUrl = getIntent().getStringExtra(LiveShowActivity.LIVE_URL);
-        joinChatRoom(roomId);
-        //   playShow(liveUrl);
+    protected void onClickHlvMember() {
+        onlineUserPanel.setVisibility(View.VISIBLE);
+        hostPanel.setVisibility(View.GONE);
     }
 
-    private void joinChatRoom(final String roomId) {
+    protected void joinChatRoom() {
         ChatroomKit.joinChatRoom(roomId, -1, new RongIMClient.OperationCallback() {
             @Override
             public void onSuccess() {
-
+                LogUtils.i(TAG,"加入聊天室成功！");
+                onJoinChatRoom();
             }
 
             @Override
@@ -223,6 +236,16 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                 Toast.makeText(LiveShowActivity.this, "聊天室加入失败! errorCode = " + errorCode, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    protected void onJoinChatRoom() {
+        if (ChatroomKit.getCurrentUser() == null)
+            return;
+        //发送欢迎信令
+        ChatroomWelcome welcomeMessage = new ChatroomWelcome();
+        welcomeMessage.setId(ChatroomKit.getCurrentUser().getUserId());
+        ChatroomKit.sendMessage(welcomeMessage);
+
     }
 
     //    private void playShow(String liveUrl) {
@@ -233,7 +256,7 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
     //            e.printStackTrace();
     //        }
     //
-    //        surfaceHolder = surfaceView.getHolder();
+    //        surfaceHolder = mVideoView.getHolder();
     //        surfaceHolder.addCallback(surfaceCallback);
     //    }
 
@@ -282,29 +305,29 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
-
-        if (v.equals(background)) {
-            bottomPanel.onBackAction();
-            hostPanel.setVisibility(View.GONE);
-            onlineUserPanel.setVisibility(View.GONE);
-            loginPanel.setVisibility(View.GONE);
-        } else if (v.equals(btnHeart)) {
-            if (DataInterface.isLoginStatus()) {
-                heartLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int rgb = Color.rgb(random.nextInt(255), random.nextInt(255), random.nextInt(255));
-                        heartLayout.addHeart(rgb);
-                    }
-                });
-                clickCount++;
-                currentTime = System.currentTimeMillis();
-                checkAfter(currentTime);
-            } else {
-                EventBus.getDefault().post(new NeedLoginEvent(true));
-            }
-
-
+        switch (v.getId()) {
+            case R.id.btn_heart:
+                if (DataInterface.isLogin()) {
+                    heartLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int rgb = Color.rgb(random.nextInt(255), random.nextInt(255), random.nextInt(255));
+                            heartLayout.addHeart(rgb);
+                        }
+                    });
+                    clickCount++;
+                    currentTime = System.currentTimeMillis();
+                    checkAfter(currentTime);
+                } else {
+                    EventBus.getDefault().post(new NeedLoginEvent(true));
+                }
+                break;
+            case R.id.iv_back:
+                onBackPressed();
+                break;
+            default:
+                hindePanels();
+                break;
         }
         //        if (v.equals(background)) {
         //            bottomPanel.onBackAction();
@@ -325,6 +348,13 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
 
     }
 
+    protected void hindePanels() {
+        bottomPanel.onBackAction();
+        hostPanel.setVisibility(View.GONE);
+        onlineUserPanel.setVisibility(View.GONE);
+        loginPanel.setVisibility(View.GONE);
+    }
+
     @Override
     public boolean handleMessage(android.os.Message msg) {
         switch (msg.what) {
@@ -336,8 +366,14 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                     ChatroomBarrage barrage = (ChatroomBarrage) messageContent;
                     DanmuEntity danmuEntity = new DanmuEntity();
                     danmuEntity.setContent(barrage.getContent());
-                    danmuEntity.setPortrait(DataInterface.getUserInfo(sendUserId).getPortraitUri());
-                    danmuEntity.setName(DataInterface.getUserInfo(sendUserId).getName());
+                    String name = sendUserId;
+                    Uri uri = getUri(ChatroomApp.getContext(), DEfALUT_AVATAR);
+                    if (messageContent != null) {
+                        name = messageContent.getUserInfo().getName();
+                        uri = DataInterface.getAvatarUri(messageContent.getUserInfo().getPortraitUri());
+                    }
+                    danmuEntity.setPortrait(uri);
+                    danmuEntity.setName(name);
                     danmuEntity.setType(barrage.getType());
                     danmuContainerView.addDanmu(danmuEntity);
                 } else if (messageContent instanceof ChatroomGift) {
@@ -345,23 +381,49 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                     if (gift.getNumber() > 0) {
                         GiftSendModel model = new GiftSendModel(gift.getNumber());
                         model.setGiftRes(DataInterface.getGiftInfo(gift.getId()).getGiftRes());
-                        model.setNickname(DataInterface.getUserInfo(sendUserId).getName());
+                        String name = sendUserId;
+                        Uri uri = getUri(ChatroomApp.getContext(), DEfALUT_AVATAR);
+                        if (messageContent != null) {
+                            name = messageContent.getUserInfo().getName();
+                            uri = DataInterface.getAvatarUri(messageContent.getUserInfo().getPortraitUri());
+                        }
                         model.setSig("送出" + DataInterface.getGiftNameById(gift.getId()));
-                        model.setUserAvatarRes(DataInterface.getUserInfo(sendUserId).getPortraitUri().toString());
+                        model.setNickname(name);
+                        model.setUserAvatarRes(uri.toString());
                         giftView.addGift(model);
-
                         giftNum = giftNum + gift.getNumber();
                         hostPanel.setGiftNum(giftNum);
                     }
-                } else {
-                    chatListAdapter.addMessage((Message) msg.obj);
+                } else if (((Message) msg.obj).getConversationType() == Conversation.ConversationType.CHATROOM){
+                    Message msgObj = (Message) msg.obj;
+                    if (!(messageContent instanceof ChatroomSyncUserInfo))
+                        chatListAdapter.addMessage(msgObj);
 
-                    if (messageContent instanceof ChatroomWelcome) {
-                        onlineNum++;
-                        tvOnlineNum.setText(onlineNum + "");
+                    if (messageContent instanceof ChatroomWelcome && !TextUtils.equals(msgObj.getSenderUserId(),DataInterface.getUserId())) {
+                        String senderUserId = msgObj.getSenderUserId();
+                        String name = senderUserId;
+                        Uri uri = getUri(ChatroomApp.getContext(), DEfALUT_AVATAR);
+                        if (msgObj.getContent().getUserInfo() != null) {
+                            name = messageContent.getUserInfo().getName();
+                            uri = DataInterface.getAvatarUri(messageContent.getUserInfo().getPortraitUri());
+                        }
+                        OnlineUserInfo userInfo = new OnlineUserInfo(senderUserId, name, uri);
+                        onlineUserPanel.addUser(userInfo);
+                        memberAdapter.addItem(userInfo);
+                        tvOnlineNum.setText(memberAdapter.getCount() + "");
                     } else if (messageContent instanceof ChatroomUserQuit) {
-                        onlineNum--;
-                        tvOnlineNum.setText(onlineNum + "");
+                        String senderUserId = msgObj.getSenderUserId();
+                        onlineUserPanel.removeUser(senderUserId);
+                        memberAdapter.removeItemByUid(senderUserId);
+                        if (TextUtils.equals(senderUserId,mInfo.getPubUserId())){
+                            DialogUtils.showDialog(this, "本次直播结束！", "确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            });
+                        }
+                        tvOnlineNum.setText(memberAdapter.getCount() + "");
                     } else if (messageContent instanceof ChatroomFollow) {
                         fansNum++;
                         hostPanel.setFansNum(fansNum);
@@ -379,16 +441,16 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                             });
                         }
                     } else if (messageContent instanceof ChatroomUserBan) {
-                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBan) messageContent).getId())) {
+                        if (DataInterface.isLogin() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBan) messageContent).getId())) {
                             banStartTime = System.currentTimeMillis();
                             startBan(banStartTime, ((ChatroomUserBan) messageContent).getDuration());
                         }
                     } else if (messageContent instanceof ChatroomUserUnBan) {
-                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserUnBan) messageContent).getId())) {
+                        if (DataInterface.isLogin() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserUnBan) messageContent).getId())) {
                             DataInterface.setBanStatus(false);
                         }
                     } else if (messageContent instanceof ChatroomUserBlock) {
-                        if (DataInterface.isLoginStatus() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBlock) messageContent).getId())) {
+                        if (DataInterface.isLogin() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBlock) messageContent).getId())) {
                             new AlertDialog.Builder(LiveShowActivity.this).setTitle("已被管理员禁封").setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -402,6 +464,10 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
                 break;
             }
             case ChatroomKit.MESSAGE_SEND_ERROR: {
+                FinLog.d(TAG,"handleMessage Error: "+msg.arg1+", "+msg.obj);
+                if (msg.arg1 == RongIMClient.ErrorCode.RC_CHATROOM_NOT_EXIST.getValue()){
+                    DialogUtils.showDialog(LiveShowActivity.this,"1 小时内无人讲话，聊天室已被解散，请退出后重进");
+                }
                 break;
             }
             default:
@@ -415,10 +481,10 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
         ChatroomKit.quitChatRoom(new RongIMClient.OperationCallback() {
             @Override
             public void onSuccess() {
+                LogUtils.i(TAG,"quitChatRoom success");
                 ChatroomKit.removeEventHandler(handler);
-                if (DataInterface.isLoginStatus()) {
-                    Toast.makeText(LiveShowActivity.this, "退出聊天室成功", Toast.LENGTH_SHORT).show();
-
+                if (DataInterface.isLogin()) {
+//                    Toast.makeText(LiveShowActivity.this, "退出聊天室成功", Toast.LENGTH_SHORT).show();
                     ChatroomUserQuit userQuit = new ChatroomUserQuit();
                     userQuit.setId(ChatroomKit.getCurrentUser().getUserId());
                     ChatroomKit.sendMessage(userQuit);
@@ -428,9 +494,9 @@ public class LiveShowActivity extends FragmentActivity implements View.OnClickLi
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
                 ChatroomKit.removeEventHandler(handler);
-                Toast.makeText(LiveShowActivity.this, "退出聊天室失败! errorCode = " + errorCode, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LiveShowActivity.this, "退出聊天室失败! errorCode = " + errorCode, Toast.LENGTH_SHORT).show();
 
-                Log.i(TAG, "errorCode = " + errorCode);
+                LogUtils.e(TAG, "quitChatRoom failed errorCode = " + errorCode);
             }
         });
         //    ksyMediaPlayer.stop();

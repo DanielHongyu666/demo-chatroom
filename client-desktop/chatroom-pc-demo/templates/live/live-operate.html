@@ -1,5 +1,7 @@
 <div class="live-opt">
-    <button v-if="isStart" @click="endLive()">结束直播</button>
-    <button v-else @click="startLive()">开始直播</button>
-    <button @click="quitChatRoom()">退出聊天室</button>
+    <button v-if="isAudience" @click="updateToAnchor">升为主播</button>
+    <button v-if="isAudience" @click="endLive()">退出直播</button>
+    <button v-else-if="isStart" @click="endLive()">结束直播</button>
+    <!-- <button v-else @click="startLive()">开始直播</button>
+    <button @click="quitChatRoom()">退出聊天室</button> -->
 </div>

@@ -19,7 +19,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "time": "1525415951135",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomEnd": {
@@ -29,7 +30,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "duration": 3600,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomSummary": {
@@ -39,7 +41,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "online": 800,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomFollow": {
@@ -51,7 +54,8 @@ return {
    "id": "u2018",
    "rank": 1,
    "level": 3,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomLike": {
@@ -61,7 +65,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "counts": 5,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomGift": {
@@ -73,7 +78,8 @@ return {
    "id": "G008",
    "number": 530,
    "total": 900,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomBarrage": {
@@ -84,7 +90,8 @@ return {
   "proto": {
    "type": "D201801",
    "content": "hellowrold",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomWelcome": {
@@ -97,7 +104,8 @@ return {
    "counts": 10,
    "rank": 3,
    "level": 1,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomAdminAdd": {
@@ -109,7 +117,8 @@ return {
    "id": "u2018",
    "counts": 10,
    "level": 1,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomAdminRemove": {
@@ -119,7 +128,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "id": "u2018",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomUserBlock": {
@@ -130,7 +140,8 @@ return {
   "proto": {
    "id": "u2018",
    "duration": 3600,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomUserUnBlock": {
@@ -140,7 +151,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "id": "u2018",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomUserBan": {
@@ -151,7 +163,8 @@ return {
   "proto": {
    "id": "u2018",
    "duration": 3600,
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomUserUnBan": {
@@ -161,7 +174,8 @@ return {
   "version": "1.0.0",
   "proto": {
    "id": "u2018",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
  },
  "ChatroomUserQuit": {
@@ -171,8 +185,32 @@ return {
   "version": "1.0.0",
   "proto": {
    "id": "u2018",
-   "extra": "附加信息"
+   "extra": "附加信息",
+   "user":""
   }
- }
+ },
+ "ChatroomLiveCmd": {
+    "name": "RC:Chatroom:LiveCmd",
+    "priority": 1,
+    "channel": "App Client",
+    "version": "1.0.0",
+    "proto": {
+     "cmdType": 1,
+     "roomId": "roomid",
+     "extra":"附加信息",
+     "user":""
+    }
+   },
+   "ChatroomSyncUserInfo": {
+    "name": "RC:Chatroom:SyncUserInfo",
+    "priority": 1,
+    "channel": "App Client",
+    "version": "1.0.0",
+    "proto": {
+     "userInfos": [],
+     "extra":"附加信息",
+     "user":""
+    }
+   }
 };
 });

@@ -11,8 +11,7 @@ components.getChatBanMessage = function(resolve, reject) {
         props: ['message'],
         computed: {
             banUser: function() {
-                var userId = this.message.content.id;
-                return dataModel.User.getDetail(userId);
+                return this.message.content;
             },
             minute: function() {
                 var duration = this.message.content.duration;

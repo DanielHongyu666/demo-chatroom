@@ -205,7 +205,8 @@ var initApp = () => {
         locales: ['en', 'zh-CN'],
         directory: __dirname + '/locales',
         objectNotation: true,
-        register: global.locale
+        register: global.locale,
+        defaultLocale: 'zh-CN'
     });
     initApp();
 })();

@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import io.rong.common.ParcelUtils;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
 
 @MessageTag(value = "RC:Chatroom:Follow", flag = 3)
 public class ChatroomFollow extends MessageContent {
@@ -41,6 +42,9 @@ public class ChatroomFollow extends MessageContent {
           if (jsonObj.has("extra")){
             extra = jsonObj.optString("extra");
           }
+        if (jsonObj.has("user")){
+            setUserInfo(parseJsonToUserInfo(jsonObj.optJSONObject("user")));
+        }
         
     } catch (JSONException e) {
         e.printStackTrace();
@@ -58,7 +62,7 @@ public class ChatroomFollow extends MessageContent {
             jsonObj.put("level", level);
         
             jsonObj.put("extra", extra);
-        
+        jsonObj.putOpt("user",getJSONUserInfo());
     } catch (JSONException e) {
         e.printStackTrace();
     }
@@ -90,7 +94,7 @@ public class ChatroomFollow extends MessageContent {
     
       
          ParcelUtils.writeToParcel(dest, extra);
-      
+      dest.writeParcelable(getUserInfo(),0);
     
   }
   protected ChatroomFollow(Parcel in) {
@@ -113,7 +117,7 @@ public class ChatroomFollow extends MessageContent {
     
       
         extra = ParcelUtils.readFromParcel(in);
-      
+      setUserInfo((UserInfo) in.readParcelable(UserInfo.class.getClassLoader()));
     
   }
   public static final Creator<ChatroomFollow> CREATOR = new Creator<ChatroomFollow>() {

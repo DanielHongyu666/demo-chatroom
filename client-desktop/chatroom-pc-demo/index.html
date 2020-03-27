@@ -5,14 +5,17 @@
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
-    <title>直播聊天室 Demo</title>
-    
+    <link rel="shortcut icon" href="./img/SealLive.png" type="image/x-icon"/>
+    <title>SealLive</title>
+    <!-- SealLive V2.0.0 -->
     <!-- 设置项引入, 包含假数据 -->
-    <script src="mock/user.js"></script>
-    <script src="mock/anchor.js"></script>
-    <script src="mock/chatroom.js"></script>
-    <script src="setting.js"></script>
-    <script src="config.js"></script>
+    <script src="mock/user.js?d=2020-02-11"></script>
+    <script src="mock/anchor.js?d=2020-02-11"></script>
+    <script src="mock/chatroom.js?d=2020-02-11"></script>
+    <script src="setting.js?d=2020-02-11"></script>
+    <script src="config.js?d=2020-02-11"></script>
+
+    <script src="//unpkg.com/axios/dist/axios.min.js?d=2020-02-11"></script>
     
     <!-- 暴露 桌面版 中的方法 -->
     <script src='js/web.js'></script>
@@ -25,57 +28,61 @@
     <link rel="stylesheet" href="css/chat.css">
 
     <!-- lib -->
-    <script src="lib/jquery-3.1.1.js"></script>
-    <script src="lib/vue-2.3.3.js"></script>
-    <script src="lib/vue-router-2.1.1.js"></script>
-    <script src="lib/RongIMLib-2.3.2.js"></script>
-    <script src="lib/RongEmoji-2.2.6.js"></script>
-    <script src="lib/message-types.js"></script>
+    <script src="lib/jquery-3.1.1.js?d=2020-02-11"></script>
+    <script src="lib/vue-2.3.3.js?d=2020-02-11"></script>
+    <script src="lib/vue-router-2.1.1.js?d=2020-02-11"></script>
+    <!-- <script src="lib/RongIMLib-2.3.2.js?d=2020-02-11"></script> -->
+    <script src="//cdn.ronghub.com/RongIMLib-2.5.4.js?d=2020-02-11"></script>
+    <script src="lib/RongEmoji-2.2.6.js?d=2020-02-11"></script>
+    <script src="lib/message-types.js?d=2020-02-11"></script>
+    <!-- <script src="https://cdn.ronghub.com/RongRTC-3.0.4.js?d=2020-02-11"></script> -->
+    <script src="lib/RongRTC-3.2.0.js?d=2020-02-11"></script>
+    <script src="lib/protobuf-2.3.6.min.js?d=2020-02-11"></script>
 
     <!-- 工具方法 -->
-    <script src="js/utils.js"></script>
+    <script src="js/utils.js?d=2020-02-11"></script>
     <!-- api 再封装, 数据处理 -->
-    <script src="js/datamodel.js"></script>
+    <script src="js/datamodel.js?d=2020-02-11"></script>
 
     <!-- 所有 Vue 组件 -->
-    <script src="js/chatroom.js"></script>
-    <script src="js/login/login.js"></script>
+    <script src="js/chatroom.js?d=2020-02-11"></script>
+    <script src="js/login/login.js?d=2020-02-11"></script>
 
-    <script src="js/user/user-list.js"></script>
-    <script src="js/user/user-online.js"></script>
-    <script src="js/user/user-block.js"></script>
-    <script src="js/user/block-panel.js"></script>
+    <script src="js/user/user-list.js?d=2020-02-11"></script>
+    <script src="js/user/user-online.js?d=2020-02-11"></script>
+    <script src="js/user/user-block.js?d=2020-02-11"></script>
+    <script src="js/user/block-panel.js?d=2020-02-11"></script>
 
-    <script src="js/live/live.js"></script>
-    <script src="js/live/live-anchor.js"></script>
-    <script src="js/live/live-video.js"></script>
-    <script src="js/live/live-operate.js"></script>
-    <script src="js/live/like.js"></script>
-    <script src="js/live/gift.js"></script>
+    <script src="js/live/live.js?d=2020-02-11"></script>
+    <script src="js/live/live-anchor.js?d=2020-02-11"></script>
+    <script src="js/live/live-video.js?d=2020-02-11"></script>
+    <script src="js/live/live-operate.js?d=2020-02-11"></script>
+    <script src="js/live/like.js?d=2020-02-11"></script>
+    <script src="js/live/gift.js?d=2020-02-11"></script>
 
-    <script src="js/chat/chat.js"></script>
-    <script src="js/chat/message.js"></script>
-    <script src="js/chat/message-list.js"></script>
-    <script src="js/chat/message-input.js"></script>
-    <script src="js/chat/gift.js"></script>
-    <script src="js/chat/gift-detail.js"></script>
-    <script src="js/chat/emoji-panel.js"></script>
+    <script src="js/chat/chat.js?d=2020-02-11"></script>
+    <script src="js/chat/message.js?d=2020-02-11"></script>
+    <script src="js/chat/message-list.js?d=2020-02-11"></script>
+    <script src="js/chat/message-input.js?d=2020-02-11"></script>
+    <script src="js/chat/gift.js?d=2020-02-11"></script>
+    <script src="js/chat/gift-detail.js?d=2020-02-11"></script>
+    <script src="js/chat/emoji-panel.js?d=2020-02-11"></script>
 
-    <script src="js/message/room-welcome.js"></script>
-    <script src="js/message/room-quit.js"></script>
-    <script src="js/message/text.js"></script>
-    <script src="js/message/like.js"></script>
-    <script src="js/message/follow.js"></script>
-    <script src="js/message/ban.js"></script>
-    <script src="js/message/un-ban.js"></script>
-    <script src="js/message/block.js"></script>
-    <script src="js/message/un-block.js"></script>
-    <script src="js/message/start-live.js"></script>
-    <script src="js/message/end-live.js"></script>
+    <script src="js/message/room-welcome.js?d=2020-02-11"></script>
+    <script src="js/message/room-quit.js?d=2020-02-11"></script>
+    <script src="js/message/text.js?d=2020-02-11"></script>
+    <script src="js/message/like.js?d=2020-02-11"></script>
+    <script src="js/message/follow.js?d=2020-02-11"></script>
+    <script src="js/message/ban.js?d=2020-02-11"></script>
+    <script src="js/message/un-ban.js?d=2020-02-11"></script>
+    <script src="js/message/block.js?d=2020-02-11"></script>
+    <script src="js/message/un-block.js?d=2020-02-11"></script>
+    <script src="js/message/start-live.js?d=2020-02-11"></script>
+    <script src="js/message/end-live.js?d=2020-02-11"></script>
 
     <!-- 路由设置 -->
-    <script src="js/routes.js"></script>
-    <script src="js/im.js"></script>
+    <script src="js/routes.js?d=2020-02-11"></script>
+    <script src="js/im.js?d=2020-02-11"></script>
     
 </head>
 <body>

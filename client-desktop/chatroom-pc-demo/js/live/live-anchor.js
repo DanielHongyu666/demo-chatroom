@@ -2,7 +2,6 @@
 'use strict';
 var utils = RongIM.utils;
 var getTotalGift = utils.getTotalGift;
-var chatroomList = RongIM.config.chatroomList;
 var dataModel = RongIM.dataModel;
 var Cache = dataModel.Cache;
 var im;
@@ -14,12 +13,18 @@ components.getLiveAnchor = function(resolve, reject) {
     var options = {
         name: 'live-anchor',
         template: 'templates/live/live-anchor.html',
+        props:['showSetting'],
         data: function() {
             return {
                 anchor: im.auth,
                 followList: [],
                 giftCount: 0,
                 likeCount: 0
+            }
+        },
+        computed: {
+            isAudience: function () {
+                return RongIM.instance.isAudience;
             }
         },
         mounted: function() {
@@ -33,7 +38,9 @@ components.getLiveAnchor = function(resolve, reject) {
             dataModel.Gift.unwatch(this.watchLike);
         },
         methods: {
-
+            clickSetting:function(){
+                this.$emit('changeShowSetting',true);
+            }
         }
     };
     utils.asyncComponent(options, resolve, reject);

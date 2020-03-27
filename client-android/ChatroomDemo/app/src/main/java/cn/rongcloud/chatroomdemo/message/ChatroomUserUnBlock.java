@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import io.rong.common.ParcelUtils;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
 
 @MessageTag(value = "RC:Chatroom:User:UnBlock", flag = 3)
 public class ChatroomUserUnBlock extends MessageContent {
@@ -33,6 +34,9 @@ public class ChatroomUserUnBlock extends MessageContent {
           if (jsonObj.has("extra")){
             extra = jsonObj.optString("extra");
           }
+        if (jsonObj.has("user")){
+            setUserInfo(parseJsonToUserInfo(jsonObj.optJSONObject("user")));
+        }
         
     } catch (JSONException e) {
         e.printStackTrace();
@@ -46,6 +50,7 @@ public class ChatroomUserUnBlock extends MessageContent {
             jsonObj.put("id", id);
         
             jsonObj.put("extra", extra);
+        jsonObj.putOpt("user",getJSONUserInfo());
         
     } catch (JSONException e) {
         e.printStackTrace();
@@ -70,6 +75,7 @@ public class ChatroomUserUnBlock extends MessageContent {
     
       
          ParcelUtils.writeToParcel(dest, extra);
+      dest.writeParcelable(getUserInfo(),0);
       
     
   }
@@ -81,6 +87,7 @@ public class ChatroomUserUnBlock extends MessageContent {
     
       
         extra = ParcelUtils.readFromParcel(in);
+      setUserInfo((UserInfo) in.readParcelable(UserInfo.class.getClassLoader()));
       
     
   }

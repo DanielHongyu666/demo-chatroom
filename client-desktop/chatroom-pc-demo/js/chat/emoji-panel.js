@@ -1,7 +1,6 @@
 (function (RongIM, dependencies, components) {
 'use strict';
 var utils = RongIM.utils;
-var chatroomList = RongIM.config.chatroomList;
 var dataModel = RongIM.dataModel;
 var Cache = dataModel.Cache;
 var RongIMLib = dependencies.RongIMLib;

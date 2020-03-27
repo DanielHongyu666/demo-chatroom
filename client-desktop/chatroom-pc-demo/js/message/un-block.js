@@ -11,8 +11,7 @@ components.getChatUnBlockMessage = function(resolve, reject) {
         props: ['message'],
         computed: {
             blockUser: function() {
-                var userId = this.message.content.id;
-                return dataModel.User.getDetail(userId);
+                return this.message.content;
             }
         }
     };

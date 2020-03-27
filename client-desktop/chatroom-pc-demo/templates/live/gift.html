@@ -1,5 +1,5 @@
 <div class="live-gift" v-if="isShow">
-    <div class="live-user-icon" :style="'background-image: url(' + user.portrait + ')'"></div>
+    <div class="live-user-icon" :style="'background-image: url(./img/avatar/avatar_'+ (parseInt(user.portrait)+1)  +'.png)'"></div>
     <div class="live-user-detail">
         <p class="live-user-name">{{user.name}}:</p>
         <p>

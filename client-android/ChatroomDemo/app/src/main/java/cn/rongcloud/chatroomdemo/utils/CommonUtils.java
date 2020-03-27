@@ -1,11 +1,27 @@
 package cn.rongcloud.chatroomdemo.utils;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
+import com.google.gson.Gson;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import cn.rongcloud.chatroomdemo.ChatroomApp;
 
 public class CommonUtils {
+
+    private static Gson mGson = new Gson();
+
+    public static String toJson(Object src){
+        if (src == null)
+            return "";
+        return mGson.toJson(src);
+    }
 
     public static int dip2px(float dpValue) {
         float scale = ChatroomApp.getContext().getResources().getDisplayMetrics().density;
@@ -66,5 +82,61 @@ public class CommonUtils {
         Date date = new Date(milSecond);
         SimpleDateFormat format = new SimpleDateFormat(pattern);
         return format.format(date);
+    }
+
+    /**
+     * 判断当前系统是否使用中文
+     * @return
+     */
+    public static boolean isZhLanguage(Context context){
+        if (context == null)
+            return true;
+        return context.getResources().getConfiguration().locale.getLanguage().endsWith("zh");
+    }
+
+    /**
+     * 显示软键盘
+     */
+    public static void showInputMethod(Context context, View view) {
+        if (context == null || view == null) {
+            return;
+        }
+
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    /**
+     * 关闭软键盘
+     */
+    public static boolean hideInputMethod(Context context, View view) {
+        if (context == null || view == null) {
+            return false;
+        }
+
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && imm.isActive()) {
+            return imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        return false;
+    }
+
+    public static String getCurProcessName(Context context) {
+        int pid = android.os.Process.myPid();
+        ActivityManager mActivityManager = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfos = mActivityManager.getRunningAppProcesses();
+        if (runningAppProcessInfos == null) {
+            return null;
+        }
+        for (ActivityManager.RunningAppProcessInfo appProcess : runningAppProcessInfos) {
+            if (appProcess.pid == pid) {
+
+                return appProcess.processName;
+            }
+        }
+        return null;
     }
 }

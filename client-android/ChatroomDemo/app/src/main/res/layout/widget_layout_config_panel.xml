@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:text="混流布局设置"/>
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/blink_grey"/>
+
+    <RadioGroup
+        android:id="@+id/rg_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <RadioButton
+            android:id="@+id/rd_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/blink_text_grey"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:checked="true"
+            android:button="@drawable/selector_radio_bg"
+            android:text="自适应布局"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+        <RadioButton
+            android:id="@+id/rd_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/blink_text_grey"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:button="@drawable/selector_radio_bg"
+            android:text="悬浮布局"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+        <RadioButton
+            android:id="@+id/rd_03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/blink_text_grey"
+            android:textSize="14sp"
+            android:layout_gravity="right"
+            android:gravity="center"
+            android:button="@drawable/selector_radio_bg"
+            android:text="自定义布局"/>
+    </RadioGroup>
+
+    <FrameLayout
+        android:id="@+id/fl_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:layout_gravity="center">
+        <include layout="@layout/layout_adaptive_view"/>
+        <include layout="@layout/layout_suspend_view"/>
+        <cn.rongcloud.chatroomdemo.ui.panel.CustomLayoutView
+            android:id="@+id/customview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"/>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/c999999"
+        android:layout_margin="16dp"
+        android:textSize="12sp"
+        android:text="注：该设置仅影响观众端看到的直播样式 ,H 表示主播，M 表示连麦者"/>
+
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/blink_text_white"
+        android:text="保存"
+        android:textSize="14sp"
+        android:background="@drawable/select_btn_bg"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_margin="8dp"/>
+
+</LinearLayout>

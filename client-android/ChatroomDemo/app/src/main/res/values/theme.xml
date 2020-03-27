@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ChatRoomTheme" parent="@android:style/Theme.Holo.Light">
+    <style name="ChatRoomTheme" parent="Theme.Design.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
     </style>
 

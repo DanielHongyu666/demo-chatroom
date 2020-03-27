@@ -25,15 +25,9 @@ public class UserBlockView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomUserBlock) {
-            String id = ((ChatroomUserBlock) msgContent).getId();
-            String name = "";
-            if (DataInterface.getUserInfo(id) != null) {
-                name = DataInterface.getUserInfo(id).getName();
-            } else {
-                name = id;
-            }
+            String name = getSendUserName();
             tvInfo.setText("系统通知  " + name + "被踢出聊天室");
         }
 

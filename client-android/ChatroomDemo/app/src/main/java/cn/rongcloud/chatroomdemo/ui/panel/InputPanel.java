@@ -1,6 +1,7 @@
 package cn.rongcloud.chatroomdemo.ui.panel;
 
 import android.content.Context;
+import android.opengl.Visibility;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import cn.rongcloud.chatroomdemo.R;
+import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 
 
 public class InputPanel extends LinearLayout {
@@ -87,6 +89,11 @@ public class InputPanel extends LinearLayout {
             @Override
             public void onClick(View v) {
                 emojiBoard.setVisibility(emojiBoard.getVisibility() == VISIBLE ? GONE : VISIBLE);
+                if (emojiBoard.getVisibility() == VISIBLE) {
+                    CommonUtils.hideInputMethod(getContext(), textEditor);
+                }else {
+                    CommonUtils.showInputMethod(getContext(), textEditor);
+                }
                 emojiBtn.setSelected(emojiBoard.getVisibility() == VISIBLE);
             }
         });
@@ -99,6 +106,7 @@ public class InputPanel extends LinearLayout {
                 }
                 textEditor.getText().clear();
                 layout.setVisibility(GONE);
+                CommonUtils.hideInputMethod(getContext(),textEditor);
             }
         });
 
@@ -130,6 +138,17 @@ public class InputPanel extends LinearLayout {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if (visibility == View.VISIBLE) {
+            textEditor.requestFocus();
+            CommonUtils.showInputMethod(getContext(), textEditor);
+        }else {
+            emojiBoard.setVisibility(visibility);
+        }
     }
 
     private void hideKeyboard() {

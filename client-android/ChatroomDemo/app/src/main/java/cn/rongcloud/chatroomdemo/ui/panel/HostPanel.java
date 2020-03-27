@@ -1,6 +1,7 @@
 package cn.rongcloud.chatroomdemo.ui.panel;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,7 @@ public class HostPanel extends LinearLayout {
         tvFocus.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (DataInterface.isLoginStatus()) {
+                if (DataInterface.isLogin()) {
                     ChatroomFollow follow = new ChatroomFollow();
                     follow.setId(ChatroomKit.getCurrentUser().getUserId());
                     ChatroomKit.sendMessage(follow);
@@ -84,9 +85,9 @@ public class HostPanel extends LinearLayout {
         tvGiftNum.setText("礼物：" + giftNum);
     }
 
-    public void setHostInfo(String name, int avatar) {
+    public void setHostInfo(String name, Uri uri) {
         tvHostName.setText(name);
-        ivHostAvatar.setImageResource(avatar);
+        ivHostAvatar.setImageURI(uri);
     }
 
     public void setHostName(String name) {

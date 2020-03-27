@@ -1,9 +1,7 @@
 (function (RongIM, dependencies, components) {
 'use strict';
 var utils = RongIM.utils;
-var chatroomList = RongIM.config.chatroomList;
 var dataModel = RongIM.dataModel;
-var Cache = dataModel.Cache;
 var BlockType = utils.BlockType;
 components.getUserBlock = function(resolve, reject) {
     var options = {
@@ -32,7 +30,7 @@ components.getUserBlock = function(resolve, reject) {
             getReleaseTime: function(user) {
                 var sentTime = user.message.sentTime;
                 var blockTime = user.message.content.duration;
-                var releaseTime = sentTime + blockTime;
+                var releaseTime = sentTime + (blockTime*60*1000);
                 return utils.formatDateTime(releaseTime);
             },
             unBlock: function(user) {
@@ -40,6 +38,7 @@ components.getUserBlock = function(resolve, reject) {
                 var params = {
                     targetId: chatroomId,
                     id: user.id,
+                    user:user
                 };
                 var unBlock = this.isBan ? dataModel.BanUser.unBan : dataModel.BlockUser.unBlock;
                 unBlock(params, function(err) {

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/ll_adaptive"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/blink_text_grey"
+            android:text="画面裁剪"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/sc_adaptive_crop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:theme="@style/MySwitch"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 1 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_01"/>
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 2 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_02"/>
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 3 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_03"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 4 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_04"/>
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 5 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_05"/>
+        <TextView
+            style="@style/adaptive_ic_layout"
+            android:text="主播+ 6 个连麦者"
+            android:drawableBottom="@drawable/ic_adaptive_06"/>
+    </LinearLayout>
+
+
+</LinearLayout>

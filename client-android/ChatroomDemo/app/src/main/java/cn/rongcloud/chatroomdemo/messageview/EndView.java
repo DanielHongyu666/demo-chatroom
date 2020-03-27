@@ -24,7 +24,7 @@ public class EndView extends BaseMsgView {
     }
 
     @Override
-    public void setContent(MessageContent msgContent, String senderUserId) {
+    protected void onBindContent(MessageContent msgContent, String senderUserId) {
         if (msgContent instanceof ChatroomEnd) {
             int duration = ((ChatroomEnd) msgContent).getDuration();
             //  String time = CommonUtils.getTime(duration / 1000);

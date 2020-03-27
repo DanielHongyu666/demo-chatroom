@@ -15,3 +15,11 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn com.tencent.bugly.**
+
+-keep public class com.tencent.bugly.**{*;}
+
+-keep class cn.rongcloud.rtc.core .**  { *; }
+
+-keep class cn.rongcloud.chatroomdemo.utils.**  { *; }

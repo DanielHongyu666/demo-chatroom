@@ -69,8 +69,7 @@ function setGiftDetail(context, message) {
 }
 
 function setGiftUser(context, message) {
-    var userId = message.senderUserId;
-    var user = dataModel.User.getDetail(userId);
+    var user = message.content.user;
     context.user = user;
 }
 

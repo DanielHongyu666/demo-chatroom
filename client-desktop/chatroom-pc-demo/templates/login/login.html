@@ -1,22 +1,52 @@
 <div class="rong-login">
     <!-- 登录页圆形背景 -->
-    <div class="rong-log-bg-left"></div>
+    <!-- <div class="rong-log-bg-left"></div>
     <div class="rong-log-bg-right">
         <div class="rong-log-bg-inr">
             <div class="rong-log-bg-inr">
                 <div class="rong-log-bg-tri"></div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- 登录页主播列表 -->
-    <div class="rong-login-box">
-        <p class="rong-login-title">融云直播聊天室主播端, 选择主播进入聊天室</p>
+    <div v-if="isAudience" class="rong-login-box">
+        <p class="rong-login-title">融云直播聊天室主播端, 选择房间进入聊天室</p>
         <div class="rong-login-list">
-            <div class="rong-login-user" v-for="chat, index in chatroomList" @click="login(chat, index+1)">
-                <div class="rong-user-port" :style="getPortraitStyle(chat)"></div>
-                <p class="rong-user-name">{{chat.name}}</p>
+            <div class="rong-login-user" v-for="room, index in chatroomList" @click="login(room, '观众')">
+                <div class="rong-user-port" :style="getPortraitStyle(room)"></div>
+                <p class="rong-user-name">{{room.roomName}}</p>
             </div>
         </div>
     </div>
+    <!-- <div class="rong-login-box">
+        <p class="rong-login-title">融云直播聊天室主播端, 点击创建聊天室</p>
+        <div class="rong-login-list">
+            <div class="rong-login-creat" @click="login(chat, index+1)">
+                <div class="rong-creat-room" style="background-image: url('../img/add.png');"></div>
+            </div>
+        </div>
+    </div> -->
+    <div v-else class="rong-login-box">
+        <img :src="chatroomImg"/>
+        <div class="rong-box-info">
+            <p class="rong-login-title">请输入直播间名称，既可作为主播进入该直播间</p>
+            <div class="rong-login-create">
+                <!-- <SPan>直播间名称： </SPan> -->
+                <input type="text" v-model="chartName" placeholder="输入直播间名称（1-20字）"/>
+                <div class="rong-login-tip" v-html="chartNameTip"></div>
+            </div>
+            <div class="rong-login-create">
+                <!-- <span>主播名称:</span> -->
+                <input type="text" v-model="userName" placeholder="输入主播名称（1-20字符）"/>
+                <div class="rong-login-tip" v-html="userNameTip"></div>
+            </div>
+
+            <button @click="start()">{{text}}</button>
+        </div>
+        <div class="rong-login-version">SealLive v2.1.0 , RTCLib v3.2.1</div>
+        
+        <!-- <button @click="start()">{{text}}</button> -->
+    </div>
+    
 </div>
