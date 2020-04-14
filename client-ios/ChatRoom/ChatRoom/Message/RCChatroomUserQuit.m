@@ -13,7 +13,9 @@
            [dataDict setObject:@"" forKey:@"id"];
         }
       
-  
+  if (self.senderUserInfo) {
+      [dataDict setObject:[self encodeUserInfo:self.senderUserInfo] forKey:@"user"];
+  }
       
         if (self.extra) {
           [dataDict setObject:self.extra forKey:@"extra"];
@@ -45,7 +47,8 @@
       
         self.extra = [json objectForKey:@"extra"];
       
-      
+      NSDictionary *userinfoDic = dictionary[@"user"];
+                 [self decodeUserInfo:userinfoDic];
       
     
   }

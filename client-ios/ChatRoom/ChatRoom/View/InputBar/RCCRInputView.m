@@ -110,7 +110,10 @@
 }
 
 - (void)clearInputText {
-    [_inputTextView setText:@""];
+    dispatch_async(dispatch_get_main_queue(), ^{
+       [_inputTextView setText:@""];
+    });
+    
 }
 
 - (void)initializedSubViews {

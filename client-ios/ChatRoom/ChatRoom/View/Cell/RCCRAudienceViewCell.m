@@ -16,6 +16,11 @@
 
 @property (nonatomic, strong) UILabel *nameLbl;
 
+/**
+ invite btn
+ */
+@property(nonatomic , strong)UIButton *inviteBtn;
+
 @end
 
 @implementation RCCRAudienceViewCell
@@ -30,6 +35,7 @@
     
     [_portraitView setImage:[UIImage imageNamed:model.audiencePortrait]];
     [_nameLbl setText:model.audienceName];
+   
 }
 
 - (void)initializedSubViews {
@@ -38,10 +44,26 @@
     [_portraitView setFrame:CGRectMake(20, 10, 20, 20)];
     [_portraitView.layer setCornerRadius:10];
     [_portraitView.layer setMasksToBounds:YES];
-    
+    if (self.inviteBtn) {
+        [self.inviteBtn removeFromSuperview];
+        self.inviteBtn = nil;
+    }
+    self.inviteBtn = [[UIButton alloc] initWithFrame:CGRectMake(self.contentView.frame.size.width - 105, 5, 100, 30)];
+    [self.inviteBtn setBackgroundColor:[UIColor blueColor]];
+    [self.inviteBtn.titleLabel setFont:[UIFont systemFontOfSize:15]];
+    [self.inviteBtn setTitle:@"邀请连麦" forState:UIControlStateNormal];
+    [self.inviteBtn addTarget:self action:@selector(didSelectInviteBtn) forControlEvents:UIControlEventTouchUpInside];
+    if (self.model.invited) {
+        [self.inviteBtn setBackgroundColor:[UIColor lightGrayColor]];
+        self.inviteBtn.enabled = NO;
+    } else {
+        [self.inviteBtn setBackgroundColor:[UIColor blueColor]];
+        self.inviteBtn.enabled = YES;
+    }
     [self addSubview:self.nameLbl];
+    [self addSubview:self.inviteBtn];
     [_nameLbl setFrame:CGRectMake(20 + 20 + 10, 10, 100, 20)];
-    
+     _inviteBtn.frame = CGRectMake(self.contentView.frame.size.width - 105, 5, 100, 30);
 }
 
 - (UIImageView *)portraitView {
@@ -62,4 +84,9 @@
     return  _nameLbl;
 }
 
+- (void)didSelectInviteBtn{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(didSelectInviteAudienceBtn:)]) {
+        [self.delegate didSelectInviteAudienceBtn:self.model];
+    }
+}
 @end

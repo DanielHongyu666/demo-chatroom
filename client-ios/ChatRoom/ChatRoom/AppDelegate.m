@@ -22,8 +22,13 @@
 #import "RCChatroomUserBlock.h"
 #import "RCChatroomUserUnBlock.h"
 #import "RCChatroomNotification.h"
+#import <RongRTCLib/RongRTCLib.h>
+#import "RCCRLiveHttpManager.h"
 
-#define APPKEY @"e5t4ouvptkm2a"
+#import "RCCRUtilities.h"
+#import "RCChatRoomLiveCommand.h"
+#import "RCChatRoomNotiAllMessage.h"
+#import <Bugly/Bugly.h>
 @interface AppDelegate ()
 
 @end
@@ -32,9 +37,16 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
-    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] initRongCloud:APPKEY];
-    
+     BuglyConfig *config = [[BuglyConfig alloc] init];
+    #ifdef DEBUG
+        config.channel = @"Debug";
+    #else
+        config.channel = @"Release";
+    #endif
+        
+        [Bugly startWithAppId:@"6a70b5f85e" config:config];
+        [Bugly setUserIdentifier:[UIDevice currentDevice].name];
+        // 自动化测试取消重定向
     //注册自定义消息
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomWelcome class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomGift class]];
@@ -49,6 +61,9 @@
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserBlock class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomUserUnBlock class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomNotification class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatRoomLiveCommand class]];
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatRoomNotiAllMessage class]];
+    [[RCIMClient sharedRCIMClient] setLogLevel:RC_Log_Level_Verbose];
     RCCRListCollectionViewController *viewController = [[RCCRListCollectionViewController alloc] init];
     
     // 初始化 UINavigationController。
@@ -59,9 +74,28 @@
     
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
-    
+    //AutoTest
     return YES;
 }
+- (void)redirectNSlogToDocumentFolder {
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    
+    NSDate *currentDate = [NSDate date];
+    NSDateFormatter *dateformatter = [[NSDateFormatter alloc] init];
+    [dateformatter setDateFormat:@"MMddHHmmss"];
+    NSString *formattedDate = [dateformatter stringFromDate:currentDate];
+    
+    NSString *fileName = [NSString stringWithFormat:@"rc%@.log", formattedDate];
+    NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
+    
+    freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stdout);
+    freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+    
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

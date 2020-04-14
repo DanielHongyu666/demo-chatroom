@@ -35,11 +35,12 @@ FOUNDATION_EXPORT NSString *const RCCRConnectChangeNotification;
  初始化融云SDK
  
  @param appKey  从融云开发者平台创建应用后获取到的App Key
+ @param navi  导航地址
  
  @discussion 您在使用融云SDK所有功能（包括显示SDK中或者继承于SDK的View）之前，您必须先调用此方法初始化SDK。
  在App整个生命周期中，您只需要执行一次初始化。
  */
-- (void)initRongCloud:(NSString *)appKey;
+- (void)initRongCloud:(NSString *)appKey navi:(NSString *)navi;
 
 #pragma mark - 连接与断开服务器
 
@@ -179,5 +180,9 @@ FOUNDATION_EXPORT NSString *const RCCRConnectChangeNotification;
  @discussion 与融云服务器建立连接之后，应该设置当前用户的用户信息，用于SDK显示和发送。
  */
 @property(nonatomic, strong) RCUserInfo *currentUserInfo;
+// 统一封装登录接口
+-(void)connectWithUserId:(NSString *)userId userName:(NSString *)userName portraitUri:(NSString *)portraitUri success:(void (^)(NSString *userId))successBlock
+         error:(void (^)(RCConnectErrorCode status))errorBlock
+          tokenIncorrect:(void (^)(void))tokenIncorrectBlock;
 
 @end

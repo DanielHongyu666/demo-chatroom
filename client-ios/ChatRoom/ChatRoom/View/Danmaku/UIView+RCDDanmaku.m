@@ -10,7 +10,7 @@
 #import "RCDDanmaku.h"
 #import "RCDDanmakuInfo.h"
 #import "RCDDanmakuManager.h"
-
+#import <RongRTCLib/RongRTCLib.h>
 #define X(view) view.frame.origin.x
 #define Y(view) view.frame.origin.y
 #define Width(view) view.frame.size.width
@@ -95,7 +95,7 @@ alpha:1.0]
         }
     }
     [RCDanmakuManager.currentDanmakuCache removeAllObjects];
-    
+    [RCDanmakuManager.danmakus removeAllObjects];
     [RCDanmakuManager reset];
 }
 
@@ -164,7 +164,7 @@ alpha:1.0]
     UIView *backView = [[UIView alloc] init];
     [backView setFrame:CGRectMake(0, 0, 70+contentWidth, 40)];
     
-    UIImageView *portraitImgV = [[UIImageView alloc] initWithImage:[UIImage imageNamed:danmaku.model.portraitUri]];
+    UIImageView *portraitImgV = [[UIImageView alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"audience%@",danmaku.model.portraitUri]]];
     [backView addSubview:portraitImgV];
     [portraitImgV setFrame:CGRectMake(0, 0, 40, 40)];
     portraitImgV.layer.cornerRadius = 20;
@@ -208,12 +208,14 @@ alpha:1.0]
 
 #pragma mark over load danmaku
 - (void)rc_playOverLoadDanmaku {
-    if (!RCDanmakuManager.timer && RCDanmakuManager.isPlaying) {
+//    if (!RCDanmakuManager.timer && RCDanmakuManager.isPlaying) {
         NSTimeInterval interval = RCDanmakuManager.duration / RCDanmakuManager.maxShowLineCount * 1.0 + 0.1;
+        [RCDanmakuManager.timer invalidate];
+        RCDanmakuManager.timer = nil;
         RCDanmakuManager.timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(rc_sendOverLoadDanmaku) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:RCDanmakuManager.timer forMode:NSRunLoopCommonModes];
         [RCDanmakuManager.timer fire];
-    }
+//    }
 }
 
 
@@ -278,7 +280,7 @@ alpha:1.0]
     NSInteger lineCount = info.lineCount;
     
     if (info.danmaku.position == RCDDanmakuPositionCenterTop) {
-        label.frame = CGRectMake((Width(self) - Width(label)) * 0.5, (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount, Width(label), Height(label));
+        label.frame = CGRectMake((Width(self) - Width(label)) * 0.5, (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount + 70, Width(label), Height(label));
         NSLog(@"top frame %@",NSStringFromCGRect(label.frame));
     }else{
         label.frame = CGRectMake((Width(self) - Width(label)) * 0.5, Height(self) - Height(label) - (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount, Width(label), Height(label));
@@ -344,7 +346,7 @@ alpha:1.0]
         newInfo.lineCount = lineCount;
     }
     
-    playerLabel.frame = CGRectMake(Width(self), 0, Width(playerLabel), Height(playerLabel));
+    playerLabel.frame = CGRectMake(Width(self), 50, Width(playerLabel), Height(playerLabel));
     
     [self rc_addAnimationToViewWithInfo:newInfo];
     
@@ -377,8 +379,11 @@ alpha:1.0]
 {
     UILabel* label = info.playLabel;
     NSInteger lineCount = info.lineCount;
-    
-    label.frame = CGRectMake(Width(self), (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount, Width(label), Height(label));
+    CGFloat height = 0 ;
+    if ([RongRTCEngine sharedEngine].currentRoom.remoteUsers.count > 0) {
+        height = 150;
+    }
+    label.frame = CGRectMake(Width(self), (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount + 50 + height, Width(label), Height(label));
     
     [RCDanmakuManager.subDanmakuInfos addObject:info];
     RCDanmakuManager.linesDict[@(lineCount)] = info;
@@ -392,7 +397,6 @@ alpha:1.0]
     
     UILabel* label = info.playLabel;
     CGRect endFrame = CGRectMake(-Width(label), Y(label), Width(label), Height(label));
-    
     
     [self addSubview:label];
     __weak typeof(self) weakSelf = self;

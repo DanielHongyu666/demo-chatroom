@@ -23,9 +23,31 @@
 @property(nonatomic, copy) NSString *targetId;
 
 /**
+ roomid
+ */
+@property(nonatomic , copy)NSString *roomID;
+
+
+/**
+ roomName
+ */
+@property(nonatomic , copy)NSString *roomName;
+
+/**
+ uri
+ */
+@property(nonatomic , copy)NSString *url;
+
+/**
  数据模型
  */
 @property(nonatomic, strong) RCCRLiveModel *model;
+
+/**
+ 是不是直播间拥有者，也就是z创建直播间的那个人
+ */
+@property(nonatomic , assign)BOOL isOwer;
+
 
 /**
  设置进入聊天室需要获取的历史消息数量（仅在当前会话为聊天室时生效）

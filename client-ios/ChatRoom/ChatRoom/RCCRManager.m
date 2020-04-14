@@ -55,11 +55,7 @@
 
 - (RCUserInfo *)getUserInfoWithNumber:(int)number {
     RCUserInfo *userInfo = [[RCUserInfo alloc] init];
-    NSDictionary *userDic = self.userArray[number - 1];
-    userInfo.userId = userDic[@"id"];
-    userInfo.name = userDic[@"name"];
-    userInfo.portraitUri = [NSString stringWithFormat:@"tourists%d",number%10];
-    self.defaultToken = userDic[@"token"];
+    userInfo.portraitUri = [NSString stringWithFormat:@"%d",number%10 + 1];
     return userInfo;
 }
     
@@ -95,6 +91,9 @@
 //            break;
 //        }
 //    }
+    if ([userId isEqualToString:[RCIMClient sharedRCIMClient].currentUserInfo.userId]) {
+        userInfo = [RCIMClient sharedRCIMClient].currentUserInfo;
+    }
     return userInfo;
 }
 

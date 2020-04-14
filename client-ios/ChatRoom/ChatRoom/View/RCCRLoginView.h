@@ -7,17 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "RCCRLiveModel.h"
 @protocol RCCRLoginViewDelegate <NSObject>
 
 @optional
 
-- (void)clickLoginBtn:(UIButton *)loginBtn;
+- (void)clickLoginBtn:(UIButton *)loginBtn userName:(NSString *)userName model:(RCCRLiveModel *)model;
 
 @end
 
 @interface RCCRLoginView : UIView
-
+- (void)addObserver;
+- (void)removeObserver;
 @property (nonatomic, weak) id<RCCRLoginViewDelegate> delegate;
 
 @end

@@ -54,10 +54,10 @@ alpha:1.0]
 
 - (void)updateUI:(RCCRMessageModel *)model {
     if ([model.content isMemberOfClass:[RCChatroomWelcome class]]) {
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
-        NSString *userName = userInfo.name;
+        RCUserInfo *userInfo = model.userInfo;
+        NSString *userName = [userInfo.name stringByAppendingString:@""];
         NSString *localizedMessage = @"进入直播间";
-        NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+        NSString *str =[NSString stringWithFormat:@"%@%@",userName,localizedMessage];
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
         
         [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
@@ -65,10 +65,10 @@ alpha:1.0]
         [self.textLabel setAttributedText:attributedString.copy];
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomUserQuit class]]) {
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
-        NSString *userName = userInfo.name;
+        RCUserInfo *userInfo = model.userInfo;
+        NSString *userName = [userInfo.name stringByAppendingString:@""];
         NSString *localizedMessage = @"退出直播间";
-        NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+        NSString *str =[NSString stringWithFormat:@"%@%@",userName,localizedMessage];
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
         
         [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
@@ -76,10 +76,10 @@ alpha:1.0]
         [self.textLabel setAttributedText:attributedString.copy];
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomFollow class]]) {
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
-        NSString *userName = userInfo.name;
+        RCUserInfo *userInfo = model.userInfo;
+        NSString *userName = [userInfo.name stringByAppendingString:@"："];
         NSString *localizedMessage = @"关注了主播";
-        NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+        NSString *str =[NSString stringWithFormat:@"%@%@",userName,localizedMessage];
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
         
         [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
@@ -88,10 +88,10 @@ alpha:1.0]
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomLike class]]) {
         RCChatroomLike *likeMessage = (RCChatroomLike *)model.content;
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
-        NSString *userName = userInfo.name;
+        RCUserInfo *userInfo = model.userInfo;
+        NSString *userName = [userInfo.name stringByAppendingString:@" "];
         NSString *localizedMessage = [NSString stringWithFormat:@"给主播点了%d个赞",likeMessage.counts];
-        NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+        NSString *str =[NSString stringWithFormat:@"%@%@",userName,localizedMessage];
         NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
         
         [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
@@ -102,9 +102,9 @@ alpha:1.0]
         RCTextMessage *textMessage = (RCTextMessage *)self.model.content;
         if (self.model.senderUserId) {
             NSString *localizedMessage = textMessage.content;
-            RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:self.model.senderUserId];
-            NSString *userName = userInfo.name;
-            NSString *str =[NSString stringWithFormat:@"%@ %@",userName,localizedMessage];
+            RCUserInfo *userInfo = model.userInfo;
+            NSString *userName = [userInfo.name stringByAppendingString:@"："];
+            NSString *str =[NSString stringWithFormat:@"%@%@",userName,localizedMessage];
             NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
             
             [attributedString addAttribute:NSForegroundColorAttributeName value:(RCCRText_HEXCOLOR(0x3ce1ff)) range:[str rangeOfString:userName]];
@@ -138,7 +138,7 @@ alpha:1.0]
         return;
     }else if ([model.content isMemberOfClass:[RCChatroomUserBan class]]) {
         RCChatroomUserBan *userBanMessage = (RCChatroomUserBan *)self.model.content;
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:userBanMessage.id];
+        RCUserInfo *userInfo = model.userInfo;
         NSString *userName = userInfo.name;
         NSString *content = [NSString stringWithFormat:@"被禁言 %d 分钟",userBanMessage.duration];
         NSString *notice = @"系统通知";
@@ -152,12 +152,13 @@ alpha:1.0]
         
         //设置禁言
         if ([userBanMessage.id isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId] && userBanMessage.duration >= 1) {
+           
             [[RCCRManager sharedRCCRManager] setUserBan:userBanMessage.duration];
         }
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomUserUnBan class]]) {
         RCChatroomUserUnBan *userUnbanMessage = (RCChatroomUserUnBan *)self.model.content;
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:userUnbanMessage.id];
+        RCUserInfo *userInfo =  model.userInfo;
         NSString *userName = userInfo.name;
         NSString *content = @"已被解除禁言";
         NSString *notice = @"系统通知";
@@ -176,7 +177,7 @@ alpha:1.0]
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomUserBlock class]]) {
         RCChatroomUserBlock *userBlockMessage = (RCChatroomUserBlock *)self.model.content;
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:userBlockMessage.id];
+        RCUserInfo *userInfo = model.userInfo;
         NSString *userName = userInfo.name;
         NSString *content = @"被踢出聊天室";
         NSString *notice = @"系统通知";
@@ -190,7 +191,7 @@ alpha:1.0]
         return;
     } else if ([model.content isMemberOfClass:[RCChatroomUserUnBlock class]]) {
         RCChatroomUserUnBlock *userUnBlockMessage = (RCChatroomUserUnBlock *)self.model.content;
-        RCUserInfo *userInfo = [[RCCRManager sharedRCCRManager] getUserInfo:userUnBlockMessage.id];
+        RCUserInfo *userInfo = model.userInfo;
         NSString *userName = userInfo.name;
         NSString *content = @"已被解除封禁";
         NSString *notice = @"系统通知";

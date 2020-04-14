@@ -190,20 +190,21 @@ static NSString * const giftCollectionViewCellIdentify = @"giftCollectionViewCel
     
     [self addSubview:self.giftNumSelectBtn];
     [_giftNumSelectBtn setFrame:CGRectMake(width-260, 200, 140, 40)];
-    
+    [self.giftNumPicker removeFromSuperview];
+    self.giftNumPicker = nil;
     [self addSubview:self.giftNumPicker];
     
     [self addSubview:self.giftNumberLbl];
+    [_giftNumberLbl setText:@"9"];
     [_giftNumberLbl setFrame:CGRectMake(width-110, 200, 40, 40)];
     
     [self addSubview:self.sendGiftBtn];
     [_sendGiftBtn setFrame:CGRectMake(width-60, 200, 40, 40)];
-    
     [self addSubview:self.pageControl];
     [_pageControl setFrame:CGRectMake((width - 100)/2, 5, 100, 10)];
     [_pageControl setCurrentPageIndicatorTintColor:[UIColor blackColor]];
     [_pageControl setPageIndicatorTintColor:[UIColor grayColor]];
-    
+   
 }
 
 - (UILabel *)titleLabel {
@@ -300,5 +301,8 @@ static NSString * const giftCollectionViewCellIdentify = @"giftCollectionViewCel
         [_sendGiftBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     }
     return _sendGiftBtn;
+}
+- (void)change:(id)sender {
+    
 }
 @end

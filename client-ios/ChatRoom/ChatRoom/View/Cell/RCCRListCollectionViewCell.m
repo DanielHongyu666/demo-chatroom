@@ -40,7 +40,7 @@
     [self.titleLabel setFrame:CGRectMake(size.width - 70, 10, 60, 20)];
     [self.titleLabel.layer setCornerRadius:10];
     [self.titleLabel.layer setMasksToBounds:YES];
-    [self.nameLabel setFrame:CGRectMake((size.width - 100)/2, size.width - 20, 100, 20)];
+    [self.nameLabel setFrame:CGRectMake(5, self.icon.frame.origin.y + self.icon.frame.size.height - 20 - 6, size.width - 10, 20)];
     [self.numberLabel setFrame:CGRectMake(size.width -  90, size.width - 20, 80, 20)];
 }
 
@@ -49,14 +49,14 @@
     [self.titleLabel setText:@"直播中"];
     [self.nameLabel setText:model.hostName];
 //    [self.numberLabel setText:[NSString stringWithFormat:@"%ld人",(long)model.audienceAmount]];
-    [self.icon setImage:[UIImage imageNamed:model.hostPortrait]];
+    NSString *imageName = [NSString stringWithFormat:@"chatroom_0%@",model.cover];
+    [self.icon setImage:[UIImage imageNamed:imageName]];
 }
 
 
 - (UIImageView *)icon {
     if (!_icon) {
         _icon = [[UIImageView alloc] init];
-        [_icon setBackgroundColor:[UIColor blueColor]];
         [_icon setUserInteractionEnabled:YES];
     }
     return _icon;
@@ -68,6 +68,7 @@
         [_titleLabel setNumberOfLines:0];
         [_titleLabel setTextAlignment:NSTextAlignmentCenter];
         [_titleLabel setFont:[UIFont systemFontOfSize:16]];
+        _titleLabel.hidden = YES;
         [_titleLabel setBackgroundColor:[UIColor grayColor]];
     }
     return _titleLabel;
@@ -78,7 +79,9 @@
         _nameLabel = [[UILabel alloc] init];
         [_nameLabel setNumberOfLines:0];
         [_nameLabel setTextAlignment:NSTextAlignmentCenter];
-        [_nameLabel setFont:[UIFont systemFontOfSize:16]];
+        [_nameLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:13]];
+        [_nameLabel setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.4]];
+        [_nameLabel setTextColor:[UIColor whiteColor]];
     }
     return _nameLabel;
 }

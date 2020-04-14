@@ -43,7 +43,7 @@
 - (void)setDataModel:(RCCRLiveModel *)model {
     self.hostModel = model;
     
-    [_portraitView setImage:[UIImage imageNamed:model.hostPortrait]];
+    [_portraitView setImage:[UIImage imageNamed:[NSString stringWithFormat:@"chatroom_0%@",model.cover]]];
     
     [_nameLbl setText:model.hostName];
     [_fansLbl setText:[NSString stringWithFormat:@"粉丝：%ld",(long)model.fansAmount]];

@@ -8,9 +8,20 @@
 
 #import <UIKit/UIKit.h>
 #import "RCCRAudienceModel.h"
-
+@protocol RCCRAudienceViewCellDelegate;
 @interface RCCRAudienceViewCell : UITableViewCell
 
 - (void)setDataModel:(RCCRAudienceModel *)model;
+
+/**
+ delegate
+ */
+@property(nonatomic , weak)id <RCCRAudienceViewCellDelegate> delegate;
+
+
+@end
+@protocol RCCRAudienceViewCellDelegate <NSObject>
+
+- (void)didSelectInviteAudienceBtn:(RCCRAudienceModel *)model;
 
 @end

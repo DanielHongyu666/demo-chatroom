@@ -11,13 +11,14 @@
 
 static NSString *reusableCellWithIdentifier = @"RCCRAudienceTableViewCell";
 
-@interface RCCRAudienceListView ()<UITableViewDelegate, UITableViewDataSource>
+@interface RCCRAudienceListView ()<UITableViewDelegate, UITableViewDataSource , RCCRAudienceViewCellDelegate>
 
 @property (nonatomic, strong) NSArray<RCCRAudienceModel *> *audienceArr;
 
 @property (nonatomic, strong) UILabel *titleLabel;
 
 @property (nonatomic, strong) UITableView *audienceTableView;
+
 
 @end
 
@@ -40,16 +41,28 @@ static NSString *reusableCellWithIdentifier = @"RCCRAudienceTableViewCell";
 - (void)initializedSubViews {
     [self addSubview:self.titleLabel];
     [_titleLabel setFrame:CGRectMake(10, 20, 100, 20)];
-    
     [self addSubview:self.audienceTableView];
     [_audienceTableView setFrame:CGRectMake(0, 50, self.bounds.size.width, self.bounds.size.height - 50)];
 }
 
 - (void)setModelArray:(NSArray<RCCRAudienceModel *> *)modelArray {
     self.audienceArr = [modelArray copy];
-    [_audienceTableView reloadData];
+    [self.audienceTableView reloadData];
 }
-
+-(void)reloadInvitedStateWithUserId:(NSString *)userId{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (RCCRAudienceModel *model in self.audienceArr) {
+            if ([model.userId isEqualToString:userId]) {
+                model.invited = NO;
+                NSInteger index = [self.audienceArr indexOfObject:model];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+                [self.audienceTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+            }
+        }
+    });
+    
+}
 #pragma mark - UITableView delegate/dataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -58,7 +71,7 @@ static NSString *reusableCellWithIdentifier = @"RCCRAudienceTableViewCell";
 - (NSInteger)tableView:(UITableView *)tableView
  numberOfRowsInSection:(NSInteger)section {
     
-    return self.audienceArr.count == 0 ? 20 : self.audienceArr.count;
+    return  self.audienceArr.count;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 40;
@@ -74,14 +87,26 @@ static NSString *reusableCellWithIdentifier = @"RCCRAudienceTableViewCell";
 
     RCCRAudienceModel * model = self.audienceArr[indexPath.row];
     [cell setDataModel:model];
+    cell.delegate = self;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"点击了关注列表");
+//    RCCRAudienceModel * model = self.audienceArr[indexPath.row];
+//    if (self.delegate && [self.delegate respondsToSelector:@selector(didSelectAudience:)]) {
+//        [self.delegate didSelectAudience:model];
+//    }
+   
 }
-
+-(void)didSelectInviteAudienceBtn:(RCCRAudienceModel *)model{
+    NSInteger index = [self.audienceArr indexOfObject:model];
+    model.invited = YES;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(didSelectAudience:index:)]) {
+        [self.delegate didSelectAudience:model index:index];
+    }
+}
 - (UILabel *)titleLabel {
     if (!_titleLabel) {
         _titleLabel = [[UILabel alloc] init];

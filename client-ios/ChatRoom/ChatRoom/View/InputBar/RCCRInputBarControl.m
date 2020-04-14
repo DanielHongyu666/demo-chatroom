@@ -193,7 +193,10 @@
 }
 
 - (void)clearInputView {
-    [self.inputBoxView clearInputText];
+    dispatch_async(dispatch_get_main_queue(), ^{
+       [self.inputBoxView clearInputText];
+    });
+    
 }
 
 @end

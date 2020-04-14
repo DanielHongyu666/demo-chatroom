@@ -21,7 +21,9 @@
 #import "UIView+RCDDanmaku.h"
 #import "RCDDanmaku.h"
 #import "RCDDanmakuManager.h"
-
+#import "RCCRLiveHttpManager.h"
+#import "RCChatRoomLiveCommand.h"
+#import "UIColor+Helper.h"
 #define kRandomColor [UIColor colorWithRed:arc4random_uniform(256) / 255.0 green:arc4random_uniform(256) / 255.0 blue:arc4random_uniform(256) / 255.0 alpha:1]
 
 static NSString * const portraitCollectionViewCell = @"portraitCollectionViewCell";
@@ -41,9 +43,17 @@ static NSString * const portraitCollectionViewCell = @"portraitCollectionViewCel
 #import "RCChatroomUserBlock.h"
 #import "RCChatroomUserUnBlock.h"
 #import "RCChatroomNotification.h"
+#import "RCCRRemoteView.h"
+#import "RCCRLiveModuleManager.h"
+#import "RCChatRoomNotiAllMessage.h"
+#import "RCActiveWheel.h"
+#import "RCCRSettingViewController.h"
 static NSString * const banNotifyContent = @"您已被管理员禁言";
 
 #define kRandomColor [UIColor colorWithRed:arc4random_uniform(256) / 255.0 green:arc4random_uniform(256) / 255.0 blue:arc4random_uniform(256) / 255.0 alpha:1]
+
+
+#define KMAXCOUNT 5
 
 static NSString * const portraitCollectionViewCellIndentifier = @"portraitCollectionViewCellIndentifier";
 
@@ -56,7 +66,13 @@ static NSString *const textCellIndentifier = @"textCellIndentifier";
 
 static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier";
 
-@interface RCCRLiveChatRoomViewController () <UICollectionViewDelegate, UICollectionViewDataSource, RCCRInputBarControlDelegate, UIGestureRecognizerDelegate, RCCRLoginViewDelegate, RCCRGiftViewDelegate, RCCRHostInformationViewDelegate>
+@interface RCCRLiveChatRoomViewController () <UICollectionViewDelegate, UICollectionViewDataSource, RCCRInputBarControlDelegate, UIGestureRecognizerDelegate, RCCRLoginViewDelegate, RCCRGiftViewDelegate, RCCRHostInformationViewDelegate , RCCRLiveModuleDelegate , RCCRAudienceDelegate , RCCRRemoteViewDelegate>
+
+/**
+ 连麦数量
+ */
+@property(nonatomic , strong)NSMutableArray *acceptUsers;
+
 
 /**
  *  播放器view
@@ -104,6 +120,12 @@ static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier
 @property(nonatomic,strong)RCCRAudienceListView *audienceListView;
 
 /**
+ oriframe
+ */
+@property(nonatomic , assign)CGRect oriFrame;
+
+
+/**
  *  返回按钮
  */
 @property (nonatomic, strong) UIButton *backBtn;
@@ -138,10 +160,6 @@ static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier
  */
 @property(nonatomic,strong)UIButton *danmakuBtn;
 
-/**
- 登录的界面
- */
-@property(nonatomic,strong)RCCRLoginView *loginView;
 
 /**
  *  礼物按钮
@@ -157,6 +175,11 @@ static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier
  *  赞按钮
  */
 @property(nonatomic,strong)UIButton *praiseBtn;
+
+/**
+ 主播设置按钮
+ */
+@property(nonatomic , strong)UIButton *settingBtn;
 
 
 /**
@@ -212,6 +235,73 @@ static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier
  */
 @property(nonatomic, assign) NSTimeInterval lastClickPraiseTime;
 
+/**
+ rtc engine
+ */
+@property(nonatomic , strong)RCCRLiveModuleManager *liveModuleManager;
+
+/**
+ local view
+ */
+@property(nonatomic , strong)RongRTCLocalVideoView *localView;
+
+/**
+ remote view
+ */
+@property(nonatomic , strong)RongRTCRemoteVideoView *remoteVideoView;
+
+/**
+ remote view
+ */
+@property(nonatomic , strong)RCCRRemoteView *remoteView ;
+
+/**
+ all live users
+ */
+@property(nonatomic , strong)NSMutableArray *allLiveUsers;
+
+/**
+ select model
+ */
+@property(nonatomic , strong)RCCRRemoteModel *selectModel;
+
+/**
+ remote cell
+ */
+@property(nonatomic , strong)RCCRRemoteViewCellCollectionViewCell *selectCell;
+
+/**
+ selectindexpath
+ */
+@property(nonatomic , strong)NSIndexPath *selectIndexPath;
+
+/**
+ 原始角色
+ */
+@property(nonatomic , assign)RCCRLiveMode oriModel;
+
+/**
+ local is remote
+ */
+@property(nonatomic , assign)BOOL localIsRemote;
+
+/**
+ setting model
+ */
+@property(nonatomic , strong)RCCRSettingModel *settingModel;
+
+/**
+ alert
+ */
+@property(nonatomic , strong)UIAlertController *alert;
+
+/**
+ localView frame
+ */
+@property(nonatomic , assign)CGRect localViewFrame;
+
+
+
 @end
 
 //  用于记录点赞消息连续点击的次数
@@ -239,48 +329,71 @@ static int clickPraiseBtnTimes  = 0 ;
 - (void)rcinit {
     self.conversationDataRepository = [[NSMutableArray alloc] init];
     self.audienceList = [[NSMutableArray alloc] init];
+    self.acceptUsers = [NSMutableArray array];
+    self.allLiveUsers = [NSMutableArray array];
     self.conversationMessageCollectionView = nil;
     self.targetId = nil;
     [self registerNotification];
     self.defaultHistoryMessageCountOfChatRoom = 10;
     self.lastClickPraiseTime = 0;
+    self.liveModuleManager = [[RCCRLiveModuleManager alloc] init];
+    self.liveModuleManager.chatVC = self;
+    self.liveModuleManager.delegate = self;
+    self.oriModel = self.model.liveMode;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    if (self.model.liveMode == RCCRLiveModeHost) {
+        self.isOwer = YES;
+    } else {
+        self.isOwer = NO;
+    }
+ 
     //默认进行弹幕缓存，不过量加载弹幕，如果想要同时大批量的显示弹幕，设置为yes，弹幕就不会做弹道检测和缓存
     RCDanmakuManager.isAllowOverLoad = NO;
     // Do any additional setup after loading the view.
     [self.view setBackgroundColor: [UIColor whiteColor]];
     [self initializedSubViews];
     
-//    self.livePlayingManager = [[KSYLivePlaying alloc] initPlaying:self.contentURL];
-//    self.liveView = self.livePlayingManager.currentLiveView;
-//    [self.liveView setFrame:self.view.frame];
-//    [self.view addSubview:self.liveView];
-//    [self.view sendSubviewToBack:self.liveView];
-    //聊天室类型进入时需要调用加入聊天室接口，退出时需要调用退出聊天室接口
+    //    self.livePlayingManager = [[KSYLivePlaying alloc] initPlaying:self.contentURL];
+    //    self.liveView = self.livePlayingManager.currentLiveView;
+    //    [self.liveView setFrame:self.view.frame];
+    //    [self.view addSubview:self.liveView];
+    //    [self.view sendSubviewToBack:self.liveView];
+    //聊天室类型=时需要调用加入聊天室接口，退出时需要调用退出聊天室接口
     if (ConversationType_CHATROOM == self.conversationType) {
-//        __weak __typeof(&*self)weakSelf = self;
-        [[RCIMClient sharedRCIMClient]
-         joinChatRoom:self.targetId
-         messageCount:10
-         success:^{
-             dispatch_async(dispatch_get_main_queue(), ^{
-                 
-//                 [weakSelf.livePlayingManager startPlaying];
-             });
-             NSLog(@"加入聊天室成功");
-         }
-         error:^(RCErrorCode status) {
-             dispatch_async(dispatch_get_main_queue(), ^{
-                 if (status == KICKED_FROM_CHATROOM) {
-                     // 提示错误信息
-                 } else {
-                     
-                 }
-             });
-         }];
+        //        __weak __typeof(&*self)weakSelf = self;
+   
+            dispatch_async(dispatch_get_main_queue(), ^{
+
+                [[RCIMClient sharedRCIMClient] joinChatRoom:self.targetId messageCount:-1 success:^{
+                    RCChatroomWelcome *joinChatroomMessage = [[RCChatroomWelcome alloc]init];
+                            [joinChatroomMessage setId:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId];
+                            [self sendMessage:joinChatroomMessage pushContent:nil success:nil error:nil];
+                            //                 [weakSelf.livePlayingManager startPlaying];
+                            if (self.model.liveMode == RCCRLiveModeHost) {
+                                [self joinRoom:self.roomID completion:^(BOOL success) {
+                                    if (success) {
+                                        [[RCIMClient sharedRCIMClient] joinChatRoom:self.targetId messageCount:-1 success:^{
+                                            
+                                        } error:^(RCErrorCode status) {
+                                            
+                                        }];
+                                    }
+                                }];
+                            } else {
+                    
+                                [self joinRoom:self.roomID url:self.model.liveUrl];
+                            }
+                } error:^(RCErrorCode status) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self alertErrorWithTitle:@"提示" message:@"加入聊天室失败" ok:@"知道了"];
+                    });
+                }];
+                
+            });
+      
     }
 }
 
@@ -288,17 +401,16 @@ static int clickPraiseBtnTimes  = 0 ;
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES];
 
-    [self.hostPortraitImgV setImage:[UIImage imageNamed:self.model.hostPortrait]];
+    [self.hostPortraitImgV setImage:[UIImage imageNamed:[NSString stringWithFormat:@"chatroom_0%@",self.model.hostPortrait]]];
     [self.hostNameLbl setText:self.model.hostName];
-    [self.audienceNumberLbl setText:[NSString stringWithFormat:@"%ld人",(long)self.model.audienceAmount]];
     
     //  获取数据,刷新界面
-    for (int i = 0; i<10; i++) {
-        RCCRAudienceModel *audienceModel = [[RCCRAudienceModel alloc] init];
-        audienceModel.audienceName = [NSString stringWithFormat:@"观众%d号",i+1];
-        audienceModel.audiencePortrait = [NSString stringWithFormat:@"audience%d",i+1];
-        [self.audienceList addObject:audienceModel];
-    }
+//    for (int i = 0; i<1; i++) {
+//        RCCRAudienceModel *audienceModel = [[RCCRAudienceModel alloc] init];
+//        audienceModel.audienceName = [NSString stringWithFormat:@"观众%d号",i+1];
+//        audienceModel.audiencePortrait = [NSString stringWithFormat:@"audience%d",i+1];
+//        [self.audienceList addObject:audienceModel];
+//    }
     [self.hostInformationView setDataModel:self.model];
     [self.audienceListView setModelArray:self.audienceList];
     NSMutableArray *giftArr = [[NSMutableArray alloc] init];
@@ -335,26 +447,88 @@ static int clickPraiseBtnTimes  = 0 ;
 
 // 清理环境（退出聊天室并断开融云连接）
 - (void)quitConversationViewAndClear {
+    if ([self.model.pubUserId isEqualToString:[RCIMClient sharedRCIMClient].currentUserInfo.userId]) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"确认退出直播间吗" preferredStyle:(UIAlertControllerStyleAlert)];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDestructive) handler:^(UIAlertAction * _Nonnull action) {
+            [self quit];
+        }];
+        [alert addAction:action];
+        [alert addAction:action1];
+        [self presentViewController:alert animated:YES completion:nil];
+    } else {
+        [self quit];
+    }
+    
+}
+- (void)quit{
     if (self.conversationType == ConversationType_CHATROOM) {
-        //退出聊天室
-        RCChatroomUserQuit *quitMessage = [[RCChatroomUserQuit alloc] init];
-        quitMessage.id = [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId;
-        [self sendMessage:quitMessage pushContent:nil success:nil error:nil];
-        [[RCIMClient sharedRCIMClient] quitChatRoom:self.targetId
-                                            success:^{
-                                                
-                                                //断开融云连接，如果你退出聊天室后还有融云的其他通讯功能操作，可以不用断开融云连接，否则断开连接后需要重新connectWithToken才能使用融云的功能
-//                                                [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] logoutRongCloud];
-                                            } error:^(RCErrorCode status) {
-                                                
-                                            }];
+            //退出聊天室
+            RCChatroomUserQuit *quitMessage = [[RCChatroomUserQuit alloc] init];
+            quitMessage.id = [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId;
+            quitMessage.senderUserInfo = [RCIMClient sharedRCIMClient].currentUserInfo;
+            [self sendMessage:quitMessage pushContent:nil success:^(long messageId) {
+                [self quitLiveRoom];
+            } error:^(RCErrorCode nErrorCode, long messageId) {
+                [self quitLiveRoom];
+            }];
+           
+         
+        }
+}
+- (void)quitLiveRoom{
+    [[RCIMClient sharedRCIMClient] quitChatRoom:self.targetId
+                                        success:^{
+        
+        NSLog(@"退出成功");
+        //断开融云连接，如果你退出聊天室后还有融云的其他通讯功能操作，可以不用断开融云连接，否则断开连接后需要重新connectWithToken才能使用融云的功能
+        //                                                [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] logoutRongCloud];
+    } error:^(RCErrorCode status) {
+        NSLog(@"退出失败:%@",@(status));
+    }];
+    
+    if (self.model.liveMode == RCCRLiveModeHost) {
+        if ([[RCIMClient sharedRCIMClient].currentUserInfo.userId isEqualToString:self.model.pubUserId]) {
+            [[RCCRLiveHttpManager sharedManager] unpublish:self.roomID completion:^(BOOL success) {
+                NSLog(@"取消主播资源成功？%@",@(success));
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.navigationController popViewControllerAnimated:YES];
+                    //            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setIsLogin:NO];
+                });
+                // 主播退出
+                [self.liveModuleManager quitRoom:self.roomID completion:^(BOOL isSuccess) {
+                    NSLog(@"退出 RTC room 成功？%@",@(isSuccess));
+                }];
+            }];
+        } else {
+            // 主播退出
+            [self.liveModuleManager quitRoom:self.roomID completion:^(BOOL isSuccess) {
+                NSLog(@"退出 RTC room 成功？%@",@(isSuccess));
+                
+            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.navigationController popViewControllerAnimated:YES];
+                //            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setIsLogin:NO];
+            });
+        }
+        
+        
+    } else {
+        
+        //        // 观众退出
+        [self.liveModuleManager quitLive:^(BOOL isSuccess, RongRTCCode code) {
+            NSLog(@"退出 RTC Live 成功？%@",@(isSuccess));
+            
+        }];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.navigationController popViewControllerAnimated:YES];
-            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setIsLogin:NO];
+            //            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setIsLogin:NO];
         });
     }
+    
 }
-
 - (float)getIPhonexExtraBottomHeight {
     float height = 0;
     if (@available(iOS 11.0, *)) {
@@ -501,7 +675,7 @@ static int clickPraiseBtnTimes  = 0 ;
         } else {
             RCChatroomBarrage *barrageMessage = [[RCChatroomBarrage alloc] init];
             barrageMessage.content = text;
-            [self showDanmaku:text userId:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId];
+            [self showDanmaku:text userInfo:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo];
             [self sendMessage:barrageMessage pushContent:nil success:nil error:nil];
         }
         
@@ -510,7 +684,35 @@ static int clickPraiseBtnTimes  = 0 ;
         [self sendMessage:rcTextMessage pushContent:nil success:nil error:nil];
     }
 }
-
+-(void)didSelectAudience:(RCCRAudienceModel *)model index:(NSInteger)index{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setDefaultBottomViewStatus];
+        [self.audienceList replaceObjectAtIndex:index withObject:model];
+        [self.audienceListView setModelArray:self.audienceList];
+        if (self.acceptUsers.count <= KMAXCOUNT) {
+           
+            RCUserInfo *userInfo = [[RCUserInfo alloc] initWithUserId:model.userId name:model.audienceName portrait:model.audiencePortrait];
+            [self.acceptUsers addObject:userInfo];
+            [self sendPrivateMessageWithTargetId:model.userId type:RCCRLiveCommandTypeInvite];
+        
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showAlert:@"最多邀请六个人进行连麦"];
+            });
+        }
+        
+    });
+}
+- (void)sendPrivateMessageWithTargetId:(NSString *)targetId type:(RCCRLiveCommandType)type{
+    RCChatRoomLiveCommand *command = [[RCChatRoomLiveCommand alloc] init];
+    command.roomId = self.roomID;
+    command.commandType = type;
+    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] sendMessage:(ConversationType_PRIVATE) targetId:targetId content:command pushContent:nil pushData:nil success:^(long messageId) {
+        NSLog(@"给%@发送定向消息成功了",targetId);
+    } error:^(RCErrorCode nErrorCode, long messageId) {
+        NSLog(@"给%@发送定向消息失败了:%@",targetId,@(nErrorCode));
+    }];
+}
 #pragma mark sendMessage/showMessage
 /**
  发送消息
@@ -538,6 +740,7 @@ static int clickPraiseBtnTimes  = 0 ;
                                                        direction:MessageDirection_SEND
                                                        messageId:messageId
                                                          content:messageContent];
+            message.content.senderUserInfo = [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo;
             //  过滤礼物消息，弹幕消息,退出聊天室消息不插入数据源中；
             if ([messageContent isMemberOfClass:[RCChatroomGift class]] || [messageContent isMemberOfClass:[RCChatroomBarrage class]] || [messageContent isMemberOfClass:[RCChatroomUserQuit class]]) {
                 if ([messageContent isMemberOfClass:[RCChatroomBarrage class]]) {
@@ -553,6 +756,12 @@ static int clickPraiseBtnTimes  = 0 ;
             successBlock(messageId);
         }
     } error:^(RCErrorCode nErrorCode, long messageId) {
+        if (nErrorCode == RC_CHATROOM_NOT_EXIST) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self alertErrorWithTitle:@"提示" message:@"1 小时内无人讲话，聊天已被解散，请退出后重进。" ok:@"知道了"];
+            });
+            
+        }
         [__weakself.inputBar clearInputView];
         NSLog(@"发送失败，errorcode is: %ld",(long)nErrorCode);
         if (errorBlock) {
@@ -568,17 +777,32 @@ static int clickPraiseBtnTimes  = 0 ;
 - (void)didReceiveMessageNotification:(NSNotification *)notification {
     __block RCMessage *rcMessage = notification.object;
     RCCRMessageModel *model = [[RCCRMessageModel alloc] initWithMessage:rcMessage];
-    
+    model.userInfo = rcMessage.content.senderUserInfo;
+  
     if (model.conversationType == self.conversationType &&
         [model.targetId isEqual:self.targetId]) {
         __weak typeof(&*self) __blockSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
+            if ([model.content isMemberOfClass:[RCChatroomUserQuit class]] && [model.senderUserId isEqualToString:self.model.pubUserId]) {
+                [[RongRTCEngine sharedEngine] leaveRoom:self.model.roomId completion:^(BOOL isSuccess, RongRTCCode code) {
+                    
+                }];
+                if (self.alert) {
+                    [self.alert dismissViewControllerAnimated:NO completion:nil];
+                }
+                self.alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"本次直播结束!" preferredStyle:(UIAlertControllerStyleAlert)];
+                UIAlertAction *action = [UIAlertAction actionWithTitle:@"知道了" style:(UIAlertActionStyleDestructive) handler:^(UIAlertAction * _Nonnull action) {
+                    [self quitConversationViewAndClear];
+                }];
+                [self.alert addAction:action];
+                [self presentViewController:self.alert animated:YES completion:nil];
+            }
             //  对礼物消息,赞消息进行拦截，展示动画，不插入到数据源中,对封禁消息，弹出alert
             if (rcMessage) {
                 if ([rcMessage.content isMemberOfClass:[RCChatroomGift class]])  {
                     RCChatroomGift *giftMessage = (RCChatroomGift *)rcMessage.content;
                     RCCRGiftModel *model = [[RCCRGiftModel alloc] initWithMessage:giftMessage];
-                    [__blockSelf presentGiftAnimation:model];
+                    [__blockSelf presentGiftAnimation:model userInfo:giftMessage.senderUserInfo];
                     RCCRLiveModel *liveModel = __blockSelf.hostInformationView.hostModel;
                     liveModel.giftAmount += giftMessage.number;
                     [__blockSelf.hostInformationView setDataModel:liveModel];
@@ -616,7 +840,18 @@ static int clickPraiseBtnTimes  = 0 ;
                     RCChatroomUserBlock *blockMessage = (RCChatroomUserBlock*)rcMessage.content;
                     if ([blockMessage.id isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId]) {
                         [__blockSelf presentAlert:@"您被管理员踢出聊天室"];
+                        [[RCCRUtilities instance] blockRoom:__blockSelf.model.roomId duration:blockMessage.duration];
+                        [self showAlert:@"您已被踢出直播间"];
+                        [self quitConversationViewAndClear];
+                        
                     }
+                } else if ([rcMessage.content isMemberOfClass:[RCChatRoomNotiAllMessage class]]){
+                    if (self.model.liveMode == RCCRLiveModeHost) {
+                         RCChatRoomNotiAllMessage *message = (RCChatRoomNotiAllMessage *)rcMessage.content;
+                                           self.allLiveUsers = message.userInfos.mutableCopy;
+                                           [self.remoteView hostNotiUpdateNames:self.allLiveUsers.copy];
+                    }
+                   
                 }
                 
                 NSDictionary *leftDic = notification.userInfo;
@@ -633,7 +868,82 @@ static int clickPraiseBtnTimes  = 0 ;
                 }
             }
         });
+    } else if (model.conversationType == ConversationType_PRIVATE ){
+        RCMessageContent *content = rcMessage.content;
+        RCChatRoomLiveCommand *liveCommand;
+        if ([content isKindOfClass:[RCChatRoomLiveCommand class]]) {
+            liveCommand = (RCChatRoomLiveCommand *)content;
+        }
+        if (![liveCommand.roomId isEqualToString:self.model.roomId]) {
+            return;
+        }
+        if (self.model.liveMode == RCCRLiveModeAudience) {
+            if (liveCommand && liveCommand.commandType == RCCRLiveCommandTypeInvite) {
+                // 收到邀请
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (self.alert) {
+                        [self.alert dismissViewControllerAnimated:NO completion:nil];
+                    }
+                    self.alert = [UIAlertController alertControllerWithTitle:@"提示" message:[NSString stringWithFormat:@"\"%@\" 邀请您上麦",model.userInfo.name] preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *action = [UIAlertAction actionWithTitle:@"拒绝" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                        [self reject:model.userInfo.userId];
+                    }];
+                    UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"同意" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                        [self accept:model.userInfo.userId];
+                    }];
+                    [self.alert addAction:action];
+                    [self.alert addAction:action1];
+                    [self presentViewController:self.alert animated:YES completion:nil];
+                });
+            }
+            
+        } else if (self.model.liveMode == RCCRLiveModeHost && (liveCommand.commandType == RCCRLiveCommandTypeAccept || liveCommand.commandType == RCCRLiveCommandTypeReject)){
+            if (liveCommand) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (liveCommand.commandType == RCCRLiveCommandTypeReject) {
+                        RCUserInfo *userInfo = model.userInfo;
+                        for (RCUserInfo *user in self.acceptUsers) {
+                            if ([userInfo.userId isEqualToString:user.userId]) {
+                                [self.acceptUsers removeObject:user];
+                                [self.audienceListView reloadInvitedStateWithUserId:userInfo.userId];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"提示" message:[NSString stringWithFormat:@"\"%@\" %@ 了您的邀请",model.userInfo.name,liveCommand.commandType == RCCRLiveCommandTypeReject?@"拒绝":@"接受"] preferredStyle:UIAlertControllerStyleAlert];
+                                   UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                   }];
+                                   [controller addAction:action1];
+                                   [self presentViewController:controller animated:YES completion:nil];
+                });
+               
+            }
+            
+        }
     }
+}
+- (void)becomeHost{
+    // 先取消观众身份
+    [self.liveModuleManager quitLive:^(BOOL isSuccess, RongRTCCode code) {
+        NSLog(@"退出观众身份成功？%@",@(isSuccess));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.remoteVideoView.hidden = YES;
+            self.localView.hidden = NO;
+            self.model.liveMode = RCCRLiveModeHost;
+            [self joinRoom:self.roomID completion:^(BOOL success) {
+                
+            }];
+        });
+        
+    }];
+}
+- (void)reject:(NSString *)targetId{
+    [self sendPrivateMessageWithTargetId:targetId type:RCCRLiveCommandTypeReject];
+}
+- (void)accept:(NSString *)targetId{
+    [self sendPrivateMessageWithTargetId:targetId type:RCCRLiveCommandTypeAccept];
+    [self becomeHost];
 }
 
 /**
@@ -644,7 +954,34 @@ static int clickPraiseBtnTimes  = 0 ;
         return;
     }
     RCCRMessageModel *model = [[RCCRMessageModel alloc] initWithMessage:rcMessage];
-    model.userInfo = [[RCCRManager sharedRCCRManager]getUserInfo:rcMessage.senderUserId];
+    model.userInfo = rcMessage.content.senderUserInfo;
+    if (!model.userInfo) {
+        model.userInfo = [[RCCRManager sharedRCCRManager]getUserInfo:rcMessage.senderUserId];
+    }
+    RCMessageContent *content = rcMessage.content;
+    RCUserInfo *userInfo = content.senderUserInfo;
+    if ([content isKindOfClass:[RCChatroomWelcome class]] && ![userInfo.userId isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId]) {
+        RCCRAudienceModel *audienceModel = [[RCCRAudienceModel alloc] init];
+        audienceModel.audienceName = userInfo.name;
+        audienceModel.audiencePortrait = [NSString stringWithFormat:@"audience%@",userInfo.portraitUri];
+        audienceModel.userId = userInfo.userId;;
+        [self.audienceList addObject:audienceModel];
+        [self.audienceListView setModelArray:self.audienceList];
+        [self.portraitCollectionView reloadData];
+        if (self.model.liveMode == RCCRLiveModeHost) {
+            [self.remoteView updateNamesWithWelcome:self.audienceList];
+        }
+        
+    } else if([content isKindOfClass:[RCChatroomUserQuit class]]){
+        for (RCCRAudienceModel *model  in self.audienceList) {
+            if ([model.userId isEqualToString:userInfo.userId]) {
+                [self.audienceList removeObject:model];
+                break;
+            }
+        }
+        [self.audienceListView setModelArray:self.audienceList];
+        [self.portraitCollectionView reloadData];
+    }
     if ([self appendMessageModel:model]) {
         NSIndexPath *indexPath =
         [NSIndexPath indexPathForItem:self.conversationDataRepository.count - 1
@@ -667,7 +1004,7 @@ static int clickPraiseBtnTimes  = 0 ;
 - (void)sendReceivedDanmaku:(RCMessage *)message {
     if ([message.content isMemberOfClass:[RCChatroomBarrage class]]){
         RCChatroomBarrage *danmakuMessage = (RCChatroomBarrage *)message.content;
-        [self showDanmaku:danmakuMessage.content userId:message.senderUserId];
+        [self showDanmaku:danmakuMessage.content userInfo:danmakuMessage.senderUserInfo];
     }
 }
 
@@ -733,18 +1070,17 @@ static int clickPraiseBtnTimes  = 0 ;
 }
 
 #pragma mark sendDanmaku
-- (void)showDanmaku:(NSString *)text userId:(NSString *)userId {
+- (void)showDanmaku:(NSString *)text userInfo:(RCUserInfo *)userInfo {
     if(!text || text.length == 0){
         return;
     }
     RCDDanmaku *danmaku = [[RCDDanmaku alloc]init];
     danmaku.contentStr = [[NSAttributedString alloc]initWithString:text attributes:@{NSForegroundColorAttributeName : kRandomColor}];
 //    RCCRAudienceModel *audienceModel = [[RCCRAudienceModel alloc] init];
-    RCUserInfo *currentUserInfo = [[RCUserInfo alloc] init];
-    currentUserInfo = [[RCCRManager sharedRCCRManager] getUserInfo:userId];
+
 //    audienceModel.audienceName = currentUserInfo.name;
 //    audienceModel.audiencePortrait = currentUserInfo.portraitUri;
-    danmaku.model = currentUserInfo;
+    danmaku.model = userInfo;
     [self.liveView sendDanmaku:danmaku];
 }
 
@@ -771,15 +1107,6 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.inputBar setHidden:YES];
     __weak __typeof(&*self)weakSelf = self;
     CGFloat height = self.view.bounds.size.height;
-    if (!self.loginView.hidden) {
-        CGRect frame = self.loginView.frame;
-        frame.origin.y = height;
-        [UIView animateWithDuration:0.2 animations:^{
-            [weakSelf.loginView setFrame:frame];
-        } completion:^(BOOL finished) {
-            [weakSelf.loginView setHidden:YES];
-        }];
-    }
     if (!self.hostInformationView.hidden) {
         CGRect frame = self.hostInformationView.frame;
         frame.origin.y = height;
@@ -853,10 +1180,7 @@ static int clickPraiseBtnTimes  = 0 ;
  点击观众头像
  */
 - (void)audiencePotraitClick:(RCCRAudienceModel *)model {
-    if (!self.audienceListView.hidden) {
-        return;
-    }
-    CGRect frame = self.audienceListView.frame;
+    CGRect frame = self.oriFrame;
     frame.origin.y -= frame.size.height;
     [self.audienceListView setHidden:NO];
     __weak __typeof(&*self)weakSelf = self;
@@ -887,13 +1211,7 @@ static int clickPraiseBtnTimes  = 0 ;
             self.isSendDanmaku = NO;
         }
     } else {
-        CGRect frame = self.loginView.frame;
-        frame.origin.y -= frame.size.height;
-        [self.loginView setHidden:NO];
-        __weak __typeof(&*self)weakSelf = self;
-        [UIView animateWithDuration:0.2 animations:^{
-            [weakSelf.loginView setFrame:frame];
-        } completion:nil];
+       
     }
 }
 
@@ -911,13 +1229,7 @@ static int clickPraiseBtnTimes  = 0 ;
             self.isSendDanmaku = YES;
         }
     } else {
-        CGRect frame = self.loginView.frame;
-        frame.origin.y -= frame.size.height;
-        [self.loginView setHidden:NO];
-        __weak __typeof(&*self)weakSelf = self;
-        [UIView animateWithDuration:0.2 animations:^{
-            [weakSelf.loginView setFrame:frame];
-        } completion:nil];
+       
     }
 }
 
@@ -925,6 +1237,9 @@ static int clickPraiseBtnTimes  = 0 ;
  送礼物按钮事件
  */
 - (void)giftBtnPressed:(id)sender {
+    if ([self.model.pubUserId isEqualToString:[RCIMClient sharedRCIMClient].currentUserInfo.userId]) {
+        return;
+    }
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
         CGRect frame = self.giftListView.frame;
         frame.origin.y -= frame.size.height;
@@ -942,13 +1257,7 @@ static int clickPraiseBtnTimes  = 0 ;
             [weakSelf.hostInformationView setFrame:frame];
         } completion:^(BOOL finished) {
             [weakSelf.hostInformationView setHidden:YES];
-            //  弹出登录框
-            CGRect frame = weakSelf.loginView.frame;
-            frame.origin.y -= frame.size.height;
-            [weakSelf.loginView setHidden:NO];
-            [UIView animateWithDuration:0.2 animations:^{
-                [weakSelf.loginView setFrame:frame];
-            } completion:nil];
+            
         }];
     }
 }
@@ -957,6 +1266,9 @@ static int clickPraiseBtnTimes  = 0 ;
  点赞
  */
 - (void)praiseBtnPressed:(id)sender {
+    if ([self.model.pubUserId isEqualToString:[RCIMClient sharedRCIMClient].currentUserInfo.userId]) {
+        return;
+    }
     if ([[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] isLogin]) {
         NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
         __weak __typeof(&*self)weakSelf = self;
@@ -985,17 +1297,26 @@ static int clickPraiseBtnTimes  = 0 ;
             [weakSelf.hostInformationView setFrame:frame];
         } completion:^(BOOL finished) {
             [weakSelf.hostInformationView setHidden:YES];
-            //  弹出登录框
-            CGRect frame = weakSelf.loginView.frame;
-            frame.origin.y -= frame.size.height;
-            [weakSelf.loginView setHidden:NO];
-            [UIView animateWithDuration:0.2 animations:^{
-                [weakSelf.loginView setFrame:frame];
-            } completion:nil];
+         
         }];
     }
 }
-
+- (void)settingBtnClicked:(id)sender{
+    RCCRSettingViewController *setting = [[RCCRSettingViewController alloc] init];
+    setting.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    __weak typeof(self)weakSelf = self;
+    [setting setClickSaveBlock:^(RCCRLiveLayoutModel *model) {
+        NSLog(@"layout type:%@",@(model.layoutType));
+        NSLog(@"layout x:%@",@(model.x));
+        NSLog(@"layout h:%@",@(model.height));
+        NSLog(@"layout w:%@",@(model.width));
+        NSLog(@"layout crop:%@",@(model.customCrop));
+        weakSelf.settingModel.layoutModel = model;
+        [weakSelf.liveModuleManager setMixStreamConfig:model];
+    }];
+    setting.settingModel = self.settingModel;
+    [self.navigationController presentViewController:setting animated:NO completion:nil];
+}
 /**
  赞动画
 
@@ -1043,29 +1364,254 @@ static int clickPraiseBtnTimes  = 0 ;
  */
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     NSLog(@"view class is %@",[touch.view class]);
-    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"RCCRgiftListView"]) {
+    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"RCCRgiftListView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"GLKView"]|| [NSStringFromClass([touch.view class]) isEqualToString:@"RongRTCLocalVideoView"]) {
+        if ([NSStringFromClass([touch.view class]) isEqualToString:@"RongRTCLocalVideoView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"GLKView"]) {
+            [self setDefaultBottomViewStatus];
+        }
+     
         return NO;
     }
     //在view中点击的坐标
     CGPoint touchPoint = [touch locationInView:self.view];
     //判断点击的坐标是否在限制的控件的范围内
     CGRect portraitCollectionViewRect = [self.view convertRect:self.portraitCollectionView.frame fromView:self.topContentView];
-    bool value = CGRectContainsPoint(self.hostInformationView.frame, touchPoint) || CGRectContainsPoint(portraitCollectionViewRect, touchPoint) || CGRectContainsPoint(self.loginView.frame, touchPoint) || CGRectContainsPoint(self.giftListView.frame, touchPoint);
-    
+    bool value = CGRectContainsPoint(self.hostInformationView.frame, touchPoint) || CGRectContainsPoint(portraitCollectionViewRect, touchPoint)  || CGRectContainsPoint(self.giftListView.frame, touchPoint);
+
     if (value) {
         return NO;
     }
     return YES;
 }
+- (void)alertErrorWithTitle:(NSString *)title message:(NSString *)message ok:(NSString *)ok{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:(UIAlertControllerStyleAlert)];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:ok style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [alert addAction:action];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self presentViewController:alert animated:YES completion:^{
+            
+        }];
+    });
+    
+}
+#pragma mark - RTC
+- (void)joinRoom:(NSString *)roomId completion:(void (^)(BOOL success))completion{
+    
+    [self.liveModuleManager joinRoom:roomId completion:^(BOOL isSuccess,NSInteger code, RongRTCRoom * _Nullable room) {
+        if (isSuccess) {
+            NSLog(@"加入直播间成功");
+            NSMutableArray *arr = [NSMutableArray array];
+            NSMutableArray *videoArr = [NSMutableArray array];
+            // 试图先画上
+            for (RongRTCRemoteUser *user in room.remoteUsers) {
+                for (RongRTCAVInputStream *stream in user.remoteAVStreams) {
+                    [arr addObject:stream];
+                    if (stream.streamType == RTCMediaTypeVideo) {
+                        
+                        RCCRRemoteModel *model = [[RCCRRemoteModel alloc] init];
+                        model.inputStream = stream;
+                        for (RCUserInfo *userInfo in self.allLiveUsers) {
+                            if ([userInfo.userId isEqualToString:stream.userId]) {
+                                model.userName = userInfo.name;
+                                break;
+                            }
+                        }
+                        [videoArr addObject:model];
+                        
+                    }
+                }
+            }
+            [self.remoteView setDataSources:videoArr];
+            // 后请求
+            if (arr.count > 0) {
+                // 拉流
+                [self.liveModuleManager subscribeStreams:arr completion:^(BOOL subscribeSuccess,RongRTCCode desc) {
+                    if (!subscribeSuccess) {
+                        [self alertErrorWithTitle:@"错误" message:[NSString stringWithFormat:@"拉流失败:%@",@(desc)] ok:@"ok"];
+                    } else {
+                      
+                    }
+                }];
+            }
+            // 推流
+            [self.liveModuleManager publishStreams:^(BOOL publishSuccess ,RongRTCCode desc, RongRTCLiveInfo * _Nullable liveHostModel) {
+                if (publishSuccess) {
+                    self.localView.hidden = NO;
+                    if ([[RCIMClient sharedRCIMClient].currentUserInfo.userId isEqualToString:self.model.pubUserId]) {
+                        [[RCCRLiveHttpManager sharedManager] publish:roomId roomName:self.roomName liveUrl:liveHostModel.liveUrl cover:self.model.cover completion:^(BOOL success , NSInteger code) {
+                            NSLog(@"主播发布资源成功？%@",@(success));
+                            if (code == 5) {
+                                if (completion) {
+                                    completion(NO);
+                                }
+                                [self.liveModuleManager quitRoom:self.roomID completion:^(BOOL isSuccess) {
+                                    NSLog(@"退出 RTC room 成功？%@",@(isSuccess));
+                                }];
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"房间名称重复，请重新创建直播间！" preferredStyle:(UIAlertControllerStyleAlert)];
+                                    UIAlertAction *action = [UIAlertAction actionWithTitle:@"知道了" style:(UIAlertActionStyleDestructive) handler:^(UIAlertAction * _Nonnull action) {
+                                        [self quit];
+                                        
+                                    }];
+                                    [alert addAction:action];
+                                    [self presentViewController:alert animated:YES completion:nil];
+                                });
+                            } else {
+                                [self.liveModuleManager startCapture];
+                                if (completion) {
+                                    completion(YES);
+                                }
+                            }
+                        }];
+                    } else {
+                        [self.liveModuleManager startCapture];
+                        [[RongRTCAVCapturer sharedInstance] setVideoRender:self.localView];
+                        if (completion) {
+                            completion(YES);
+                        }
+                    }
+                    
+                } else {
+                    if (completion) {
+                        completion(YES);
+                    }
+                    [self alertErrorWithTitle:@"错误" message:[NSString stringWithFormat:@"推流失败:%@",@(desc)] ok:@"ok"];
+                }
+            }];
+            [[RongRTCAVCapturer sharedInstance] setVideoRender:self.localView];
+        } else {
+            [self alertErrorWithTitle:@"错误" message:[NSString stringWithFormat:@"加入直播间失败:%@",@(code)] ok:@"ok"];
+            self.localView.hidden = YES;
+        }
+    }];
+}
+- (void)joinRoom:(NSString *)roomId url:(NSString *)url{
+    NSLog(@"观众进来了");
+    [[RongRTCAVCapturer sharedInstance] useSpeaker:YES];
+    [self.liveModuleManager joinLive:self.model.liveUrl completion:^(RongRTCCode desc, RongRTCLiveAVInputStream * _Nullable inputStream) {
+        self.localView.hidden = NO;
+        if (desc == RongRTCCodeSuccess) {
+            self.remoteVideoView.hidden = NO;
+            self.localView.hidden = YES;
+            if (inputStream.streamType == RTCMediaTypeVideo) {
+                [inputStream setVideoRender:self.remoteVideoView];
+            }
+            
+        } else {
+            [self alertErrorWithTitle:@"错误" message:[NSString stringWithFormat:@"观看直播失败:%@",@(desc)] ok:@"ok"];
+            self.localView.hidden = YES;
+        }
+    }];
+}
 
-#pragma mark - RCCRLoginViewDelegate
-- (void)clickLoginBtn:(UIButton *)loginBtn {
-    // 登录成功
-    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setIsLogin:YES];
-    RCChatroomWelcome *joinChatroomMessage = [[RCChatroomWelcome alloc]init];
-    [joinChatroomMessage setId:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId];
-    [self sendMessage:joinChatroomMessage pushContent:nil success:nil error:nil];
-    [self setDefaultBottomViewStatus];
+-(void)didPublishStreams:(NSArray<RongRTCAVInputStream *> *)streams{
+    if (self.model.liveMode == RCCRLiveModeHost) {
+        [self.liveModuleManager subscribeStreams:streams completion:^(BOOL isSuccess , RongRTCCode desc) {
+            if (isSuccess) {
+                NSMutableArray *arr = [NSMutableArray array];
+                for (RongRTCAVInputStream *stream in streams) {
+                    if (stream.streamType == RTCMediaTypeVideo) {
+                        @autoreleasepool{
+                            RCCRRemoteModel *model = [[RCCRRemoteModel alloc] init];
+                            model.inputStream = stream;
+                            for (RCCRAudienceModel *userInfo in self.audienceList) {
+                                if ([userInfo.userId isEqualToString:stream.userId]) {
+                                    model.userName = userInfo.audienceName;
+                                    break;
+                                }
+                            }
+                            if (!model.userName) {
+                                for (RCUserInfo *userInfo in self.allLiveUsers) {
+                                    if ([userInfo.userId isEqualToString:stream.userId]) {
+                                        model.userName = userInfo.name;
+                                        break;
+                                    }
+                                }
+                            }
+                            [arr addObject:model];
+                        }
+                    }
+                }
+                [self.remoteView pushBackDatas:arr];
+            } else {
+                [self alertErrorWithTitle:@"错误" message:[NSString stringWithFormat:@"拉流失败:%@",@(desc)] ok:@"ok"];
+            }
+        }];
+       
+    }
+}
+-(void)didJoinUser:(RongRTCRemoteUser *)user
+{
+    RCChatRoomNotiAllMessage *message = [[RCChatRoomNotiAllMessage alloc] init];
+    message.userInfos = self.acceptUsers.mutableCopy;
+    [self sendMessage:message pushContent:nil success:^(long messageId) {
+        NSLog(@"发送通知消息成功");
+    } error:^(RCErrorCode nErrorCode, long messageId) {
+        NSLog(@"发送通知消息失败");
+    }];
+}
+-(void)didLeaveUser:(RongRTCRemoteUser *)user{
+    NSLog(@"did leave user : %@",user.userId);
+    [self.remoteView deleteDataWithUserIds:@[user.userId]];
+   for (RCUserInfo *userinf in self.acceptUsers) {
+       if ([user.userId isEqualToString:userinf.userId]) {
+           [self.acceptUsers removeObject:userinf];
+           break;
+       }
+   }
+    
+}
+-(void)remoteUsersIsNull{
+    self.localView.hidden = NO;
+    self.remoteVideoView.hidden = YES;
+    [[RongRTCAVCapturer sharedInstance] setVideoRender:self.localView];
+    self.selectModel = nil;
+    self.selectIndexPath = nil;
+}
+-(void)didUnpublishStreams:(NSArray<RongRTCAVInputStream *> *)streams{
+    [self.remoteView deleteDataWithStreams:streams];
+}
+
+-(void)didSelectCell:(RCCRRemoteViewCellCollectionViewCell *)cell model:(RCCRRemoteModel *)model indexPath:(NSIndexPath *)indexPath{
+    if (self.selectCell) {
+        if ([indexPath isEqual:self.selectIndexPath]) {
+            if (self.localIsRemote) {
+                [cell addRemoteVideoView:cell.remoteView];
+                self.localView.frame = self.localViewFrame;
+                self.localView.fillMode = RCVideoFillModeAspectFill;
+                [self.liveView addSubview:self.localView];
+            } else {
+                cell.remoteView.frame = self.remoteVideoView.frame;
+                [self.liveView addSubview:cell.remoteView];
+                self.localView.fillMode = RCVideoFillModeAspectFill;
+                [cell addLocalView:self.localView];
+            }
+            self.selectCell = cell;
+            self.selectIndexPath = indexPath;
+            self.localIsRemote = !self.localIsRemote;
+        } else {
+            if (self.localIsRemote) {
+                [self.selectCell addRemoteVideoView:self.selectCell.remoteView];
+            }
+            self.localView.fillMode = RCVideoFillModeAspectFill;
+            [cell addLocalView:self.localView];
+            cell.remoteView.frame = self.remoteVideoView.frame;
+            [self.liveView addSubview:cell.remoteView];
+            self.selectIndexPath = indexPath;
+            self.selectCell = cell;
+            self.localIsRemote = YES;
+        }
+    } else {
+        self.selectIndexPath = indexPath;
+        self.selectCell = cell;
+        cell.remoteView.frame = self.remoteVideoView.frame;
+        [self.liveView addSubview:cell.remoteView];
+        self.localView.fillMode = RCVideoFillModeAspectFill;
+        [cell addLocalView:self.localView];
+        self.localIsRemote = YES;
+    }
+    
 }
 
 #pragma mark - RCCRHostInformationViewDelegate
@@ -1099,13 +1645,7 @@ static int clickPraiseBtnTimes  = 0 ;
             [weakSelf.hostInformationView setFrame:frame];
         } completion:^(BOOL finished) {
             [weakSelf.hostInformationView setHidden:YES];
-            //  弹出登录框
-            CGRect frame = weakSelf.loginView.frame;
-            frame.origin.y -= frame.size.height;
-            [weakSelf.loginView setHidden:NO];
-            [UIView animateWithDuration:0.2 animations:^{
-                [weakSelf.loginView setFrame:frame];
-            } completion:nil];
+           
         }];
     }
 }
@@ -1118,14 +1658,14 @@ static int clickPraiseBtnTimes  = 0 ;
     giftMessage.id = giftModel.giftId;
     [self sendMessage:giftMessage pushContent:nil success:nil error:nil];
     
-    [self presentGiftAnimation:giftModel];
+    [self presentGiftAnimation:giftModel userInfo:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo];
     RCCRLiveModel *liveModel = self.hostInformationView.hostModel;
     liveModel.giftAmount += giftModel.giftNumber;
     [self.hostInformationView setDataModel:liveModel];
 }
 
 
-- (void)presentGiftAnimation:(RCCRGiftModel *)giftModel {
+- (void)presentGiftAnimation:(RCCRGiftModel *)giftModel userInfo:(RCUserInfo *)userInfo{
     //动画效果需要在主线程中进行（固定的动画形式）
 //    CGFloat duringTime = 0.5 + 0.5 + 0.2*giftModel.giftNumber;
     __weak __typeof(&*self)weakSelf = self;
@@ -1134,10 +1674,30 @@ static int clickPraiseBtnTimes  = 0 ;
             return;
         }
         weakSelf.showGiftView = [[UIView alloc] initWithFrame:CGRectMake(-150, 100, 160, 50)];
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+        weakSelf.showGiftView.layer.cornerRadius = 25;
+        UIImageView *headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 48, 48)];
+        [headerImageView setBackgroundColor:[UIColor redColor]];
+        [headerImageView.layer setCornerRadius:24];
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(50, 2, 56, 20)];
+        [nameLabel setNumberOfLines:0];
+        [nameLabel setText:userInfo.name];
+        [nameLabel setFont:[UIFont systemFontOfSize:12]];
+        [nameLabel setTextColor:[UIColor whiteColor]];
+        [nameLabel setTextAlignment:NSTextAlignmentCenter];
+        [weakSelf.showGiftView addSubview:nameLabel];
+        UILabel *gifName = [[UILabel alloc] initWithFrame:CGRectMake(50, 25, 56, 20)];
+        NSString *name = [self getGifName:giftModel.giftId];
+        [gifName setText:name];
+        [gifName setTextColor:[UIColor yellowColor]];
+        [gifName setFont:[UIFont systemFontOfSize:12]];
+        [weakSelf.showGiftView addSubview:gifName];
+        [headerImageView setImage:[UIImage imageNamed:[NSString stringWithFormat:@"audience%@",userInfo.portraitUri]]];
+        [weakSelf.showGiftView addSubview:headerImageView];
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(100, 0, 50, 50)];
+        [weakSelf.showGiftView setBackgroundColor:[UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.4]];
         [weakSelf.showGiftView  addSubview:imageView];
         imageView.image = [UIImage imageNamed:giftModel.giftImageName];
-        weakSelf.giftNumberLbl = [[RCCRGiftNumberLabel alloc] initWithFrame:CGRectMake(60, 0, 100, 50)];
+        weakSelf.giftNumberLbl = [[RCCRGiftNumberLabel alloc] initWithFrame:CGRectMake(160, 0, 100, 50)];
         weakSelf.giftNumberLbl.outLineWidth = 5;
         weakSelf.giftNumberLbl.outLinetextColor = [UIColor grayColor];
         weakSelf.giftNumberLbl.labelTextColor = [UIColor orangeColor];
@@ -1172,7 +1732,24 @@ static int clickPraiseBtnTimes  = 0 ;
         }];
     });
 }
-
+- (NSString *)getGifName:(NSString *)gifId{
+    if ([gifId isEqualToString:@"GiftId_1"]) {
+        return @"送出蛋糕";
+    }
+    if ([gifId isEqualToString:@"GiftId_2"]) {
+        return @"送出气球";
+    }
+    if ([gifId isEqualToString:@"GiftId_3"]) {
+        return @"送出花儿";
+    }
+    if ([gifId isEqualToString:@"GiftId_4"]) {
+        return @"送出项链";
+    }
+    if ([gifId isEqualToString:@"GiftId_5"]) {
+        return @"送出戒指";
+    }
+    return @"";
+}
 #pragma mark - ban and block notice
 
 - (void)presentAlert:(NSString *)content {
@@ -1228,10 +1805,34 @@ static int clickPraiseBtnTimes  = 0 ;
 
     //  这里默认使用了一张背景图，你可以将live设置为你的播放器
     [self.view addSubview:self.liveView];
+    _liveView.backgroundColor = [UIColor colorWithHexString:@"0x00003E" alpha:1.0];
     [_liveView setFrame:self.view.bounds];
-    UIImageView *imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"backGround"]];
-    [imgView setFrame:self.view.bounds];
-    [_liveView addSubview:imgView];
+//    UIImageView *imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"backGround"]];
+//    [imgView setFrame:self.view.bounds];
+//    [_liveView addSubview:imgView];
+    CGFloat width = [UIScreen mainScreen].bounds.size.width;
+    CGFloat f = (4.0/3.0 );
+    CGFloat height = width * f;
+    RongRTCLocalVideoView * localView = [[RongRTCLocalVideoView alloc]initWithFrame:CGRectMake(0, ([UIScreen mainScreen].bounds.size.height - height) / 2, width, height)];
+    self.localViewFrame = localView.frame;
+    if (self.localView) {
+        [self.localView removeFromSuperview];
+    }
+    
+    self.localView = localView;
+    [self.localView setFillMode:(RCVideoFillModeAspectFill)];
+    self.localView.hidden = YES;
+   
+    //remoteView
+    
+    RongRTCRemoteVideoView *remoreView = [[RongRTCRemoteVideoView alloc] initWithFrame:CGRectMake(0, ([UIScreen mainScreen].bounds.size.height - height) / 2, width, height)];
+    self.remoteVideoView = remoreView;
+//    [self.remoteVideoView setBackgroundColor:[UIColor redColor]];
+    self.remoteVideoView.hidden = YES;
+    [self.remoteVideoView setFillMode:RCVideoFillModeAspect];
+    [self.liveView addSubview:self.localView];
+    [self.liveView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.liveView addSubview:self.remoteVideoView];
     
     //  顶部
     [self.view addSubview:self.topContentView];
@@ -1258,8 +1859,10 @@ static int clickPraiseBtnTimes  = 0 ;
     
     [_hostView addSubview:self.audienceNumberLbl];
     [_audienceNumberLbl setFrame:CGRectMake(37, 35 - 1 - 14, 45, 14)];
-    
     [_topContentView addSubview:self.portraitCollectionView];
+    if (![self.model.pubUserId isEqualToString:[RCIMClient sharedRCIMClient].currentUserInfo.userId]) {
+        self.portraitCollectionView.hidden = YES;
+    }
     [_portraitCollectionView setFrame:CGRectMake(100, 0, size.width - 100 - 30, 35)];
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumInteritemSpacing = 16;
@@ -1300,18 +1903,29 @@ static int clickPraiseBtnTimes  = 0 ;
     
     [_bottomBtnContentView addSubview:self.commentBtn];
     [_commentBtn setFrame:CGRectMake(10, 10, 35, 35)];
-    
-    [_bottomBtnContentView addSubview:self.danmakuBtn];
+    if (self.model.liveMode != RCCRLiveModeHost) {
+       [_bottomBtnContentView addSubview:self.danmakuBtn];
+    }
     [_danmakuBtn setFrame:CGRectMake(size.width - 35*3 - 10*4, 10, 35, 35)];
     [_danmakuBtn setBackgroundColor:[UIColor blackColor]];
     [_danmakuBtn.layer setCornerRadius:35/2];
     [_danmakuBtn.layer setMasksToBounds:YES];
     
-    [_bottomBtnContentView addSubview:self.giftBtn];
+    if (self.model.liveMode != RCCRLiveModeHost) {
+       [_bottomBtnContentView addSubview:self.giftBtn];
+    }
+    
     [_giftBtn setFrame:CGRectMake(size.width - 35*2 - 10*3, 10, 35, 35)];
     
-    [_bottomBtnContentView addSubview:self.praiseBtn];
+    if (self.model.liveMode != RCCRLiveModeHost) {
+     [_bottomBtnContentView addSubview:self.praiseBtn];
+   }
     [_praiseBtn setFrame:CGRectMake(size.width - 35 - 10*2, 10, 35, 35)];
+    if (self.model.liveMode == RCCRLiveModeHost) {
+      [_bottomBtnContentView addSubview:self.settingBtn];
+        [_settingBtn setFrame:CGRectMake(size.width - 35 - 10*2, 10, 35, 35)];
+    }
+    
     
     //  底部隐藏控件
     [self.view addSubview:self.hostInformationView];
@@ -1322,12 +1936,9 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.view addSubview:self.audienceListView];
     [_audienceListView setFrame:CGRectMake(10, size.height, size.width - 20, [self getIPhonexExtraBottomHeight] > 0 ? 334 : 300)];
     [_audienceListView setBackgroundColor:[UIColor blackColor]];
-    [_audienceListView setHidden:YES];
-    
-    [self.view addSubview:self.loginView];
-    [_loginView setFrame:CGRectMake(10, size.height, size.width - 20, ISX ? 214 : 180)];
-    [_loginView setBackgroundColor:[UIColor blackColor]];
-    [_loginView setHidden:YES];
+    [_audienceListView setHidden:NO];
+    self.oriFrame = self.audienceListView.frame;
+   
     
     [self.view addSubview:self.giftListView];
     [_giftListView setFrame:CGRectMake(10, size.height, size.width - 20, [self getIPhonexExtraBottomHeight] > 0 ? 274 : 240)];
@@ -1336,6 +1947,19 @@ static int clickPraiseBtnTimes  = 0 ;
     
     [self registerClass:[RCCRTextMessageCell class]forCellWithReuseIdentifier:textCellIndentifier];
     [self registerClass:[RCCRTextMessageCell class]forCellWithReuseIdentifier:startAndEndCellIndentifier];
+//
+//    NSMutableArray *dataSource= [NSMutableArray array];
+//    for (int i = 0 ; i < 10; i ++ ) {
+//        RCCRRemoteModel *model = [[RCCRRemoteModel alloc] init];
+//        [dataSource addObject:model];
+//    }
+    RCCRRemoteView *remoteView = [[RCCRRemoteView alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 100)];
+    self.remoteView = remoteView;
+    self.remoteView.delegate = self;
+
+    [self.view addSubview:remoteView];
+//    [remoteView setDataSources:dataSource];
+    
 }
 
 - (UIView *)liveView {
@@ -1415,6 +2039,7 @@ static int clickPraiseBtnTimes  = 0 ;
 - (RCCRAudienceListView *)audienceListView {
     if (!_audienceListView) {
         _audienceListView = [[RCCRAudienceListView alloc] init];
+        _audienceListView.delegate = self;
     }
     return _audienceListView;
 }
@@ -1488,14 +2113,6 @@ static int clickPraiseBtnTimes  = 0 ;
     return _danmakuBtn;
 }
 
-- (RCCRLoginView *)loginView {
-    if (!_loginView) {
-        _loginView = [[RCCRLoginView alloc] init];
-//        [_loginView setAlpha:0.8];
-        [_loginView setDelegate:self];
-    }
-    return _loginView;
-}
 
 - (UIButton *)giftBtn {
     if (!_giftBtn) {
@@ -1526,9 +2143,33 @@ static int clickPraiseBtnTimes  = 0 ;
     }
     return _praiseBtn;
 }
-
+-(UIButton *)settingBtn{
+    if (!_settingBtn) {
+        _settingBtn = [[UIButton alloc] init];
+        [_settingBtn addTarget:self action:@selector(settingBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [_settingBtn setImage:[UIImage imageNamed:@"设置"] forState:UIControlStateNormal];
+    }
+    return _settingBtn;
+}
+-(RCCRSettingModel *)settingModel{
+    if (!_settingModel) {
+        _settingModel = [[RCCRSettingModel alloc] init];
+        _settingModel.layoutModel = [[RCCRLiveLayoutModel alloc] initWithType:RCCRLiveLayoutTypeSuspension];
+        _settingModel.layoutModel.suspensionCrop = NO;
+    }
+    return _settingModel;
+}
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+- (void)showAlert:(NSString *)showMessage {
+    UIAlertController *alertController= [UIAlertController alertControllerWithTitle:showMessage message:nil preferredStyle:(UIAlertControllerStyleAlert)];
+    [self presentViewController:alertController animated:YES completion:nil];
+    // 2秒后执行
+    [self performSelector:@selector(dimissAlert:)withObject:alertController afterDelay:1.0];
+}
 
+- (void)dimissAlert:(UIAlertController *)alertController {
+    [alertController dismissViewControllerAnimated:YES completion:nil];
+}
 @end

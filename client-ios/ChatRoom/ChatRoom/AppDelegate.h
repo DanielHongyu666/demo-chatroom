@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#define RCIMAPPKey @"替换为自己的 APPKEY"
+#define APPSERVER @"替换为自己的 APPServer"
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;

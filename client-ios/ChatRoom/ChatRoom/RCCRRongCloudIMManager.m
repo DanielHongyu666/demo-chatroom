@@ -7,7 +7,9 @@
 //
 
 #import "RCCRRongCloudIMManager.h"
-
+#import "RCCRManager.h"
+#import "RCCRLiveHttpManager.h"
+#define kDeviceUUID [[[UIDevice currentDevice] identifierForVendor] UUIDString]
 NSString *const RCCRKitDispatchMessageNotification = @"RCCRKitDispatchMessageNotification";
 
 NSString *const RCCRConnectChangeNotification = @"RCCRConnectChangeNotification";
@@ -24,18 +26,6 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
 
 @implementation RCCRRongCloudIMManager
 
-//+ (instancetype)sharedRCCRRongCloudIMManager {
-//    static RCCRRongCloudIMManager *manager = nil;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        if (manager == nil) {
-//            manager = [[RCCRRongCloudIMManager alloc] init];
-//            manager.isLogin = NO;
-//        }
-//    });
-//    return manager;
-//}
-
 + (instancetype)sharedRCCRRongCloudIMManager {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -47,17 +37,18 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
     return __rongUIKit;
 }
 
-- (void)initRongCloud:(NSString *)appKey{
+- (void)initRongCloud:(NSString *)appKey navi:(NSString *)navi{
     if ([self.appKey isEqual:appKey]) {
         NSLog(@"Warning:请不要重复调用Init！！！");
         return;
     }
-    
+    [[RCIMClient sharedRCIMClient] setServerInfo:navi fileServer:nil];
     self.appKey = appKey;
     [[RCIMClient sharedRCIMClient] initWithAppKey:appKey];
     // listen receive message
     [[RCIMClient sharedRCIMClient] setReceiveMessageDelegate:self object:nil];
     [[RCIMClient sharedRCIMClient] setRCConnectionStatusChangeDelegate:self];
+    
 }
 
 - (void)onConnectionStatusChanged:(RCConnectionStatus)status {
@@ -79,6 +70,73 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
 
 - (void)registerRongCloudMessageType:(Class)messageClass {
     [[RCIMClient sharedRCIMClient] registerMessageType:messageClass];
+}
+-(void)connectWithUserId:(NSString *)userId userName:(NSString *)userName portraitUri:(NSString *)portraitUri success:(void (^)(NSString *userId))successBlock
+         error:(void (^)(RCConnectErrorCode status))errorBlock
+          tokenIncorrect:(void (^)(void))tokenIncorrectBlock{
+    RCConnectionStatus status = [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] getRongCloudConnectionStatus];
+    if (status != ConnectionStatus_Connected) {
+        RCUserInfo *userInfo = [[RCUserInfo alloc] init];
+        userInfo = [[RCCRManager sharedRCCRManager] getRandomUserInfo];
+        if (!userId || userId.length <= 0) {
+            userId = kDeviceUUID;
+        }
+        if (portraitUri && portraitUri.length > 0) {
+            userInfo.portraitUri = portraitUri;
+        }
+        [[RCCRLiveHttpManager sharedManager] fetchTokenWithUserId:userId username:userName portraitUri:userInfo.portraitUri completion:^(BOOL isSucccess, NSString * _Nullable token) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (!isSucccess) {
+                    NSLog(@"获取token失败");
+                    if (errorBlock) {
+                        errorBlock(0);
+                    }
+                } else{
+                    
+                    userInfo.userId = userId;
+                    userInfo.name = userName;
+                    //                    [self connectIM:token userInfo:userInfo];
+                    [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] connectRongCloudWithToken:token success:^(NSString *userId) {
+                        if (![userInfo.userId isEqualToString:userId]) {
+                            NSLog(@"id不一致");
+                        }
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            // 登录成功
+                            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setCurrentUserInfo:userInfo];
+                            [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].isLogin = YES;
+                            if (successBlock) {
+                                successBlock(userId);
+                            }
+                            NSLog(@"连接成功");
+                        });
+                    } error:^(RCConnectErrorCode status) {
+                        NSLog(@"连接失败， error code：%ld",(long)status);
+                        NSLog(@"userId = %@, token = %@",userInfo.userId, token);
+                        if (errorBlock) {
+                            errorBlock(status);
+                        }
+                    } tokenIncorrect:^{
+                        NSLog(@"连接失败，token无效");
+                        if (tokenIncorrectBlock) {
+                            tokenIncorrectBlock();
+                        }
+                    }];
+                }
+            });
+            
+        }];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"已经连接");
+            RCUserInfo *userinfo = [RCIMClient sharedRCIMClient].currentUserInfo;
+            userinfo.name = userName;
+            [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] setCurrentUserInfo:userinfo];
+            [RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].isLogin = YES;
+            if (successBlock) {
+                successBlock(userId);
+            }
+        });
+    }
 }
 
 - (void)connectRongCloudWithToken:(NSString *)token
@@ -126,6 +184,7 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
                    success:(void (^)(long messageId))successBlock
                      error:(void (^)(RCErrorCode nErrorCode,
                                      long messageId))errorBlock {
+    content.senderUserInfo = [RCIMClient sharedRCIMClient].currentUserInfo;
     RCMessage *rcMessage = [[RCIMClient sharedRCIMClient]
                             sendMessage:conversationType
                             targetId:targetId
@@ -133,35 +192,12 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
                             pushContent:pushContent
                             pushData:pushData
                             success:^(long messageId) {
-//                                NSDictionary *statusDic = @{@"targetId":targetId,
-//                                                            @"conversationType":@(conversationType),
-//                                                            @"messageId": @(messageId),
-//                                                            @"sentStatus": @(SentStatus_SENT),
-//                                                            @"content":content};
-//                                [[NSNotificationCenter defaultCenter]
-//                                 postNotificationName:RCDLiveKitSendingMessageNotification
-//                                 object:nil
-//                                 userInfo:statusDic];
                                 NSLog(@"发送成功");
                                 successBlock(messageId);
                             } error:^(RCErrorCode nErrorCode, long messageId) {
-//                                NSDictionary *statusDic = @{@"targetId":targetId,
-//                                                            @"conversationType":@(conversationType),
-//                                                            @"messageId": @(messageId),
-//                                                            @"sentStatus": @(SentStatus_FAILED),
-//                                                            @"error": @(nErrorCode),
-//                                                            @"content":content};
-//                                [[NSNotificationCenter defaultCenter]
-//                                 postNotificationName:RCDLiveKitSendingMessageNotification
-//                                 object:nil
-//                                 userInfo:statusDic];
                                 NSLog(@"发送失败 errorcode : %ld",(long)nErrorCode);
                                 errorBlock(nErrorCode,messageId);
                             }];
-    
-//    [[NSNotificationCenter defaultCenter] postNotificationName:RCDLiveKitSendingMessageNotification
-//                                                        object:rcMessage
-//                                                      userInfo:nil];
     return rcMessage;
 }
 
