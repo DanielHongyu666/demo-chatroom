@@ -2,8 +2,8 @@
 //  RCCRInputBar.h
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/10.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/10.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -52,6 +52,7 @@ typedef NS_ENUM(NSInteger, RCCRBottomBarStatus) {
 - (void)onInputTextView:(UITextView *)inputTextView
 shouldChangeTextInRange:(NSRange)range
         replacementText:(NSString *)text;
+-(void)inputTextViewTextViewDidChange:(UITextView *)textView;;
 
 #pragma mark - 输入框事件
 

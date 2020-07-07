@@ -3,7 +3,7 @@
 //  ChatRoom
 //
 //  Created by 孙承秀 on 2019/12/2.
-//  Copyright © 2019 罗骏. All rights reserved.
+//  Copyright © 2019 rongcloud. All rights reserved.
 //
 
 #import "UIColor+Helper.h"

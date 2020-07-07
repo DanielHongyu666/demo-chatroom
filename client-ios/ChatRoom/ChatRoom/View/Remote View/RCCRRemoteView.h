@@ -30,11 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 批量删除数据根据 ids
 /// @param userIds 要删除的 ids
-- (void)deleteDataWithUserIds:(NSArray *)userIds;
+- (NSArray *)deleteDataWithUserIds:(NSArray *)userIds;
 
 /// 批量删除数据根据 streams
 /// @param streams 要删除的数据
-- (void)deleteDataWithStreams:(NSArray <RongRTCAVInputStream *>*)streams;
+- (void)deleteDataWithStreams:(NSArray <RCRTCInputStream *>*)streams;
 
 /// 更新指定位置的数据
 /// @param indexPath 指定位置
@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 主播通知更新名字
 /// @param arr 所有主播
 - (void)hostNotiUpdateNames:(NSArray *)arr;
+-(RCCRRemoteViewCellCollectionViewCell *)cellWithModel:(RCCRRemoteModel *)model;
 @end
 
 NS_ASSUME_NONNULL_END

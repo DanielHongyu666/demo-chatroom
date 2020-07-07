@@ -6,10 +6,10 @@ SealLive 是以融云 IM、音视频服务为基础，实现在线直播类型�
 
 ### 快速开始
 1. [注册融云开发者](https://developer.rongcloud.cn/signup/?utm_source=demogithub&utm_term=demosign)，创建应用后获取 APPKey。
-2. 开通音视频服务。
+2. 开通音视频服务。[查看音视频计费明细](https://www.rongcloud.cn/docs/call.html#billing)
 3. 部署 [SealLive-Server](../../app-server)
-4. 服务部署完毕之后，请分别将源码中的 `RCIMAPPKey`,`APPSERVER` 改为您自己的
-参见源码中文件  `AppDelegate.h`。
+4. 服务部署完毕之后，请分别将源码中的 `RCIMAPPKey`,`RCNAVI`,`APPSERVER`,`RTCMEDIASERVERURL` 改为您自己的
+参见源码中文件  `AppDelegate.h`,其中 `RCNAVI` 和  `RTCMEDIASERVERURL` 可以不填，私有云用户如果有专有地址可以填。
 
 
 ### 功能模块介绍
@@ -63,8 +63,8 @@ SealLive 中有三种用户角色:
 2. 通过调用 **RongRTCLiveInfo#setMixConfig** 接口来设置合流布局模式，合流布局包含三种模式： 自适应布局(默认)、悬浮布局、自定义布局。（关于合流布局的详细说明可以参考[官方文档](https://docs.rongcloud.cn/rtc/rtclib/ios/video_mix_layout/)）
 
 ### 使用到的融云产品
-* **即时通讯 IMLib SDK**  可详细查看 [IMLib SDK 开发指南](https://www.rongcloud.cn/docs/ios_imlib.html)
-* **音视频 RTC SDK** 可详细查看 [RTC SDK 开发指南](https://www.rongcloud.cn/docs/ios_rtclib.html)
+* **IM 聊天室功能**  可详细查看 [IMLib 聊天室开发文档](https://www.rongcloud.cn/docs/ios.html)
+* **RTC 低延迟音视频直播功能** 可详细查看 [RTC 音视频直播功能开发文档](https://www.rongcloud.cn/docs/ios_rtclib.html)
 
 
 

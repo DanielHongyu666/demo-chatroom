@@ -42,7 +42,7 @@ static NSString * const RCCRRemoteCollectionViewCellId = @"RCCRRemoteCollectionV
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     NSLog(@"view class is %@",[touch.view class]);
-    if ( [NSStringFromClass([touch.view class]) isEqualToString:@"GLKView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"RongRTCLocalVideoView"]) {
+    if ( [NSStringFromClass([touch.view class]) isEqualToString:@"GLKView"] || [NSStringFromClass([touch.view class]) isEqualToString:@"RCRTCLocalVideoView"]) {
         return YES;
     }
    

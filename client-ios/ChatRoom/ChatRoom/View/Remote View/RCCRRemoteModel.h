@@ -15,12 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  remote model
  */
-@property(nonatomic , strong , nullable)RongRTCAVInputStream *inputStream;
-
-/**
- is remote
- */
-@property(nonatomic , assign)BOOL isLocal;
+@property(nonatomic , strong , nullable)RCRTCStream *inputStream;
+//
+///**
+// is remote
+// */
+//@property(nonatomic , assign)BOOL isLocal;
 
 
 /**

@@ -24,7 +24,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+    self.view.backgroundColor = [UIColor clearColor];
     // Do any additional setup after loading the view.
     [self addSubviews];
 }
@@ -49,7 +49,7 @@
 -(RCCRSettingTableView *)settingTableView{
     if (!_settingTableView) {
         _settingTableView = [[RCCRSettingTableView alloc] initWithFrame:CGRectMake(0, HEADER, WIDTH, HEIGHT - HEADER) style:(UITableViewStylePlain)];
-        _settingTableView.backgroundColor = [UIColor whiteColor];
+        _settingTableView.backgroundColor = [UIColor clearColor];
         _settingTableView.scrollEnabled = NO;
         _settingTableView.allowsSelection = NO;
         _settingTableView.separatorStyle = UITableViewCellSeparatorStyleNone;

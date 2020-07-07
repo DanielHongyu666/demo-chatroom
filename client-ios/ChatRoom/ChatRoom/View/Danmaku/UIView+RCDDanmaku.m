@@ -150,15 +150,21 @@ alpha:1.0]
 
 - (void)rc_playDanmaku:(RCDDanmaku *)danmaku
 {
+    NSString *str =[NSString stringWithFormat:@"%@",[danmaku.contentStr string]];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:str];
+    
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc]init];
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    NSAttributedString *string = [[NSAttributedString alloc]initWithString:str attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:18], NSParagraphStyleAttributeName:paragraphStyle}];
+    
+    CGSize size =  [string boundingRectWithSize:CGSizeMake(MAXFLOAT, 25) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil].size;
     NSLog(@"总弹幕数%zd",RCDanmakuManager.danmakus.count);
     UILabel *contentLabel = [[UILabel alloc] init];
     [contentLabel setText:[danmaku.contentStr string]];
     [contentLabel sizeToFit];
-    NSInteger contentWidth = contentLabel.frame.size.width;
+    NSInteger contentWidth = size.width;
     if (contentWidth<100) {
         contentWidth = 100;
-    } else if (contentWidth > 200) {
-        contentWidth = 200;
     }
     
     UIView *backView = [[UIView alloc] init];
@@ -184,12 +190,12 @@ alpha:1.0]
     UILabel* playerLabel = [[UILabel alloc] init];
     
     [playerLabel addSubview:backView];
-//    backView.backgroundColor = [UIColor grayColor];
+    //    backView.backgroundColor = [UIColor grayColor];
     playerLabel.tag = RCDDanmakuLabelTag;
-//    playerLabel.attributedText = danmaku.contentStr;
-//    [playerLabel sizeToFit];
+    //    playerLabel.attributedText = danmaku.contentStr;
+    //    [playerLabel sizeToFit];
     [playerLabel setFrame:CGRectMake(0, 0, 70+contentWidth, 40)];
-//    playerLabel.backgroundColor = [UIColor blueColor];
+    //    playerLabel.backgroundColor = [UIColor blueColor];
     switch (danmaku.position) {
         case RCDDanmakuPositionNone:
             [self rc_playFromRightDanmaku:danmaku playerLabel:playerLabel];
@@ -380,7 +386,7 @@ alpha:1.0]
     UILabel* label = info.playLabel;
     NSInteger lineCount = info.lineCount;
     CGFloat height = 0 ;
-    if ([RongRTCEngine sharedEngine].currentRoom.remoteUsers.count > 0) {
+    if ([RCRTCEngine sharedInstance].currentRoom.remoteUsers.count > 0) {
         height = 150;
     }
     label.frame = CGRectMake(Width(self), (RCDanmakuManager.lineHeight + RCDanmakuManager.lineMargin) * lineCount + 50 + height, Width(label), Height(label));

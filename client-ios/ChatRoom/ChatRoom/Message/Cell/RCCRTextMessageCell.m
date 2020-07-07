@@ -2,8 +2,8 @@
 //  RCCRTextMessageCell.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/22.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/22.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "RCCRTextMessageCell.h"
@@ -53,6 +53,7 @@ alpha:1.0]
 }
 
 - (void)updateUI:(RCCRMessageModel *)model {
+    [_textLabel setFrame:CGRectMake(10, 0, self.bounds.size.width - 10, self.bounds.size.height)];
     if ([model.content isMemberOfClass:[RCChatroomWelcome class]]) {
         RCUserInfo *userInfo = model.userInfo;
         NSString *userName = [userInfo.name stringByAppendingString:@""];
@@ -101,6 +102,7 @@ alpha:1.0]
     } else if ([model.content isMemberOfClass:[RCTextMessage class]]) {
         RCTextMessage *textMessage = (RCTextMessage *)self.model.content;
         if (self.model.senderUserId) {
+            [_textLabel setFrame:CGRectMake(10, 0, self.bounds.size.width - 10, self.bounds.size.height)];
             NSString *localizedMessage = textMessage.content;
             RCUserInfo *userInfo = model.userInfo;
             NSString *userName = [userInfo.name stringByAppendingString:@"："];

@@ -2,8 +2,8 @@
 //  RCCRListCollectionViewController.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/9.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/9.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "RCCRListCollectionViewController.h"
@@ -24,6 +24,8 @@
 #import "RCActiveWheel.h"
 #import "RCCRUtilities.h"
 #import "RCLabel.h"
+#import "RCCRUtilities.h"
+#import "RCCRCDNViewController.h"
 #define WIDTH [UIScreen mainScreen].bounds.size.width
 
 @interface RCCRListCollectionViewController ()<RCConnectDelegate>
@@ -260,11 +262,17 @@ static NSString * const RCCRListCollectionViewCellReuseIdentifier = @"RCCRListCo
     [self fetchList];
 }
 - (void)beginLive{
+//    RCCRCDNViewController *cdn = [[RCCRCDNViewController alloc] init];
+//       cdn.delegate = self;
+//       cdn.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+//       [self.navigationController presentViewController:cdn animated:YES completion:nil];
+//    return;
     RCCRLiveViewController *live = [[RCCRLiveViewController alloc] init];
     live.CompletionBlock = ^(NSString * _Nonnull roomName , RCCRLiveModel *model) {
         NSString *oriName = roomName;
 //        BOOL has = [self hasChinese:roomName];
         if (1) {
+            roomName = [RCCRUtilities md5:roomName ];
             NSData *data = [roomName dataUsingEncoding:NSUTF8StringEncoding];
             roomName = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed]; // base64格式的字符串
             NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:@"[^a-zA-Z0-9]" options:0 error:nil];
@@ -273,6 +281,9 @@ static NSString * const RCCRListCollectionViewCellReuseIdentifier = @"RCCRListCo
         NSString *roomID = [@"iOS-" stringByAppendingFormat:@"%@-%.0f",roomName,[[NSDate date] timeIntervalSince1970] * 1000];
         roomID = [roomID stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         roomID = [roomID stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet ]];
+        if (roomID.length > 64) {
+            roomID = [roomID substringToIndex:63];
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             RCCRLiveChatRoomViewController *vc = [[RCCRLiveChatRoomViewController alloc] init];
             vc.conversationType = ConversationType_CHATROOM;

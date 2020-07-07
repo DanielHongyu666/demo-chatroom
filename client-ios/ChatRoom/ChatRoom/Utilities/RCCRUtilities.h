@@ -18,4 +18,5 @@
 + (NSString *)getRTCLibSDKVersion;
 + (NSString *)getdeviceName;
 + (BOOL)isPhoneX;
++ (NSString *)md5:(NSString *)input ;
 @end

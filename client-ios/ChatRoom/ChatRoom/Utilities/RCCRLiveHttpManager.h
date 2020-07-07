@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)query:(NSString *)roomId completion:(void (^)( BOOL isSuccess,NSArray  *_Nullable))completion;
 - (void)unpublish:(NSString *)roomId  completion:(void (^)(BOOL success))completion;
 - (void)getDemoVersionInfo:(void (^)(NSDictionary *respDict))resp;
+- (void)getCDNSupplyListWithRoomId:(NSString *)roomId completion:(void (^)(BOOL success , NSArray *list))completion;
+- (void)getCdnListWithRoomId:(NSString *)roomId streamName:(NSString *)streamName appName:(NSString *)appName cdnId:(NSString *)cdnId completion:(void (^)(BOOL success , NSArray *list))completion;
 @end
 
 NS_ASSUME_NONNULL_END

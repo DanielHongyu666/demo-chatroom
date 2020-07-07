@@ -3,7 +3,7 @@
 //  ChatRoomTests
 //
 //  Created by 罗骏 on 2018/5/9.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>

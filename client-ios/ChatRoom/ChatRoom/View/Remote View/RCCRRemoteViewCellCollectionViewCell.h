@@ -21,14 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  remote view
  */
-@property(nonatomic , strong , nullable)RongRTCRemoteVideoView *remoteView;
+@property(nonatomic , strong , nullable)RCRTCVideoPreviewView *remoteView;
 
 /**
  username label
  */
 @property(nonatomic , strong)UILabel *userNameLabel;
-- (void)addLocalView:(RongRTCLocalVideoView *)localView;
-- (void)addRemoteVideoView:(RongRTCRemoteVideoView *)remoteVideoView;
+- (void)addLocalView:(RCRTCVideoPreviewView *)localView;
+- (void)addRemoteVideoView:(RCRTCVideoPreviewView *)remoteVideoView;
 @end
 
 NS_ASSUME_NONNULL_END

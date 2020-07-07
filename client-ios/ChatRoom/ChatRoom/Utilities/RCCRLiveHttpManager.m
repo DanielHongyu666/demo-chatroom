@@ -12,7 +12,7 @@
 #import <RongIMLib/RongIMLib.h>
 #import "RCCRRoomModel.h"
 #define kDeviceUUID [[[[UIDevice currentDevice] identifierForVendor] UUIDString] substringToIndex:4]
-
+#define RCCDNSERVER @"自己服务器，获取 CDN 地址"
 @interface NSString (CC)
 @property (nonatomic,copy,readonly)NSString *sha1;
 @end
@@ -39,6 +39,7 @@
 @end
 
 
+/// 简单网络请求，不适用并封装第三方
 @interface RCCRLiveHttpManager ()<NSURLSessionDelegate>
 @property (nonatomic,strong)NSURLSession *defaultSession;
 @property (nonatomic,strong)NSOperationQueue *queue;
@@ -70,7 +71,7 @@
     NSMutableURLRequest *request  = [NSMutableURLRequest requestWithURL:urlPost
                                                             cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                         timeoutInterval:30.0];
-  
+    
     request.HTTPMethod = @"POST";
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     NSDictionary *dic = @{@"roomId":roomId?roomId:@"", @"roomName":roomName?roomName:@"",@"mcuUrl":liveUrl?liveUrl:@"",@"pubUserId":[RCIMClient sharedRCIMClient].currentUserInfo.userId , @"coverIndex":index?index:@"0"};
@@ -86,6 +87,72 @@
         } else {
             if (completion) {
                 completion(NO,code);
+            }
+        }
+    }];
+    [task  resume];
+}
+- (void)getCDNSupplyListWithRoomId:(NSString *)roomId completion:(void (^)(BOOL success , NSArray *list))completion{
+    NSString *host;
+    if ([RCCDNSERVER hasPrefix:@"http"]) {
+        host = RCCDNSERVER;
+    } else {
+        host = [@"https://" stringByAppendingString:RCCDNSERVER];
+    }
+    NSURL* urlPost = [NSURL URLWithString:[NSString stringWithFormat:@"%@/cdnsupply",host]];
+    NSMutableURLRequest *request  = [NSMutableURLRequest requestWithURL:urlPost
+                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                        timeoutInterval:30.0];
+    
+    request.HTTPMethod = @"POST";
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    NSDictionary *dic = @{@"roomId":roomId?roomId:@""};
+    NSData* data = [NSJSONSerialization dataWithJSONObject:dic options:kNilOptions error:nil];
+    request.HTTPBody = data;
+    NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
+        NSInteger code = [dic[@"code"] integerValue];
+        if (code == 0 && error == nil) {
+            if (completion) {
+                NSArray *list = dic[@"cdnSupplyList"];
+                completion(YES ,list);
+            }
+        } else {
+            if (completion) {
+                completion(NO,@[]);
+            }
+        }
+    }];
+    [task  resume];
+}
+- (void)getCdnListWithRoomId:(NSString *)roomId streamName:(NSString *)streamName appName:(NSString *)appName cdnId:(NSString *)cdnId completion:(void (^)(BOOL success , NSArray *list))completion{
+    NSString *host;
+    if ([RCCDNSERVER hasPrefix:@"http"]) {
+        host = RCCDNSERVER;
+    } else {
+        host = [@"https://" stringByAppendingString:RCCDNSERVER];
+    }
+    NSURL* urlPost = [NSURL URLWithString:[NSString stringWithFormat:@"%@/cdnurl",host]];
+    NSMutableURLRequest *request  = [NSMutableURLRequest requestWithURL:urlPost
+                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                        timeoutInterval:30.0];
+    
+    request.HTTPMethod = @"POST";
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    NSDictionary *dic = @{@"roomId":roomId?roomId:@"",@"appName":appName?appName:@"",@"streamName":streamName?streamName:@"",@"cdnId":cdnId?cdnId:@""};
+    NSData* data = [NSJSONSerialization dataWithJSONObject:dic options:kNilOptions error:nil];
+    request.HTTPBody = data;
+    NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
+        NSInteger code = [dic[@"code"] integerValue];
+        if (code == 0 && error == nil) {
+            if (completion) {
+                NSArray *list = dic[@"cdnList"];
+                completion(YES ,list);
+            }
+        } else {
+            if (completion) {
+                completion(NO,@[]);
             }
         }
     }];
@@ -174,7 +241,7 @@
     if ([APPSERVER hasPrefix:@"http"]) {
         appserver = APPSERVER;
     } else {
-       appserver = [@"https://" stringByAppendingString:APPSERVER];
+        appserver = [@"https://" stringByAppendingString:APPSERVER];
     }
     NSString *api = [NSString stringWithFormat:@"%@/user/get_token",appserver];
     
@@ -183,13 +250,13 @@
     
     [request setValue:RCIMAPPKey forHTTPHeaderField:@"App-Key"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-
+    
     NSString *Nonce = [NSString stringWithFormat:@"%u",100000+arc4random()%100000];
     [request setValue:Nonce forHTTPHeaderField:@"Nonce"];
-
+    
     NSString *Timestamp = [NSString stringWithFormat:@"%lu",(unsigned long)([NSDate date].timeIntervalSince1970 * 1000)];
     [request setValue:Timestamp forHTTPHeaderField:@"Timestamp"];
-
+    
     NSString *Signature = [NSString stringWithFormat:@"%@%@",Nonce,Timestamp];
     [request setValue:Signature.sha1 forHTTPHeaderField:@"Signature"];
     NSDictionary *dic = @{@"id":userId};
@@ -212,7 +279,7 @@
     }];
     
     [task resume];
-
+    
 }
 - (void)getDemoVersionInfo:(void (^)(NSDictionary *respDict))resp
 {
@@ -234,7 +301,7 @@
                 resp(resultDict);
             }
             else {
-               resp(nil);
+                resp(nil);
             }
         }
         else {

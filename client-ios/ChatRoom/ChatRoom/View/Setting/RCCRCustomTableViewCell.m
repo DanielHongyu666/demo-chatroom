@@ -13,8 +13,8 @@
 #import "RCImageView.h"
 #define MAXHEIGHT (640 / 6)
 #define MINHEIGHT 0
-#define FAC (3.0/4.0)
-#define MAXW 480
+#define FAC (9.0/16.0)
+#define MAXW 360
 @interface RCCRCustomTableViewCell()<UITextFieldDelegate>
 /**
  viewCropLabel

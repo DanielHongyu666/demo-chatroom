@@ -8,6 +8,7 @@
 
 #import "RCCRRemoteView.h"
 #import "RCCRAudienceModel.h"
+#import "RCCRRemoteViewCellCollectionViewCell.h"
 #define WIDTH [UIScreen mainScreen].bounds.size.width
 #define LOCK dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
 #define UNLOCK dispatch_semaphore_signal(_sem);
@@ -56,7 +57,7 @@
         int oriIndex = 0;
         for (RCCRRemoteModel *omodel in self.remoteHostView.dataSources) {
             NSLog(@"--------ori user id : %@",omodel.inputStream.userId);
-            if ([omodel.inputStream.userId isEqualToString:model.inputStream.userId]) {
+            if ([omodel.inputStream.userId isEqualToString:model.inputStream.userId] && [omodel.inputStream.tag isEqualToString:model.inputStream.tag] ) {
                 has = YES;
                 oriIndex = [self.remoteHostView.dataSources indexOfObject:omodel];
             }
@@ -82,39 +83,56 @@
     [self.remoteHostView reloadItemsAtIndexPaths:reloadArr];
     UNLOCK;
 }
--(void)deleteDataWithUserIds:(NSArray *)userIds{
+-(RCCRRemoteViewCellCollectionViewCell *)cellWithModel:(RCCRRemoteModel *)model{
+    NSUInteger index = [self.remoteHostView.dataSources indexOfObject:model];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+    RCCRRemoteViewCellCollectionViewCell *cell  = [self.remoteHostView cellForItemAtIndexPath:indexPath];
+    return cell;
+}
+-(NSArray *)deleteDataWithUserIds:(NSArray *)userIds{
     LOCK;
     NSLog(@"remote view delete datas ：%@",userIds);
     NSMutableArray *arr = self.remoteHostView.dataSources.mutableCopy;
     NSMutableArray *indexPaths = [NSMutableArray array];
+    NSMutableArray *cells = [NSMutableArray array];
     NSInteger count = arr.count;
     for (NSString *userId in userIds) {
       for (NSInteger i = 0 ; i < count; i ++) {
           RCCRRemoteModel *model = arr[i];
           if ([model.inputStream.userId isEqualToString:userId]) {
-              [self.remoteHostView.dataSources removeObject:model];
               NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-              [indexPaths addObject:indexPath];
+              if (indexPath != nil) {
+                  [indexPaths addObject:indexPath];
+                  [cells addObject:model];
+                  [self.remoteHostView.dataSources removeObject:model];
+              }
           }
       }
     }
 //    self.remoteHostView.dataSources = arr.mutableCopy;
     [self.remoteHostView deleteItemsAtIndexPaths:indexPaths];
     UNLOCK;
+    return cells.copy;
 }
--(void)deleteDataWithStreams:(NSArray<RongRTCAVInputStream *> *)streams{
+-(void)deleteDataWithStreams:(NSArray<RCRTCInputStream *> *)streams{
     LOCK;
-    NSLog(@"remote view delete datas with streams ：%@",streams.count);
+    NSLog(@"remote view delete datas with streams ：%@",@(streams.count));
     NSMutableArray *arr = self.remoteHostView.dataSources.mutableCopy;
     NSMutableArray *indexPaths = [NSMutableArray array];
-    for (RongRTCAVInputStream *stream in streams) {
+    for (RCRTCInputStream *stream in streams) {
         for (NSInteger i = 0 ; i < self.remoteHostView.dataSources.count ; i ++){
-            RCCRRemoteModel *model = arr[i];
-            if ([model.inputStream.userId isEqualToString:stream.userId] && model.inputStream.streamType == stream.streamType && [model.inputStream.streamId isEqualToString:stream.streamId]) {
-                [arr removeObject:model];
-                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-                [indexPaths addObject:indexPath];
+            RCCRRemoteModel *model = self.remoteHostView.dataSources[i];
+            if ([model.inputStream isKindOfClass:[RCRTCInputStream class]]) {
+                RCRTCInputStream *inputStream = (RCRTCInputStream *)model.inputStream;
+                if ([inputStream.userId isEqualToString:stream.userId] && inputStream.mediaType == stream.mediaType && [inputStream.streamId isEqualToString:stream.streamId]&&[stream.tag isEqualToString:inputStream.tag]) {
+                    [arr removeObject:model];
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                    if (indexPath!=nil) {
+                        [indexPaths addObject:indexPath];
+                    }
+                }
             }
+            
         }
     }
     self.remoteHostView.dataSources = arr.mutableCopy;
@@ -130,7 +148,10 @@
                     if ([userInfo.userId isEqualToString:model.inputStream.userId]) {
                         model.userName = userInfo.audienceName;
                         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:[self.remoteHostView.dataSources indexOfObject:model] inSection:0];
-                        [indexPaths addObject:indexPath];
+                        if (indexPath != nil) {
+                            [indexPaths addObject:indexPath];
+
+                        }
                     }
                 }
             }
@@ -149,7 +170,10 @@
                        if ([userInfo.userId isEqualToString:model.inputStream.userId]) {
                            model.userName = userInfo.name;
                            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:[self.remoteHostView.dataSources indexOfObject:model] inSection:0];
-                           [indexPaths addObject:indexPath];
+                           if (indexPath != nil) {
+                                [indexPaths addObject:indexPath];
+
+                           }
                        }
                    }
                }

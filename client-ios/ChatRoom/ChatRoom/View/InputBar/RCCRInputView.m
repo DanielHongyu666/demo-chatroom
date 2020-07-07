@@ -2,8 +2,8 @@
 //  RCCRInputView.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/11.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/11.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "RCCRInputView.h"
@@ -33,6 +33,11 @@
 }
 
 #pragma mark <UITextViewDelegate>
+-(void)textViewDidChange:(UITextView *)textView{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inputTextViewTextViewDidChange:)]) {
+        [self.delegate inputTextViewTextViewDidChange:textView];
+    }
+}
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if ([self.delegate respondsToSelector:@selector(inputTextView:shouldChangeTextInRange:replacementText:)]) {
         [self.delegate inputTextView:textView shouldChangeTextInRange:range replacementText:text];

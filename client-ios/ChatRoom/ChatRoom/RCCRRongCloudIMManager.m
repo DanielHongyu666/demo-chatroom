@@ -2,8 +2,8 @@
 //  RCCRRongCloudIMManager.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/9.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/9.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "RCCRRongCloudIMManager.h"
@@ -143,19 +143,17 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
                           success:(void (^)(NSString *userId))successBlock
                             error:(void (^)(RCConnectErrorCode status))errorBlock
                    tokenIncorrect:(void (^)(void))tokenIncorrectBlock {
-    [[RCIMClient sharedRCIMClient] connectWithToken:token
-                                            success:^(NSString *userId) {
-                                                if (successBlock!=nil) {
-                                                    successBlock(userId);
-                                                }
-                                            }
-                                              error:^(RCConnectErrorCode status) {
-                                                  if(errorBlock!=nil)
-                                                      errorBlock(status);
-                                              }
-                                     tokenIncorrect:^() {
-                                         tokenIncorrectBlock();
-                                     }];
+    [[RCIMClient sharedRCIMClient] connectWithToken:token dbOpened:^(RCDBErrorCode code) {
+        
+    } success:^(NSString *userId) {
+        if (successBlock!=nil) {
+            successBlock(userId);
+        }
+    } error:^(RCConnectErrorCode errorCode) {
+        if(errorBlock!=nil)
+            errorBlock(errorCode);
+    }];
+    
 }
 
 - (void)disconnectRongCloud{

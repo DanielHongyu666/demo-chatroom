@@ -2,8 +2,8 @@
 //  AppDelegate.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/9.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/9.
+//  Copyright © 2018年 RongCloud. All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -44,9 +44,10 @@
         config.channel = @"Release";
     #endif
         
-        [Bugly startWithAppId:@"6a70b5f85e" config:config];
+        [Bugly startWithAppId:@"" config:config];
         [Bugly setUserIdentifier:[UIDevice currentDevice].name];
-        // 自动化测试取消重定向
+    // 配置自己的 appkey 和 navi
+        [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] initRongCloud:RCIMAPPKey navi:@""];
     //注册自定义消息
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomWelcome class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomGift class]];

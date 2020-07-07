@@ -2,8 +2,8 @@
 //  RCCRInputBar.m
 //  ChatRoom
 //
-//  Created by 罗骏 on 2018/5/10.
-//  Copyright © 2018年 罗骏. All rights reserved.
+//  Created by RongCloud on 2018/5/10.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "RCCRInputBarControl.h"
@@ -139,7 +139,11 @@
         [self.delegate onInputTextView:inputTextView shouldChangeTextInRange:range replacementText:text];
     }
 }
-
+-(void)inputTextViewTextViewDidChange:(UITextView *)textView{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inputTextViewTextViewDidChange:)]) {
+        [self.delegate inputTextViewTextViewDidChange:textView];
+    }
+}
 #pragma mark - RCCREmojiViewDelegate
 //  发送表情
 - (void)didSendButtonEvent {

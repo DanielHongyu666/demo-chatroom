@@ -55,7 +55,7 @@
 @implementation RCCRSettingHeaderView
 -(instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
-        self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        self.backgroundColor = [UIColor clearColor];
         [self addViews];
     }
     return self;
