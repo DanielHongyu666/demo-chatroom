@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="match_parent"
+  android:layout_height="400dp"
+  android:minHeight="400dp"
+  android:background="@color/colorWhite"
+  android:padding="8dp">
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="旁路推流接口测试"
+    android:textSize="18sp"
+    android:layout_centerInParent="true"/>
+
+    <ImageView
+      android:id="@+id/iv_close"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:src="@drawable/ic_close"
+      android:layout_centerVertical="true"
+      android:padding="8dp"
+      android:layout_alignParentRight="true"/>
+
+  </RelativeLayout>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="4dp">
+    <TextView
+      android:id="@+id/lbl"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerVertical="true"
+      android:text="选择推流CDN"/>
+
+    <Button
+      android:id="@+id/btn_add"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:text="添加"/>
+
+    <TextView
+      android:id="@+id/tv_cdn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/lbl"
+      android:layout_toLeftOf="@id/btn_add"
+      android:layout_centerVertical="true"
+      android:layout_marginRight="4dp"
+      android:layout_marginLeft="4dp"
+      android:hint="请选择推流CDN"
+      android:singleLine="true"
+      android:gravity="center"
+      android:drawableRight="@drawable/list_arrow"/>
+
+  </RelativeLayout>
+
+  <TextView
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:text="当前生效的推流地址"/>
+
+  <android.support.v7.widget.RecyclerView
+    android:id="@+id/recyclerview"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    />
+
+
+
+
+</LinearLayout>

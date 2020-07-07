@@ -1,16 +1,26 @@
 package cn.rongcloud.chatroomdemo.utils;
 
+import android.os.SystemClock;
+import cn.rongcloud.chatroomdemo.ui.panel.LayoutConfigDialog.ConfigParams;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.RCRTCLocalUser;
+import cn.rongcloud.rtc.api.RCRTCMixConfig;
+import cn.rongcloud.rtc.api.RCRTCMixConfig.CustomLayoutList.CustomLayout;
+import cn.rongcloud.rtc.api.RCRTCRemoteUser;
+import cn.rongcloud.rtc.api.RCRTCRoom;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCLiveInfo;
+import cn.rongcloud.rtc.api.stream.RCRTCOutputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
+import cn.rongcloud.rtc.base.RCRTCStream;
+import cn.rongcloud.rtc.base.RTCErrorCode;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.rongcloud.chatroomdemo.ui.panel.LayoutConfigDialog;
-import cn.rongcloud.rtc.RTCErrorCode;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.config.RongCenterConfig;
-import cn.rongcloud.rtc.room.RongRTCMixConfig;
-import cn.rongcloud.rtc.room.RongRTCLiveInfo;
-import cn.rongcloud.rtc.room.RongRTCRoom;
-import cn.rongcloud.rtc.stream.local.RongRTCLocalSourceManager;
 
 /**
  * Created by wangw on 2019-12-24.
@@ -18,161 +28,116 @@ import cn.rongcloud.rtc.stream.local.RongRTCLocalSourceManager;
 public class MixConfigHelper {
 
     private static final String TAG = "MixConfigHelper";
-    private final RongRTCRoom mRTCRoom;
+    private final RCRTCRoom mRTCRoom;
     private LayoutConfigDialog.ConfigParams mConfigParams;
-    private RongRTCResultUICallBack mCallback;
-    private RongRTCLiveInfo mLiveInfo;
+    private IRCRTCResultCallback mCallback;
+    private RCRTCLiveInfo mLiveInfo;
 
-    public MixConfigHelper(RongRTCLiveInfo rongRTCLiveInfo, RongRTCRoom rtcRoom) {
+    public MixConfigHelper(RCRTCLiveInfo rongRTCLiveInfo, RCRTCRoom rtcRoom) {
         mLiveInfo = rongRTCLiveInfo;
         mRTCRoom = rtcRoom;
     }
 
-
-    public RongRTCMixConfig onChange(LayoutConfigDialog.ConfigParams params, List<String> anchorList) {
+    /**
+     * 修改合流布局配置
+     * @param params 合流布局参数
+     * @return
+     */
+    public RCRTCMixConfig changeMixConfig(LayoutConfigDialog.ConfigParams params) {
         mConfigParams = params;
-        return onSubmitChange(anchorList);
+        return onSubmitChange();
     }
 
     public void release() {
         mCallback = null;
     }
 
-    public void onUserChange(List<String> anchorList) {
-        if (mConfigParams != null && mConfigParams.model == RongRTCMixConfig.MixLayoutMode.CUSTOM)
-            onSubmitChange(anchorList);
+    /**
+     * 如果有新的视频流加入，需要更新合流布局配置
+     */
+    public void updateMixConfig() {
+        if (mConfigParams != null && mConfigParams.model == RCRTCMixConfig.MixLayoutMode.CUSTOM)
+            onSubmitChange();
     }
 
-    private RongRTCMixConfig onSubmitChange(List<String> anchorList) {
+    private RCRTCMixConfig onSubmitChange() {
         if (mConfigParams == null)
             return null;
-        RongRTCMixConfig mixConfig = createMixConfig(mConfigParams,anchorList);
-        mLiveInfo.setMixConfig(mixConfig, new RongRTCResultUICallBack() {
+        RCRTCMixConfig mixConfig = createMixConfig(mConfigParams);
+        mLiveInfo.setMixConfig(mixConfig, new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 if (mCallback != null)
                     mCallback.onSuccess();
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(RTCErrorCode rtcErrorCode) {
                 if (mCallback != null)
                     mCallback.onFailed(rtcErrorCode);
             }
         });
-//        Gson gson = new GsonBuilder()
-//                .setExclusionStrategies(new ExclusionStrategy() {
-//                    @Override
-//                    public boolean shouldSkipField(FieldAttributes f) {
-//                        //TODO 此处需要优化
-//                        if (TextUtils.equals(f.getName(),"tiny") ||
-//                                (f.getDeclaringClass() == RongRTCMixConfig.OutputBean.VideoBean.NormalBean.class && TextUtils.equals(f.getName(),"bitrate")))
-//                            return true;
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public boolean shouldSkipClass(Class<?> clazz) {
-//                        return false;
-//                    }
-//                })
-//                .create();
-//        String configJson = new Gson().toJson(mcuConfig);
-//        Log.d(TAG,"MCUConfig= "+configJson);
-//
-//        Request request = new Request.Builder()
-//                .url(mConfigUrl+"/server/mcu/config")
-//                .method(RequestMethod.POST)
-//                .addHeader("RoomId", mRTCRoom.getRoomId())
-//                .addHeader("UserId", mRTCRoom.getLocalUser().getUserId())
-//                .addHeader("AppKey", DataInterface.APP_KEY)
-//                .addHeader("SessionId", mRTCRoom.getSessionId())
-//                .addHeader("Token", RongMediaSignalClient.getInstance().getRtcToken())
-//                .body(configJson)
-//                .build();
-//        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
-//            @Override
-//            public void onResponse(final String s) {
-//                LogUtils.i("DemoServer","onSubmitChange result = "+s);
-//                if (mCallback != null)
-//                    mCallback.onSuccess();
-//            }
-//
-//            @Override
-//            public void onFailure(final int i) {
-//                LogUtils.e("DemoServer","onSubmitChange failure = "+i);
-//                if (mCallback != null){
-//                    mCallback.onFailed(i);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onError(IOException e) {
-//                LogUtils.e("DemoServer","refreshData error = "+e.getMessage());
-//                if (mCallback != null){
-//                    mCallback.onFailed(-5000);
-//                }
-//            }
-//        });
         return mixConfig;
     }
 
-    public RongRTCMixConfig createMixConfig(LayoutConfigDialog.ConfigParams configParams, List<String> remoteUserIdList){
-        RongRTCMixConfig config = new RongRTCMixConfig();
+    public RCRTCMixConfig createMixConfig(LayoutConfigDialog.ConfigParams configParams){
+        RCRTCMixConfig config = new RCRTCMixConfig();
         //设置合流布局模式
         config.setLayoutMode(configParams.model);
+        RCRTCLocalUser localUser = mRTCRoom.getLocalUser();
         //当做背景Video的用户Id
-        config.setHostUserId(mRTCRoom.getLocalUser().getUserId());
+        config.setHostVideoStream(localUser.getDefaultVideoStream());
 
         //合流布局输出参数配置
-        RongRTCMixConfig.MediaConfig mediaConfig = new RongRTCMixConfig.MediaConfig();
+        RCRTCMixConfig.MediaConfig mediaConfig = new RCRTCMixConfig.MediaConfig();
 
         //视频输出配置
-        RongRTCMixConfig.MediaConfig.VideoConfig videoConfig = new RongRTCMixConfig.MediaConfig.VideoConfig();
+        RCRTCMixConfig.MediaConfig.VideoConfig videoConfig = new RCRTCMixConfig.MediaConfig.VideoConfig();
         //标准视频流的输出布局参数
-        RongRTCMixConfig.MediaConfig.VideoConfig.VideoLayout normal = new RongRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
-        RongCenterConfig rongRTCConfig = RongRTCLocalSourceManager.getInstance().getRongRTCConfig();
-        int videoWidth = rongRTCConfig.getVideoWidth();
+        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout normal = new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
+        RCRTCVideoStreamConfig vc = mRTCRoom.getLocalUser().getDefaultVideoStream().getVideoConfig();
+        int videoWidth = vc.getVideoResolution().getWidth();
         normal.setWidth(videoWidth);
-        int videoHeight = rongRTCConfig.getVideoHeight();
+        int videoHeight = vc.getVideoResolution().getHeight();
         normal.setHeight(videoHeight);
-        normal.setFps(rongRTCConfig.getVideoFPS());
+        normal.setFps(vc.getVideoFps().getFps());
         videoConfig.setVideoLayout(normal);
         //设置渲染模式
-        videoConfig.setExtend(new RongRTCMixConfig.MediaConfig.VideoConfig.VideoExtend(configParams.isCrop ? RongRTCMixConfig.VideoRenderMode.CROP : RongRTCMixConfig.VideoRenderMode.WHOLE));
+        videoConfig.setExtend(new RCRTCMixConfig.MediaConfig.VideoConfig.VideoExtend(configParams.isCrop ? RCRTCMixConfig.VideoRenderMode.CROP : RCRTCMixConfig.VideoRenderMode.WHOLE));
         //设置视频合流布局输出参数配置
         mediaConfig.setVideoConfig(videoConfig);
         //如果音频码率没有要求可以不设置
-        //mediaConfig.setAudioConfig(new RongRTCMixConfig.MediaConfig.AudioConfig(rongRTCConfig.getAudioBitRate()));
+        //mediaConfig.setAudioConfig(new RCRTCMixConfig.MediaConfig.AudioConfig(rongRTCConfig.getAudioBitRate()));
         config.setMediaConfig(mediaConfig);
 
         //如果非自定义合流模式，则不需要设置CustomLayoutList
-        if (configParams.model != RongRTCMixConfig.MixLayoutMode.CUSTOM){
+        if (configParams.model != RCRTCMixConfig.MixLayoutMode.CUSTOM){
             return config;
         }
-        ArrayList<RongRTCMixConfig.CustomLayoutList.CustomLayout> list = new ArrayList<>();
+        ArrayList<RCRTCMixConfig.CustomLayoutList.CustomLayout> list = new ArrayList<>();
         //设置背景Video渲染坐标
-        RongRTCMixConfig.CustomLayoutList.CustomLayout iv = new RongRTCMixConfig.CustomLayoutList.CustomLayout();
-        //当做背景Video的用户Id
-        iv.setUserId(mRTCRoom.getLocalUser().getUserId());
+        RCRTCMixConfig.CustomLayoutList.CustomLayout iv = new RCRTCMixConfig.CustomLayoutList.CustomLayout();
+        //当做背景Video Sream
+        iv.setVideoStream(localUser.getDefaultVideoStream());
         iv.setX(0);
         iv.setY(0);
         iv.setWidth(normal.getWidth());
         iv.setHeight(normal.getHeight());
         list.add(iv);
-        //其他自定义视频合流布局参数
-        if (remoteUserIdList != null && !remoteUserIdList.isEmpty()){
-            int i = 0;
-            for (String uid : remoteUserIdList) {
-                RongRTCMixConfig.CustomLayoutList.CustomLayout vb = new RongRTCMixConfig.CustomLayoutList.CustomLayout();
-                vb.setUserId(uid);
-                vb.setX(configParams.x);
-                vb.setY(configParams.height*i);
-                vb.setWidth(configParams.width);
-                vb.setHeight(configParams.height);
-                list.add(vb);
-                i++;
+        //布局每一个视频流的坐标及大小
+        for (RCRTCOutputStream stream : localUser.getStreams()) {
+            //必须是VideoStream
+            if (stream == localUser.getDefaultVideoStream() || stream.getMediaType() != RCRTCMediaType.VIDEO)
+                continue;
+            list.add(createCustomLayout(configParams, list.size()-1, stream));
+        }
+        List<RCRTCRemoteUser> remoteUsers = mRTCRoom.getRemoteUsers();
+        for (RCRTCRemoteUser user : remoteUsers) {
+            //必须是VideoStream
+            for (RCRTCInputStream stream : user.getStreams()) {
+                if (stream.getMediaType() != RCRTCMediaType.VIDEO)
+                    continue;
+                list.add(createCustomLayout(configParams, list.size()-1, stream));
             }
         }
         //设置自定义视频合流布局参数列表
@@ -180,11 +145,22 @@ public class MixConfigHelper {
         return config;
     }
 
-    public RongRTCResultUICallBack getCallback() {
+    private CustomLayout createCustomLayout(ConfigParams configParams, int i,
+        RCRTCStream stream) {
+        CustomLayout vb = new CustomLayout();
+        vb.setVideoStream(stream);
+        vb.setX(configParams.x);
+        vb.setY(configParams.height*i);
+        vb.setWidth(configParams.width);
+        vb.setHeight(configParams.height);
+        return vb;
+    }
+
+    public IRCRTCResultCallback getCallback() {
         return mCallback;
     }
 
-    public void setCallback(RongRTCResultUICallBack callback) {
+    public void setCallback(IRCRTCResultCallback callback) {
         mCallback = callback;
     }
 

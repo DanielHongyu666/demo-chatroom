@@ -3,6 +3,8 @@ package cn.rongcloud.chatroomdemo.ui.panel;
 import android.content.Context;
 import android.opengl.Visibility;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.InputFilter.LengthFilter;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -37,6 +39,9 @@ public class InputPanel extends LinearLayout {
 
     public void setType(int type) {
         this.type = type;
+        if (textEditor != null){
+            textEditor.setFilters(type == TYPE_BARRAGE ? new InputFilter[]{new LengthFilter(50)} : new InputFilter[0]);
+        }
     }
 
     public interface InputPanelListener {
@@ -56,6 +61,7 @@ public class InputPanel extends LinearLayout {
         sendBtn = (TextView) findViewById(R.id.input_send);
         emojiBoard = (EmojiBoard) findViewById(R.id.input_emoji_board);
 
+        textEditor.setFilters(type == TYPE_BARRAGE ? new InputFilter[]{new LengthFilter(50)} : new InputFilter[0]);
         textEditor.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {

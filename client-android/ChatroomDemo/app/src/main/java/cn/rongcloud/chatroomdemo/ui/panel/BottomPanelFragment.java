@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -170,7 +171,6 @@ public class BottomPanelFragment extends Fragment {
     public void setInputPanelListener(InputPanel.InputPanelListener l) {
         inputPanel.setPanelListener(l);
     }
-
 
     public LayoutConfigDialog.ConfigChangeListener getConfigChangeListener() {
         return mConfigChangeListener;

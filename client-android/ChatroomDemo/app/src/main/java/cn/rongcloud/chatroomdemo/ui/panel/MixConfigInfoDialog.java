@@ -14,10 +14,10 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import cn.rongcloud.rtc.api.RCRTCMixConfig;
 import java.util.List;
 
 import cn.rongcloud.chatroomdemo.R;
-import cn.rongcloud.rtc.room.RongRTCMixConfig;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -31,7 +31,7 @@ public class MixConfigInfoDialog extends DialogFragment implements View.OnClickL
     private LinearLayout mLlInfos;
 
 
-    public static MixConfigInfoDialog newInstance(RongRTCMixConfig config) {
+    public static MixConfigInfoDialog newInstance(RCRTCMixConfig config) {
 
         Bundle args = new Bundle();
         args.putParcelable("config",config);
@@ -68,20 +68,20 @@ public class MixConfigInfoDialog extends DialogFragment implements View.OnClickL
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        RongRTCMixConfig config = getArguments().getParcelable("config");
+        RCRTCMixConfig config = getArguments().getParcelable("config");
         initItems(config.getCustomLayouts());
     }
 
-    private void initItems(List<RongRTCMixConfig.CustomLayoutList.CustomLayout> customLayoutList) {
+    private void initItems(List<RCRTCMixConfig.CustomLayoutList.CustomLayout> customLayoutList) {
         mLlInfos.removeAllViews();
         if (customLayoutList == null || customLayoutList.isEmpty())
             return;
-        for (RongRTCMixConfig.CustomLayoutList.CustomLayout video : customLayoutList) {
+        for (RCRTCMixConfig.CustomLayoutList.CustomLayout video : customLayoutList) {
             mLlInfos.addView(createItemView(video,mLlInfos.getChildCount()));
         }
     }
 
-    private View createItemView(RongRTCMixConfig.CustomLayoutList.CustomLayout video,int index) {
+    private View createItemView(RCRTCMixConfig.CustomLayoutList.CustomLayout video,int index) {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.widget_mcuconfig_info_item, mLlInfos,false);
         setText(view,R.id.tv_name,index == 0 ? "H" : "M"+(index)+":");
         setText(view,R.id.tv_x,"X "+video.getX());

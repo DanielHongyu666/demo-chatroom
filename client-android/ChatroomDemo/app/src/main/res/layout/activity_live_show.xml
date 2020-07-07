@@ -1,159 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/background"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/background"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  >
+
+  <FrameLayout
+    android:id="@+id/fl_largeview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    android:background="@drawable/shape_bg"/>
 
-    <FrameLayout
-        android:id="@+id/fl_largeview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#00003E"/>
+  <ImageView
+    android:id="@+id/fake"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:src="@drawable/fake_members"
+    android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/fake"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/fake_members"
-        android:visibility="gone" />
+  <RelativeLayout
+    android:id="@+id/layout_host"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@drawable/bg_giftlayout"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
 
-    <RelativeLayout
-        android:id="@+id/layout_host"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/bg_giftlayout"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+    <cn.rongcloud.chatroomdemo.ui.panel.CircleImageView
+      android:id="@+id/iv_host_header"
+      android:layout_width="39dp"
+      android:layout_height="39dp"
+      android:layout_alignParentLeft="true"
+      android:layout_centerVertical="true"
+      android:layout_margin="3dp" />
 
-        <cn.rongcloud.chatroomdemo.ui.panel.CircleImageView
-            android:id="@+id/iv_host_header"
-            android:layout_width="39dp"
-            android:layout_height="39dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="3dp" />
+    <TextView
+      android:id="@+id/tv_holder_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="6dp"
+      android:layout_marginTop="4dp"
+      android:layout_toRightOf="@id/iv_host_header"
+      android:text="小海豚"
+      android:textColor="#ffffff"
+      android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tv_holder_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@id/iv_host_header"
-            android:text="小海豚"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+    <TextView
+      android:id="@+id/tv_room_onlive_people"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignLeft="@id/tv_holder_name"
+      android:layout_below="@id/tv_holder_name"
+      android:layout_marginTop="4dp"
+      android:ellipsize="end"
+      android:text="580人"
+      android:textColor="#ffea79"
+      android:textSize="11sp" />
+  </RelativeLayout>
 
-        <TextView
-            android:id="@+id/tv_room_onlive_people"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/tv_holder_name"
-            android:layout_below="@id/tv_holder_name"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:text="580人"
-            android:textColor="#ffea79"
-            android:textSize="11sp" />
-    </RelativeLayout>
+  <ImageView
+    android:id="@+id/iv_back"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/back"
+    android:layout_alignParentRight="true"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="15dp"/>
 
-    <ImageView
-        android:id="@+id/iv_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/back"
+  <cn.rongcloud.chatroomdemo.ui.panel.HorizontalListView
+    android:id="@+id/gv_room_member"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="10dp"
+    android:layout_toRightOf="@id/layout_host"
+    android:layout_toLeftOf="@id/iv_back"/>
+
+
+
+  <HorizontalScrollView
+    android:id="@+id/horizontalScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/layout_host">
+
+    <LinearLayout
+      android:id="@+id/ll_smallviews"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:visibility="visible" />
+  </HorizontalScrollView>
+
+
+
+  <com.orzangleli.xdanmuku.DanmuContainerView
+    android:id="@+id/danmuContainerView"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_below="@id/horizontalScrollView" />
+
+
+  <cn.rongcloud.chatroomdemo.ui.gift.GiftView
+    android:id="@+id/giftView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/horizontalScrollView" />
+
+
+  <ListView
+    android:id="@+id/chat_listview"
+    android:layout_width="230dp"
+    android:layout_height="152dp"
+    android:layout_above="@+id/bottom_bar"
+    android:divider="@null"
+    android:listSelector="@android:color/transparent"
+    android:scrollbars="none"
+    android:transcriptMode="alwaysScroll" />
+
+  <fragment
+    android:id="@+id/bottom_bar"
+    android:name="cn.rongcloud.chatroomdemo.ui.panel.BottomPanelFragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    tools:layout="@layout/fragment_bottombar" />
+
+
+  <LinearLayout
+    android:id="@+id/ll_options"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_alignParentRight="true"
+    android:layout_marginRight="14dp"
+    android:gravity="center_horizontal"
+    android:layout_centerVertical="true">
+
+    <android.support.v7.widget.AppCompatCheckBox
+      android:id="@+id/menu_speaker"
+      android:layout_width="36dp"
+      android:layout_height="36dp"
+      android:layout_alignParentRight="true"
+      android:background="@drawable/selector_checkbox_speaker"
+      android:button="@null"
+      android:layout_margin="5dp"
+      android:checked="false" />
+    <LinearLayout
+      android:id="@+id/ll_menu"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="vertical">
+
+      <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_custom_stream"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_below="@+id/menu_custom_audio"
+        android:background="@drawable/selector_checkbox_custom_stream"
+        android:button="@null"
+        android:checked="false" />
+
+      <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_mic"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="20dp"/>
+        android:background="@drawable/selector_checkbox_mic"
+        android:button="@null"
+        android:layout_margin="5dp"
+        android:checked="false" />
 
-    <cn.rongcloud.chatroomdemo.ui.panel.HorizontalListView
-        android:id="@+id/gv_room_member"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="10dp"
-        android:layout_toRightOf="@id/layout_host"
-        android:layout_toLeftOf="@id/iv_back"/>
-
-
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/layout_host">
-
-        <LinearLayout
-            android:id="@+id/ll_smallviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="visible" />
-    </HorizontalScrollView>
-
-
-
-    <com.orzangleli.xdanmuku.DanmuContainerView
-        android:id="@+id/danmuContainerView"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@id/horizontalScrollView" />
-
-
-    <cn.rongcloud.chatroomdemo.ui.gift.GiftView
-        android:id="@+id/giftView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/horizontalScrollView" />
-
-
-    <ListView
-        android:id="@+id/chat_listview"
-        android:layout_width="230dp"
-        android:layout_height="152dp"
-        android:layout_above="@+id/bottom_bar"
-        android:divider="@null"
-        android:listSelector="@android:color/transparent"
-        android:scrollbars="none"
-        android:transcriptMode="alwaysScroll" />
-
-    <fragment
-        android:id="@+id/bottom_bar"
-        android:name="cn.rongcloud.chatroomdemo.ui.panel.BottomPanelFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        tools:layout="@layout/fragment_bottombar" />
-
-    <cn.rongcloud.chatroomdemo.ui.panel.HostPanel
-        android:id="@+id/host_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone" />
-
-    <cn.rongcloud.chatroomdemo.ui.panel.OnlineUserPanel
-        android:id="@+id/online_user_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone" />
-
-    <cn.rongcloud.chatroomdemo.ui.panel.LoginPanel
-        android:id="@+id/login_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone" />
-
-    <cn.rongcloud.chatroomdemo.ui.like.HeartLayout
-        android:id="@+id/heart_layout"
-        android:layout_width="86dp"
-        android:layout_height="match_parent"
+      <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_switch_camera"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="4dp" />
+        android:background="@drawable/icon_switch_camera"
+        android:button="@null"
+        android:layout_margin="5dp"
+        android:checked="false" />
+
+    </LinearLayout>
+  </LinearLayout>
+
+  <cn.rongcloud.chatroomdemo.ui.panel.HostPanel
+    android:id="@+id/host_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:visibility="gone" />
+
+  <cn.rongcloud.chatroomdemo.ui.panel.OnlineUserPanel
+    android:id="@+id/online_user_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:visibility="gone" />
+
+  <cn.rongcloud.chatroomdemo.ui.panel.LoginPanel
+    android:id="@+id/login_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:visibility="gone" />
+
+  <cn.rongcloud.chatroomdemo.ui.like.HeartLayout
+    android:id="@+id/heart_layout"
+    android:layout_width="86dp"
+    android:layout_height="match_parent"
+    android:layout_alignParentRight="true"
+    android:layout_marginBottom="4dp" />
 </RelativeLayout>

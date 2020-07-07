@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import java.util.ArrayList;
 
 import cn.rongcloud.chatroomdemo.ChatroomKit;
@@ -70,6 +71,7 @@ public class GiftPanel extends LinearLayout {
                     giftMessage.setNumber(Integer.parseInt(editNum.getText().toString()));
                     ChatroomKit.sendMessage(giftMessage);
                     layout.setVisibility(GONE);
+                    CommonUtils.hideInputMethod(getContext(),editNum);
                 }
             }
         });

@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentActivity;
 import cn.rongcloud.chatroomdemo.R;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.RongIMClient.ConnectionErrorCode;
+import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 
 /**
  * Created by duanliuyi on 2018/5/9.
@@ -41,18 +43,21 @@ public class SplashActivity extends FragmentActivity {
 
     private void onConnectIm() {
         DataInterface.connectIM(new RongIMClient.ConnectCallback() {
-            @Override
-            public void onTokenIncorrect() {
-
-            }
 
             @Override
             public void onSuccess(String s) {
             }
 
             @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
+            public void onError(ConnectionErrorCode connectionErrorCode) {
+
             }
+
+            @Override
+            public void onDatabaseOpened(DatabaseOpenStatus databaseOpenStatus) {
+
+            }
+
         });
     }
 

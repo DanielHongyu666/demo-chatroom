@@ -15,7 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import cn.rongcloud.chatroomdemo.R;
-import cn.rongcloud.rtc.user.RongRTCUser;
 
 /**
  * Created by wangw on 2019-08-22.
@@ -24,7 +23,7 @@ public class VideoViewWrapper extends RelativeLayout {
     private TextView mTvUserName;
     private RelativeLayout mRlCover;
     private FrameLayout mFlVideoContainer;
-    private RongRTCUser mUserInfo;
+    private String mUserId;
     private SurfaceView mVideoView;
     private View mRootView;
 
@@ -53,7 +52,7 @@ public class VideoViewWrapper extends RelativeLayout {
         mRlCover.bringToFront();
     }
 
-    public void setVideView(SurfaceView view,RongRTCUser user){
+    public void setVideView(SurfaceView view,String userId){
         mVideoView = view;
         mFlVideoContainer.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -62,7 +61,7 @@ public class VideoViewWrapper extends RelativeLayout {
 //        mFlVideoContainer.bringToFront();
 //        view.setBackgroundColor(Color.BLACK);
 
-        mUserInfo = user;
+        mUserId = userId;
     }
 
     public SurfaceView getVideoView(){
@@ -72,12 +71,12 @@ public class VideoViewWrapper extends RelativeLayout {
     public void restView(){
         mVideoView = null;
         mFlVideoContainer.removeAllViews();
-        mUserInfo = null;
+        mUserId = null;
     }
 
 
-    public RongRTCUser getUserInfo() {
-        return mUserInfo;
+    public String getUserId() {
+        return mUserId;
     }
 
 

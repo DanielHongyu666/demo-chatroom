@@ -9,8 +9,13 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import cn.rongcloud.chatroomdemo.http.HttpHelper;
+import cn.rongcloud.chatroomdemo.http.Request;
+import cn.rongcloud.chatroomdemo.http.RequestMethod;
 import com.google.gson.Gson;
 
+import io.rong.imlib.RongIMClient.ConnectionErrorCode;
+import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -24,9 +29,6 @@ import cn.rongcloud.chatroomdemo.ui.panel.LoginDialog;
 import cn.rongcloud.chatroomdemo.updateapk.UpDateApkHelper;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
 import cn.rongcloud.chatroomdemo.utils.LogUtils;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.utils.BuildVersion;
 import io.rong.imlib.RongIMClient;
 
@@ -131,7 +133,6 @@ public class LiveListActivity extends BaseActivity {
         if (DataInterface.isImConnecting() || DataInterface.isImConnected())
             return;
         DataInterface.connectIM(new RongIMClient.ConnectCallback() {
-            @Override
             public void onTokenIncorrect() {
                 postShowToast("获取 Token 失败或 Token 无效");
             }
@@ -142,8 +143,17 @@ public class LiveListActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                postShowToast("Im 连接失败:"+errorCode.getValue());
+            public void onError(ConnectionErrorCode connectionErrorCode) {
+                if (ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT == connectionErrorCode){
+                    onTokenIncorrect();
+                }else {
+                    postShowToast("Im 连接失败:"+connectionErrorCode.getValue());
+                }
+            }
+
+            @Override
+            public void onDatabaseOpened(DatabaseOpenStatus databaseOpenStatus) {
+
             }
         });
     }
@@ -168,7 +178,7 @@ public class LiveListActivity extends BaseActivity {
         request.url(DataInterface.APPSERVER+DataInterface.QUERY);
         request.method(RequestMethod.POST);
         request.body(new JSONObject().toString());
-        HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
+        HttpHelper.getDefault().request(request.build(), new HttpHelper.ResultCallback() {
             @Override
             public void onResponse(final String s) {
                 LogUtils.i("DemoServer","refreshData result = "+s);
@@ -205,13 +215,6 @@ public class LiveListActivity extends BaseActivity {
                 LogUtils.e("DemoServer","refreshData failure = "+i);
                 postCloseLoading();
                 postShowToast("获取直播列表失败: "+i);
-            }
-
-            @Override
-            public void onError(IOException e) {
-                LogUtils.e("DemoServer","refreshData error = "+e.getMessage());
-                postCloseLoading();
-                postShowToast("网络不可用，请检查网络连接");
             }
         });
     }

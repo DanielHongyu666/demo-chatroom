@@ -70,10 +70,6 @@ public class UpDateApkHelper {
                 Log.i(TAG, "onFailure() errorCode = " + errorCode);
             }
 
-            @Override
-            public void onError(IOException exception) {
-                Log.i(TAG, "onFailure() onError = " + exception);
-            }
         });
     }
 

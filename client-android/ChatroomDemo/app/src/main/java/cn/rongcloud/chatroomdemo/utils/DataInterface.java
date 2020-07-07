@@ -7,6 +7,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import cn.rongcloud.chatroomdemo.http.HttpHelper;
+import cn.rongcloud.chatroomdemo.http.Request;
+import cn.rongcloud.chatroomdemo.http.RequestMethod;
+import cn.rongcloud.rtc.api.RCRTCConfig;
+import io.rong.imlib.RongIMClient.ConnectionErrorCode;
+import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,12 +27,7 @@ import cn.rongcloud.chatroomdemo.ChatroomApp;
 import cn.rongcloud.chatroomdemo.ChatroomKit;
 import cn.rongcloud.chatroomdemo.R;
 import cn.rongcloud.chatroomdemo.model.Gift;
-import cn.rongcloud.rtc.CenterManager;
-import cn.rongcloud.rtc.RongRTCConfig;
 import cn.rongcloud.rtc.media.RongMediaSignalClient;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.utils.FinLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
@@ -48,11 +49,11 @@ public class DataInterface {
     public static String APP_VERSION = "2.0.0";
 
     //ToDO 改为您自己 BuglyKey
-    public static final String BuglyKey = ;
+    public static final String BuglyKey = "ead5321317";
 
     //TODO 需要改成开发者自己的 appKey 和 AppServer
-    public static final String APP_KEY = ;
-    public static String APPSERVER = ;
+    public static final String APP_KEY = 替换成自己的AppKey;
+    public static String APPSERVER = 替换成自己的APPserver地址;
     private static final String CONFIG_NAME = "chatroom_config";
     private static final String CODE = "code";
     public static final String RESULT = "result";
@@ -60,6 +61,18 @@ public class DataInterface {
     public static final String UNPUBLISH = "/unpublish"; //取消发布
     public static final String QUERY = "/query"; //查询直播列表
     private static final String GETTOKENURL = "/user/get_token"; //获取Token
+
+    public static String APPSERVER_CDN = ""; //CDN推流相关的 AppServer
+    public static final String CDNSUPPLY =  "/cdnsupply";    //获取CDN支持列表
+    public static final String CDNURL =  "/cdnurl";  //生成CDN推流拉流地址
+
+
+    //TODO Jenkins 自动打包时使用，不使用Jenkins则可以忽略此字段
+    private static String RONG_RTC_CONFIG_SERVER_URL = "MESERVER";
+    private static String RONG_RTC_APP_SERVER_URL = "JENKINS_APPSERVER";
+    private static String RONG_SEALLIVE_APP_VERSION = "JENKINS_APP_VERSION";
+    private static String RONG_APPSERVER_CDN = "JENKINS_CDNAPPSERVER";
+
 
 
     public static final int DEfALUT_AVATAR = R.drawable.avatar_1;
@@ -105,6 +118,21 @@ public class DataInterface {
     }
 
     public static void init(Context context){
+        if (!TextUtils.isEmpty(RONG_RTC_CONFIG_SERVER_URL) &&
+                RONG_RTC_CONFIG_SERVER_URL.startsWith("http")) {
+            RongMediaSignalClient.setMediaServerUrl(RONG_RTC_CONFIG_SERVER_URL);
+        }
+        if (!TextUtils.isEmpty(RONG_RTC_APP_SERVER_URL) &&
+                RONG_RTC_APP_SERVER_URL.startsWith("http")) {
+            APPSERVER = RONG_RTC_APP_SERVER_URL;
+        }
+        if (!TextUtils.isEmpty(RONG_APPSERVER_CDN) &&
+            RONG_APPSERVER_CDN.startsWith("http")) {
+            APPSERVER_CDN = RONG_APPSERVER_CDN;
+        }
+        if (!TextUtils.isEmpty(RONG_SEALLIVE_APP_VERSION) && Pattern.matches("^\\d.*", RONG_SEALLIVE_APP_VERSION)){
+            APP_VERSION = RONG_SEALLIVE_APP_VERSION;
+        }
         mSP = context.getSharedPreferences(CONFIG_NAME,Context.MODE_PRIVATE);
     }
 
@@ -169,9 +197,7 @@ public class DataInterface {
      */
     public static void connectIM(final RongIMClient.ConnectCallback callback){
         mGetTokening.set(false);
-        //TODO 请根据自己的开发环境来决定是否启用建立 Https 连接时使用自签证书。
-        new RongRTCConfig.Builder()
-                .enableHttpsSelfCertificate(true);
+        HttpHelper.getDefault().setEnableSelfCertificate(true);
         String token = getString(KEY_USERTOKEN);
         if (TextUtils.isEmpty(token)){
             getToken(callback);
@@ -183,9 +209,6 @@ public class DataInterface {
                 switch (status) {
                     case CONNECTED://连接成功。
                         Log.i(TAG, "连接成功");
-                        break;
-                    case DISCONNECTED://断开连接。
-                        Log.i(TAG, "断开连接");
                         break;
                     case CONNECTING://连接中。
                         Log.i(TAG, "连接中");
@@ -200,19 +223,18 @@ public class DataInterface {
             }
         });
         ChatroomKit.connect(getString(KEY_USERTOKEN), new RongIMClient.ConnectCallback() {
-            @Override
+
             public void onTokenIncorrect() {
                 Log.i(TAG, "onTokenIncorrect");
                 putString(KEY_USERTOKEN,null);
                 if (callback != null) {
-                    callback.onTokenIncorrect();
+                    callback.onError(ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT);
                 }
             }
 
             @Override
             public void onSuccess(String s) {
                 putString(KEY_USERID,s);
-                CenterManager.getInstance().onLogin(s,getString(KEY_USERTOKEN));
                 if (isLogin()){
                     setLogin(mUserName);
                 }
@@ -222,12 +244,21 @@ public class DataInterface {
             }
 
             @Override
-            public void onError(RongIMClient.ErrorCode e) {
-                Log.i(TAG, "connect error code = " + e);
+            public void onError(ConnectionErrorCode connectionErrorCode) {
+                Log.i(TAG, "connect error code = " + connectionErrorCode);
+                if (connectionErrorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT){
+                    onTokenIncorrect();
+                }
                 if (callback != null) {
-                    callback.onError(e);
+                    callback.onError(connectionErrorCode);
                 }
             }
+
+            @Override
+            public void onDatabaseOpened(DatabaseOpenStatus databaseOpenStatus) {
+
+            }
+
         });
     }
 
@@ -246,7 +277,7 @@ public class DataInterface {
         request.url(APPSERVER+GETTOKENURL);
         request.method(RequestMethod.POST);
         request.body(json);
-        HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
+        HttpHelper.getDefault().request(request.build(), new HttpHelper.ResultCallback() {
             @Override
             public void onResponse(final String result) {
                 LogUtils.i("DemoServer", "GetToken Result: "+result);
@@ -267,14 +298,14 @@ public class DataInterface {
                         }
                     } else {
                         if (callback != null){
-                            callback.onTokenIncorrect();
+                            callback.onError(ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT);
                         }
 
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     if (callback != null){
-                        callback.onTokenIncorrect();
+                        callback.onError(ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT);
                     }
                 }
                 mGetTokening.set(false);
@@ -285,17 +316,7 @@ public class DataInterface {
                 mGetTokening.set(false);
                 FinLog.e("DemoServer", "GetToken failure: "+errorCode);
                 if (callback != null){
-                    callback.onTokenIncorrect();
-                }
-            }
-
-            @Override
-            public void onError(IOException exception) {
-                mGetTokening.set(false);
-                FinLog.e("DemoServer", "GetToken error: "+exception.getMessage());
-                FinLog.e(TAG, "GetToken error .message:" + exception.getMessage());
-                if (callback != null){
-                    callback.onTokenIncorrect();
+                    callback.onError(ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT);
                 }
             }
         });

@@ -1,7 +1,6 @@
 package cn.rongcloud.chatroomdemo.ui.panel;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.SurfaceView;
 import android.view.View;
@@ -9,11 +8,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.rtc.core.RendererCommon.ScalingType;
 import java.util.List;
 
-import cn.rongcloud.rtc.core.RendererCommon;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.user.RongRTCUser;
 import io.rong.imlib.model.UserInfo;
 
 /**
@@ -51,20 +49,20 @@ public class VideoViewMagr {
         mScreenHeight = wm.getDefaultDisplay().getHeight();
     }
 
-    public void setLargeView(SurfaceView view, RongRTCUser user, String tag){
+    public void setLargeView(SurfaceView view, String userId, String tag){
         if (mLargeViewContainer == null)
             return;
         mLargeViewContainer.removeAllViews();
-        onSetLargeView(view, user, user.getUserId()+"_"+tag,new VideoViewWrapper(mContext));
+        onSetLargeView(view, userId, userId+"_"+tag,new VideoViewWrapper(mContext));
     }
 
-    private void onSetLargeView(SurfaceView view, RongRTCUser user, String tag, VideoViewWrapper wrapper) {
+    private void onSetLargeView(SurfaceView view, String userId, String tag, VideoViewWrapper wrapper) {
         wrapper.setBorder(0);
-        wrapper.setVideView(view,user);
+        wrapper.setVideView(view,userId);
         wrapper.setTag(tag);
         view.setZOrderMediaOverlay(false);
         view.setZOrderOnTop(false);
-        ((RongRTCVideoView)view).setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        ((RCRTCVideoView)view).setScalingType(ScalingType.SCALE_ASPECT_FIT);
         wrapper.showUserName(false);
         wrapper.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,25 +80,25 @@ public class VideoViewMagr {
     }
 
 
-    public void addSmallView(SurfaceView view,RongRTCUser user,String tag){
+    public void addSmallView(SurfaceView view,String userId,String tag){
         if (mSmallViews == null)
             return;
-        removeVideoView(user.getUserId(),tag);
+        removeVideoView(userId,tag);
         VideoViewWrapper wrapper = new VideoViewWrapper(mContext);
-        onSetSmallView(view, user, user.getUserId()+"_"+tag, wrapper);
+        onSetSmallView(view, userId, userId+"_"+tag, wrapper);
     }
 
-    private void onSetSmallView(SurfaceView view, RongRTCUser user, String tag, VideoViewWrapper wrapper) {
+    private void onSetSmallView(SurfaceView view, String userId, String tag, VideoViewWrapper wrapper) {
         wrapper.setBorder(3);
         wrapper.setTag(tag);
-        wrapper.setVideView(view,user);
+        wrapper.setVideView(view,userId);
         view.setZOrderOnTop(true);
         view.setZOrderMediaOverlay(true);
-        ((RongRTCVideoView)view).setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        ((RCRTCVideoView)view).setScalingType(ScalingType.SCALE_ASPECT_FILL);
         wrapper.showUserName(true);
         if (mUserInfos != null){
             for (UserInfo userInfo : mUserInfos) {
-                if (TextUtils.equals(user.getUserId(),userInfo.getUserId())){
+                if (TextUtils.equals(userId,userInfo.getUserId())){
                     wrapper.updateUserName(userInfo.getName());
                     break;
                 }
@@ -113,8 +111,8 @@ public class VideoViewMagr {
                 mSmallViews.removeView(preSmallView);
                 VideoViewWrapper preLargeView = (VideoViewWrapper) mLargeViewContainer.getChildAt(0);
                 mLargeViewContainer.removeAllViews();
-                onSetLargeView(preSmallView.getVideoView(),preSmallView.getUserInfo(), (String) preSmallView.getTag(),preSmallView);
-                onSetSmallView(preLargeView.getVideoView(),preLargeView.getUserInfo(), (String) preLargeView.getTag(),preLargeView);
+                onSetLargeView(preSmallView.getVideoView(),preSmallView.getUserId(), (String) preSmallView.getTag(),preSmallView);
+                onSetSmallView(preLargeView.getVideoView(),preLargeView.getUserId(), (String) preLargeView.getTag(),preLargeView);
             }
         });
         mSmallViews.addView(wrapper,mSmallLayoutParams);
@@ -143,7 +141,7 @@ public class VideoViewMagr {
             if (mSmallViews.getChildCount() > 0){
                 VideoViewWrapper child = (VideoViewWrapper) mSmallViews.getChildAt(0);
                 mSmallViews.removeView(child);
-                onSetLargeView(child.getVideoView(),child.getUserInfo(), (String) child.getTag(),child);
+                onSetLargeView(child.getVideoView(),child.getUserId(), (String) child.getTag(),child);
             }
             return;
         }
@@ -179,7 +177,7 @@ public class VideoViewMagr {
         if (parent.getChildCount() > 0) {
             for (int i = 0; i < parent.getChildCount(); i++) {
                 VideoViewWrapper child = (VideoViewWrapper) parent.getChildAt(i);
-                if (child.getUserInfo() != null && (info = getUserInfo(child.getUserInfo().getUserId())) != null) {
+                if (child.getUserId() != null && (info = getUserInfo(child.getUserId())) != null) {
                     child.updateUserName(info.getName());
                 }
             }

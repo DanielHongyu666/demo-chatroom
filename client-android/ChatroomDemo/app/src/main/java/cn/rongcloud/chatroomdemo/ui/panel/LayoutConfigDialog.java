@@ -17,10 +17,10 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import cn.rongcloud.rtc.api.RCRTCMixConfig;
 import java.io.Serializable;
 
 import cn.rongcloud.chatroomdemo.R;
-import cn.rongcloud.rtc.room.RongRTCMixConfig;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -86,7 +86,7 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
         mCustomLayout.setVideoFrameSize(args.getInt("videowidth",0),args.getInt("videoheight",0));
         ConfigParams params = (ConfigParams) args.getSerializable("params");
         if (params == null)
-            params = new ConfigParams(RongRTCMixConfig.MixLayoutMode.SUSPENSION);
+            params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.SUSPENSION);
         onSetView(params);
 
     }
@@ -151,11 +151,11 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
         ConfigParams params;
         switch (mRadioGroup.getCheckedRadioButtonId()) {
             case R.id.rd_02:
-                params = new ConfigParams(RongRTCMixConfig.MixLayoutMode.SUSPENSION);
+                params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.SUSPENSION);
                 params.isCrop = mScSuspendCrop.isChecked();
                 break;
             case R.id.rd_03:
-                params = new ConfigParams(RongRTCMixConfig.MixLayoutMode.CUSTOM);
+                params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.CUSTOM);
                 params.height = mCustomLayout.getVideoHeight();
                 params.width = mCustomLayout.getVideoWidth();
                 params.x = mCustomLayout.getVideoX();
@@ -164,7 +164,7 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
                 break;
                 default:
             case R.id.rd_01:
-                params = new ConfigParams(RongRTCMixConfig.MixLayoutMode.ADAPTIVE);
+                params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.ADAPTIVE);
                 params.isCrop = mScAdaptiveCrop.isChecked();
                 break;
         }
@@ -189,14 +189,14 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
 
     public static class ConfigParams implements Serializable {
 
-        public final RongRTCMixConfig.MixLayoutMode model;   // 2和3不用指定 input   1. 自定义布局， 2:悬浮布局(默认)，3：自适应布局；
+        public final RCRTCMixConfig.MixLayoutMode model;   // 2和3不用指定 input   1. 自定义布局， 2:悬浮布局(默认)，3：自适应布局；
         public int x;
         public int y;
         public int width;
         public int height;
         public boolean isCrop;  // 1:crop裁剪填充 ；2:whole
 
-        public ConfigParams(RongRTCMixConfig.MixLayoutMode model) {
+        public ConfigParams(RCRTCMixConfig.MixLayoutMode model) {
             this.model = model;
         }
     }

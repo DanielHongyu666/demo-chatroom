@@ -101,7 +101,7 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
     private int likeNum = 0;
     private int giftNum = 0;
 
-    private DanmuContainerView danmuContainerView;
+    protected DanmuContainerView danmuContainerView;
     private GiftView giftView;
 
 
@@ -451,13 +451,7 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
                         }
                     } else if (messageContent instanceof ChatroomUserBlock) {
                         if (DataInterface.isLogin() && ChatroomKit.getCurrentUser().getUserId().equals(((ChatroomUserBlock) messageContent).getId())) {
-                            new AlertDialog.Builder(LiveShowActivity.this).setTitle("已被管理员禁封").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    finish();
-                                }
-                            }).setCancelable(false).show();
-
+                            onReciveChatRoomUserBlock(messageContent);
                         }
                     }
                 }
@@ -476,7 +470,16 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
         return false;
     }
 
-    @Override
+  protected void onReciveChatRoomUserBlock(MessageContent messageContent) {
+    new AlertDialog.Builder(LiveShowActivity.this).setTitle("已被管理员禁封").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialogInterface, int i) {
+        finish();
+      }
+    }).setCancelable(false).show();
+  }
+
+  @Override
     protected void onDestroy() {
         ChatroomKit.quitChatRoom(new RongIMClient.OperationCallback() {
             @Override
