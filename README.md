@@ -11,14 +11,7 @@ v2.0 新增视频直播/邀请连麦功能 /设置混流布局功能
 * client-pc：PC 主播端聊天室 Demo 示例
 *  app-server：直播列表和token服务源码
 
-聊天室消息库使用指南：http://www.rongcloud.cn/docs/messages/index.html
 
-Demo 下载地址：
+Demo 体验下载地址：
 
-Android：http://downloads.rongcloud.cn/demo_chatroom.apk
-
-iOS：http://downloads.rongcloud.cn/demo_chatroom.ipa
-
-Windows：http://downloads.rongcloud.cn/RongCloud_SealLive.exe
-
-Mac：http://downloads.rongcloud.cn/RongCloud_SealLive.dmg
+[视频直播 - SealLive](https://www.rongcloud.cn/downloads/demo)
