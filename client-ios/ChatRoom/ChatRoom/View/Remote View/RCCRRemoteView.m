@@ -104,6 +104,7 @@
               if (indexPath != nil) {
                   [indexPaths addObject:indexPath];
                   [cells addObject:model];
+                  model.inputStream = nil;
                   [self.remoteHostView.dataSources removeObject:model];
               }
           }

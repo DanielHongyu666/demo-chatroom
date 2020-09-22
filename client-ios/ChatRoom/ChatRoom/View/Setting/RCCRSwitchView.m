@@ -39,19 +39,19 @@
             case RCCRSwitchTypeAdaptive:
                 self.name =  @"自适应布局";
                 break;
-                case RCCRSwitchTypeSuspension:
+            case RCCRSwitchTypeSuspension:
                 self.name = @"悬浮布局";
                 break;
-                case RCCRSwitchTypeCustom:
+            case RCCRSwitchTypeCustom:
                 self.name = @"自定义布局";
                 break;
             default:
-                 self.name =  @"自适应布局";
+                self.name =  @"自适应布局";
                 break;
         }
         [self setUserInteractionEnabled:YES];
         [self addSubviews];
-
+        
     }
     return self;
 }
@@ -66,8 +66,8 @@
     }
     btn.selected = !btn.selected;
     if (self.delegate && [self.delegate respondsToSelector:@selector(didSelectSwitchView:type:)]) {
-           [self.delegate didSelectSwitchView:self type:self.type];
-       }
+        [self.delegate didSelectSwitchView:self type:self.type];
+    }
 }
 - (void)tapLabel{
     if (self.clickBtn.selected) {
@@ -87,7 +87,7 @@
         [_clickBtn setBackgroundImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
         [_clickBtn setBackgroundImage:[UIImage imageNamed:@"选中"] forState:UIControlStateSelected];
         [_clickBtn addTarget:self action:@selector(didClickedBtn:) forControlEvents:UIControlEventTouchUpInside];
-//        [_clickBtn setBackgroundColor:[UIColor redColor]];
+        //        [_clickBtn setBackgroundColor:[UIColor redColor]];
     }
     return _clickBtn;
 }
@@ -96,11 +96,11 @@
         _label = [[UILabel alloc] initWithFrame:CGRectMake(self.clickBtn.frame.size.width + self.clickBtn.frame.origin.x + 6, 0, self.frame.size.width - (CLICKBTNWIDTH), 20)];
         [_label setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:14]];
         [_label setText:self.name];
-//        [_label setBackgroundColor:[UIColor blueColor]];
+        //        [_label setBackgroundColor:[UIColor blueColor]];
         [_label setTextAlignment:NSTextAlignmentCenter];
         [_label setUserInteractionEnabled:YES];
         [_label addGestureRecognizer:self.tap];
-//        [_label sizeToFit];
+        //        [_label sizeToFit];
     }
     return _label;
 }

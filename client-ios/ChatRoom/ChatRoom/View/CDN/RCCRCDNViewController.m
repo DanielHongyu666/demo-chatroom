@@ -108,8 +108,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.listTableView addCDN:cdn];
             [self reloadListView];
-            if (self.delegate && [self.delegate respondsToSelector:@selector(didAddCDN:)]) {
-                [self.delegate didAddCDN:pushUrl];
+            if (self.delegate && [self.delegate respondsToSelector:@selector(didAddCDN:controller:)]) {
+                [self.delegate didAddCDN:pushUrl controller:self];
             }
         });
     }
@@ -119,8 +119,8 @@
     if (hls && hls.length > 0) {
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            if (self.delegate && [self.delegate respondsToSelector:@selector(didRemoveCDN:)]) {
-                [self.delegate didRemoveCDN:hls];
+            if (self.delegate && [self.delegate respondsToSelector:@selector(didRemoveCDN:controller:)]) {
+                [self.delegate didRemoveCDN:hls controller:self];
             }
             [self reloadListView];
         });

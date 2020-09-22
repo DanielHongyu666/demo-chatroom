@@ -8,6 +8,18 @@
 
 #import <Foundation/Foundation.h>
 #define ISX [UIScreen mainScreen].bounds.size.height == 812
+typedef NS_ENUM(NSInteger , RCCRExchangeType) {
+    // 只拉音频
+    RCCRExchangeTypeAudio = 0,
+    // 只拉视频
+    RCCRExchangeTypeVideo = 1,
+    // 拉大流
+    RCCRExchangeTypeAudioVideo = 2,
+    // 拉视频小流
+    RCCRExchangeTypeVideo_tiny = 3,
+    // 音视频小流
+    RCCRExchangeTypeAudioVideo_tiny = 4,
+};
 
 @interface RCCRUtilities : NSObject
 + (instancetype)instance;

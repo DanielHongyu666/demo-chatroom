@@ -79,7 +79,7 @@
             
         }
             break;
-            case RCCRSwitchTypeCustom:
+        case RCCRSwitchTypeCustom:
         {
             
         }

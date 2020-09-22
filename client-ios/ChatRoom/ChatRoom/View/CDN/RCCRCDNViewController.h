@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 @protocol RCCRCDNProtocol <NSObject>
 
-- (void)didAddCDN:(NSString *)cdn;
-- (void)didRemoveCDN:(NSString *)cdn;
+- (void)didAddCDN:(NSString *)cdn controller:(UIViewController *)vc;
+- (void)didRemoveCDN:(NSString *)cdn controller:(UIViewController *)vc;
 
 @end
 NS_ASSUME_NONNULL_END

@@ -12,6 +12,7 @@
 #import "RCActiveWheel.h"
 #import "RCCRManager.h"
 #import "RCCRSettingViewController.h"
+#import "RCCRLiveHttpManager.h"
 @interface RCCRLiveViewController ()<UITextFieldDelegate>
 
 /**
@@ -54,6 +55,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    // 用于弹框测试
+    [RCCRLiveHttpManager sharedManager].chatVC = self;
     self.view.backgroundColor = [UIColor whiteColor];
     self.title = @"创建直播间";
     RCCRLiveModel *model = [[RCCRLiveModel alloc] init];

@@ -12,7 +12,12 @@
 // 规定画布大小为 640x360
 #define KWidth 360
 #define kHeight 640
-@interface RCCRLiveModuleManager()<RCRTCRoomEventDelegate>
+
+#define kTinyWidth 144
+#define KTinyHeight 176
+#define KTinyBitrate 120
+#define KTinyFrame 15
+@interface RCCRLiveModuleManager()<RCRTCRoomEventDelegate,RCRTCActivityMonitorDelegate>
 
 /**
  room
@@ -30,6 +35,11 @@
  */
 @property(nonatomic , strong)RCRTCLiveInfo *liveInfo;
 
+/**
+ liveurl
+ */
+@property (nonatomic , copy) NSString *liveUrl;
+
 
 @end
 @implementation RCCRLiveModuleManager
@@ -46,39 +56,64 @@
             RCRTCMixConfig *streamConfig = [self setOutputConfig:model];
             [self.liveInfo setMixStreamConfig:streamConfig completion:^(BOOL isSuccess, RCRTCCode code) {
                 NSLog(@"setconfig code:%@",@(code));
+                [self alert:code];
             }];
-           
- 
+            
+            
         } else {
             NSLog(@"no users");
         }
     }
 }
 - (void)addCdn:(NSString *)addCdn completion:(void (^)(BOOL, RCRTCCode, NSArray *))completion{
-    [self.liveInfo addPublishStreamUrl:addCdn completion:completion];
+    [self.liveInfo addPublishStreamUrl:addCdn completion:^(BOOL isSuccess, RCRTCCode code, NSArray * _Nonnull arr) {
+        if (completion) {
+            completion(isSuccess,code,arr);
+        }
+        [self alert:code];
+    }];
 }
 - (void)removeCdn:(NSString *)cdn completion:(void (^)(BOOL, RCRTCCode, NSArray *))completion{
-    [self.liveInfo removePublishStreamUrl:cdn completion:completion];
+    [self.liveInfo removePublishStreamUrl:cdn completion:^(BOOL isSuccess, RCRTCCode code, NSArray * _Nonnull arr) {
+        if (completion) {
+            completion(isSuccess,code,arr);
+        }
+        [self alert:code];
+    }];
 }
 - (RCRTCMixConfig *)setOutputConfig:(RCCRLiveLayoutModel *)model{
     RCRTCMixConfig *streamConfig = [[RCRTCMixConfig alloc] init];
     streamConfig.layoutMode = (int)model.layoutType ;
-    // 默认画布大小
+    // 默认大流输出画布大小
     streamConfig.mediaConfig.videoConfig.videoLayout.width = KWidth;
     streamConfig.mediaConfig.videoConfig.videoLayout.height = kHeight;
     streamConfig.mediaConfig.videoConfig.videoLayout.fps = 30;
+    
+    
+    
     //    streamConfig.mediaConfig.audioConfig.bitrate = 300;
     //    streamConfig.mediaConfig.videoConfig.videoLayout.bitrate = 500;
+    BOOL hasTiny = NO;
     if (model.layoutType == RCCRLiveLayoutTypeAdaptive) {
         streamConfig.mediaConfig.videoConfig.videoExtend.renderMode = model.adaptiveCrop ? 1:2;
+        hasTiny = model.isPushTiny;
     }
     if (model.layoutType == RCCRLiveLayoutTypeSuspension) {
         streamConfig.mediaConfig.videoConfig.videoExtend.renderMode = model.suspensionCrop ?1:2;
+        hasTiny = model.isPushTiny;
     }
     if (model.layoutType == RCCRLiveLayoutTypeCustom) {
         streamConfig.mediaConfig.videoConfig.videoExtend.renderMode = model.customCrop ?1:2;
+        hasTiny = model.isPushTiny;
     }
-    
+    // 开启mcu推小流
+    if (hasTiny) {
+        // 小流布局
+        streamConfig.mediaConfig.videoConfig.tinyVideoLayout.width = kTinyWidth;
+        streamConfig.mediaConfig.videoConfig.tinyVideoLayout.height = KTinyHeight;
+        streamConfig.mediaConfig.videoConfig.tinyVideoLayout.fps = KTinyFrame;
+        streamConfig.mediaConfig.videoConfig.tinyVideoLayout.bitrate = KTinyBitrate;
+    }
     NSArray *users = self.room.remoteUsers;
     
     // 以下为自定义布局
@@ -97,7 +132,7 @@
         if (outputStream.mediaType == RTCMediaTypeVideo || [outputStream.tag isEqualToString:@"RongRTCFileVideo"]) {
             RCRTCCustomLayout *inputConfig = [[RCRTCCustomLayout alloc] init];
             inputConfig.videoStream = outputStream;
-          
+            
             [localArr addObject:inputConfig];
             
             // 非自定义布局时候生效。
@@ -160,6 +195,8 @@
     config.roomType= RCRTCRoomTypeLive;
     [[RCIMClient sharedRCIMClient] setLogLevel:RC_Log_Level_Verbose];
     [[RCRTCEngine sharedInstance] joinRoom:roomId config:config completion:^(RCRTCRoom * _Nullable room, RCRTCCode code) {
+        [self alert:code];
+
         self.room = room;
         self.room.delegate = self;
         if (code == RCRTCCodeSuccess) {
@@ -174,23 +211,40 @@
 }
 - (void)joinLive:(NSString *)liveUrl completion:(void (^)(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream))completion{
     [[RCIMClient sharedRCIMClient] setLogLevel:RC_Log_Level_Verbose];
-    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl liveType:RCRTCLiveTypeAudioVideo completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
+    [RCRTCEngine sharedInstance].monitorDelegate = self;
+    self.liveUrl = liveUrl;
+    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl streamType:RCRTCAVStreamTypeAudioVideo completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
+        [self alert:desc];
+
         if (completion) {
             completion(desc,inputStream);
         }
     }];
-    
+}
+- (void)exchangeSubscribeLiveStreamType:(RCCRExchangeType)type liveUrl:(NSString *)liveUrl completion:(void (^)(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream))completion{
+    self.liveUrl = liveUrl;
+    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl streamType:(int)type completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
+        [self alert:desc];
+
+        if (completion) {
+            completion(desc,inputStream);
+        }
+    }];
 }
 - (void)quitLive:(void (^)(BOOL isSuccess, RCRTCCode code))completion{
-    [[RCRTCEngine sharedInstance] unsubscribeLiveStream:nil completion:^(BOOL isSuccess, RCRTCCode code) {
+    [[RCRTCEngine sharedInstance] unsubscribeLiveStream:self.liveUrl completion:^(BOOL isSuccess, RCRTCCode code) {
+        [self alert:code];
+
         if (completion) {
             completion(isSuccess,code);
         }
     }];
     
 }
-- (void)publishDefaultStreams:(void (^)(BOOL isSuccess,RCRTCCode desc , RCRTCLiveInfo * _Nullable liveHostModel))completion{
-    [self.room.localUser publishDefaultLiveStream:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
+- (void)publishDefaultStreams:(void (^)(BOOL isSuccess,RCRTCCode desc , RCRTCLiveInfo * _Nullable liveHostModel))completion {
+    [self.room.localUser publishDefaultLiveStreams:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
+        [self alert:desc];
+
         self.liveInfo = liveInfo;
         if (self.chatVC.isOwer) {
             [self setMixStreamConfig:self.layoutModel];
@@ -204,6 +258,8 @@
 }
 - (void)publishAVStream:(RCRTCOutputStream *)stream completiom:(void (^)(BOOL isSuccess,RCRTCCode desc ))completion{
     [self.room.localUser publishLiveStream:stream completion:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
+        [self alert:desc];
+
         if (self.chatVC.isOwer) {
             [self setMixStreamConfig:self.layoutModel];
         }
@@ -216,6 +272,8 @@
 }
 - (void)unpublishAVStream:(RCRTCOutputStream *)stream completiom:(void (^)(BOOL isSuccess,RCRTCCode desc ))completion{
     [self.room.localUser unpublishStream:stream completion:^(BOOL isSuccess, RCRTCCode desc) {
+        [self alert:desc];
+
         if (self.chatVC.isOwer) {
             [self setMixStreamConfig:self.layoutModel];
         }
@@ -233,14 +291,16 @@
         return;
     }
     [self.room.localUser subscribeStream:streams tinyStreams:nil completion:^(BOOL isSuccess, RCRTCCode desc) {
-       if (completion) {
+        [self alert:desc];
+        if (completion) {
             completion(isSuccess,desc);
         }
     }];
-
+    
 }
 -(void)quitRoom:(NSString *)roomId completion:(void (^)(BOOL isSuccess))completion{
     [[RCRTCEngine sharedInstance] leaveRoom:roomId completion:^(BOOL isSuccess, RCRTCCode code) {
+        [self alert:code];
         if (completion) {
             completion(isSuccess);
         }
@@ -273,5 +333,42 @@
 }
 -(void)didReportFirstKeyframe:(RCRTCInputStream *)stream{
     NSLog(@"live receive first key frame : %@",stream.streamId);
+}
+-(void)didReportStatForm:(RCRTCStatisticalForm *)form{
+    NSArray *arr = form.recvStats;
+    if (arr.count > 0) {
+        for (RCRTCStreamStat *stat in arr) {
+            if ([stat.mediaType isEqualToString:RongRTCMediaTypeVideo]) {
+                NSInteger width = stat.frameWidth;
+                NSInteger height = stat.frameHeight;
+                NSString *resolution = [NSString stringWithFormat:@"%@x%@",@(width),@(height)];
+                NSInteger frame = stat.frameRate;
+                float bitrate = stat.bitRate;
+                NSString *frameStr = [NSString stringWithFormat:@"%@",@(frame)];
+                NSString *bitrateStr = [NSString stringWithFormat:@"%.2f",bitrate];
+                [self toReportVideoResolution:resolution frame:frameStr bitrate:bitrateStr];
+                break;
+            }
+        }
+    }
+}
+- (void)alert:(RCRTCCode)code{
+    if (code != RCRTCCodeSuccess) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *str = [NSString stringWithFormat:@"RTC 层错误码:%@",@(code)];
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"错误提示" message:str preferredStyle:(UIAlertControllerStyleAlert)];
+            UIAlertAction *action = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+            }];
+            [alert addAction:action];
+            [self.chatVC presentViewController:alert animated:YES completion:nil];
+        });
+        
+    }
+}
+- (void)toReportVideoResolution:(NSString *)resolution frame:(NSString *)frame bitrate:(NSString *)bitrate{
+    if (self.delegate) {
+        [self.delegate didReportVideoResolution:resolution frame:frame bitrate:bitrate];
+    }
 }
 @end

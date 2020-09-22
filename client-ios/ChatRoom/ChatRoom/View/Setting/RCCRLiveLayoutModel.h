@@ -63,7 +63,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic , assign)BOOL suspensionCrop;
 
-
+/**
+ 主播是否推小流选项
+ */
+@property (nonatomic , assign) BOOL isPushTiny;
 
 @end
 

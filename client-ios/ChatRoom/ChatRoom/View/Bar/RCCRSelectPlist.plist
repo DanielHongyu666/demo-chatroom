@@ -3,6 +3,14 @@
 <plist version="1.0">
 <array>
 	<dict>
+		<key>imageName</key>
+		<string>cdn</string>
+		<key>selectImageName</key>
+		<string>cdn</string>
+		<key>tag</key>
+		<string>4</string>
+	</dict>
+	<dict>
 		<key>tag</key>
 		<string>1</string>
 		<key>selectImageName</key>
@@ -12,9 +20,9 @@
 	</dict>
 	<dict>
 		<key>imageName</key>
-		<string>file1</string>
-		<key>selectImageName</key>
 		<string>file0</string>
+		<key>selectImageName</key>
+		<string>file1</string>
 		<key>tag</key>
 		<string>3</string>
 	</dict>

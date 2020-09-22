@@ -26,6 +26,7 @@
 #import "RCLabel.h"
 #import "RCCRUtilities.h"
 #import "RCCRCDNViewController.h"
+#import "RCCRSettingViewController.h"
 #define WIDTH [UIScreen mainScreen].bounds.size.width
 
 @interface RCCRListCollectionViewController ()<RCConnectDelegate>
@@ -79,6 +80,8 @@ static NSString * const RCCRListCollectionViewCellReuseIdentifier = @"RCCRListCo
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    // 用于弹框测试
+    [RCCRLiveHttpManager sharedManager].chatVC = self;
     self.hostArray = [[NSMutableArray alloc] init];
     self.title = @"直播";
     // 注册cell
@@ -262,10 +265,10 @@ static NSString * const RCCRListCollectionViewCellReuseIdentifier = @"RCCRListCo
     [self fetchList];
 }
 - (void)beginLive{
-//    RCCRCDNViewController *cdn = [[RCCRCDNViewController alloc] init];
-//       cdn.delegate = self;
-//       cdn.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-//       [self.navigationController presentViewController:cdn animated:YES completion:nil];
+//    RCCRSettingViewController *setting = [[RCCRSettingViewController alloc] init];
+//    setting.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+//  
+//    [self.navigationController presentViewController:setting animated:NO completion:nil];
 //    return;
     RCCRLiveViewController *live = [[RCCRLiveViewController alloc] init];
     live.CompletionBlock = ^(NSString * _Nonnull roomName , RCCRLiveModel *model) {

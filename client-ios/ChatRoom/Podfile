@@ -1,6 +1,0 @@
-platform:ios, '8.0'
-
-target 'ChatRoom' do
-pod 'RongCloudIM/IMLib','4.0.0'
-pod 'RongRTCLib','4.0.0'
-end

@@ -26,12 +26,19 @@
  switch
  */
 @property(nonatomic , strong)UISwitch *switchBtn;
+/**
+ 设置主播
+ */
+@property(nonatomic , strong)UISwitch *pushTinyBtn;
 
 /**
  viewCropLabel
  */
 @property(nonatomic , strong)RCLabel *viewCropLabel;
-
+/**
+ mcu label
+ */
+@property(nonatomic , strong)RCLabel *mcuLabel;
 
 @end
 @implementation RCCRAdaptiveTableViewCell
@@ -52,13 +59,25 @@
     [self.viewCropLabel makeConfig:^(RCLabel *lab) {
         lab.titleFont([UIFont fontWithName:@"PingFangSC-Regular" size:14]).labelText(@"画面裁剪");
     }];
-     [self addSubview:self.viewCropLabel ];
+    [self addSubview:self.viewCropLabel ];
     self.switchBtn = [[UISwitch alloc] init];
     self.switchBtn.onTintColor = [UIColor colorWithHexString:@"0x0099FF" alpha:1.0];
     self.switchBtn.on = self.layoutModel.adaptiveCrop;
     [self.switchBtn addTarget:self action:@selector(changeValue:) forControlEvents:UIControlEventValueChanged];
-   
     [self addSubview:self.switchBtn];
+    
+    self.mcuLabel = [[RCLabel alloc] init];
+    [self.mcuLabel makeConfig:^(RCLabel *lab) {
+        lab.titleFont([UIFont fontWithName:@"PingFangSC-Regular" size:14]).labelText(@"mcu 推小流");
+    }];
+    [self addSubview:self.mcuLabel];
+    
+    self.pushTinyBtn = [[UISwitch alloc] init];
+    self.pushTinyBtn.onTintColor = [UIColor colorWithHexString:@"0x0099FF" alpha:1.0];
+    self.pushTinyBtn.on = self.layoutModel.isPushTiny;
+    [self.pushTinyBtn addTarget:self action:@selector(changePushTinyValue:) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:self.pushTinyBtn];
+    
     NSArray *arr = @[@"主播+ 1个连麦者",@"主播+ 2 个连麦者",@"主播+ 3 个连麦者",@"主播+ 4个连麦者",@"主播+ 5 个连麦者",@"主播+ 6 个连麦者"];
     int width = 111;
     int height = 20;
@@ -98,11 +117,16 @@
     [super layoutSubviews];
     self.viewCropLabel.frame = CGRectMake(15, 0, 56, 20);
     self.switchBtn.frame = CGRectMake(self.viewCropLabel.frame.origin.x + self.viewCropLabel.frame.size.width + 22, self.viewCropLabel.frame.origin.y, 44, 22);
+    self.mcuLabel.frame = CGRectMake(self.switchBtn.frame.origin.x + self.switchBtn.frame.size.width + 22, self.switchBtn.frame.origin.y, self.switchBtn.frame.size.width + 40, self.switchBtn.frame.size.height);
+    self.pushTinyBtn.frame = CGRectMake(CGRectGetMaxX(self.mcuLabel.frame) + 20, self.mcuLabel.frame.origin.y, self.mcuLabel.frame.size.width, self.mcuLabel.frame.size.height);
     self.titleLabel.frame = CGRectMake(15, 208 + self.switchBtn.frame.origin.y + self.switchBtn.frame.size.height , 344 , 45);
     self.saveBtn.frame = CGRectMake(([UIScreen mainScreen].bounds.size.width - 100) / 2, self.frame.size.height - 30 - 30, 100, 32);
 }
 - (void)changeValue:(UISwitch *)swi{
     self.layoutModel.adaptiveCrop = swi.on;
+}
+- (void)changePushTinyValue:(UISwitch *)swi{
+    self.layoutModel.isPushTiny = swi.on;
 }
 - (void)didClickSaveBtn:(UIButton *)btn{
     self.layoutModel.layoutType = RCCRLiveLayoutTypeAdaptive;
@@ -122,10 +146,13 @@
     if (self.switchBtn) {
         [self.switchBtn removeFromSuperview];
     }
+    if (self.pushTinyBtn) {
+        [self.pushTinyBtn removeFromSuperview];
+    }
 }
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
+    
     // Configure the view for the selected state
 }
 

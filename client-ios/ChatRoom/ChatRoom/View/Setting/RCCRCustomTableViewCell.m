@@ -105,6 +105,14 @@
  save btn
  */
 @property(nonatomic , strong)RCButton *saveBtn;
+/**
+ 设置主播
+ */
+@property(nonatomic , strong)UISwitch *pushTinyBtn;
+/**
+ mcu label
+ */
+@property(nonatomic , strong)RCLabel *mcuLabel;
 @end
 @implementation RCCRCustomTableViewCell
 
@@ -131,6 +139,20 @@
     self.switchBtn.onTintColor = [UIColor colorWithHexString:@"0x0099FF" alpha:1.0];
     self.switchBtn.on = self.layoutModel.customCrop;
     [self.switchBtn addTarget:self action:@selector(changeValue:) forControlEvents:UIControlEventValueChanged];
+    
+    self.mcuLabel = [[RCLabel alloc] init];
+    [self.mcuLabel makeConfig:^(RCLabel *lab) {
+        lab.titleFont([UIFont fontWithName:@"PingFangSC-Regular" size:14]).labelText(@"mcu 推小流");
+    }];
+    [self addSubview:self.mcuLabel];
+    
+    self.pushTinyBtn = [[UISwitch alloc] init];
+    self.pushTinyBtn.onTintColor = [UIColor colorWithHexString:@"0x0099FF" alpha:1.0];
+    self.pushTinyBtn.on = self.layoutModel.isPushTiny;
+    [self.pushTinyBtn addTarget:self action:@selector(changePushTinyValue:) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:self.pushTinyBtn];
+    self.mcuLabel.frame = CGRectMake(CGRectGetMaxX(self.switchBtn.frame) + 20, self.switchBtn.frame.origin.y, self.switchBtn.frame.size.width + 40, self.switchBtn.frame.size.height);
+    self.pushTinyBtn.frame = CGRectMake(CGRectGetMaxX(self.mcuLabel.frame) + 20, self.mcuLabel.frame.origin.y, self.mcuLabel.frame.size.width, self.mcuLabel.frame.size.height);
     
     self.M1XY = [[RCLabel alloc] initWithFrame:CGRectMake(self.viewCropLabel.frame.origin.x, self.switchBtn.frame.origin.y + self.switchBtn.frame.size.height + 22, 98, 20)];
     [self.M1XY makeConfig:^(RCLabel *lab) {
@@ -187,8 +209,8 @@
     
     
     self.wTextField = [[UITextField alloc] initWithFrame:CGRectMake(self.wLabel.frame.origin.x + self.wLabel.frame.size.width + 6, self.detail1Label.frame.origin.y + self.detail1Label.frame.size.height + 18, 50, 24)];
-//    self.wTextField.layer.borderWidth = 1;
-//    self.wTextField.layer.borderColor = [UIColor colorWithHexString:@"0x979797" alpha:1.0].CGColor;
+    //    self.wTextField.layer.borderWidth = 1;
+    //    self.wTextField.layer.borderColor = [UIColor colorWithHexString:@"0x979797" alpha:1.0].CGColor;
     self.wTextField.tag = 20;
     self.wTextField.delegate = self;
     self.wTextField.enabled = NO;
@@ -275,7 +297,7 @@
 }
 - (void)didClickSaveBtn:(UIButton *)btn{
     self.layoutModel.layoutType = RCCRLiveLayoutTypeCustom;
-   if (self.returnDelegate && [self.returnDelegate respondsToSelector:@selector(didClickedCell:layout:)]) {
+    if (self.returnDelegate && [self.returnDelegate respondsToSelector:@selector(didClickedCell:layout:)]) {
         [self.returnDelegate didClickedCell:self layout:self.layoutModel];
     }
 }
@@ -334,6 +356,9 @@
     if (self.saveBtn) {
         [self.saveBtn removeFromSuperview];
     }
+    if (self.pushTinyBtn) {
+        [self.pushTinyBtn removeFromSuperview];
+    }
 }
 - (void)valueChange:(UITextField *)textField{
     int num = [textField.text intValue];
@@ -386,9 +411,12 @@
 - (void)changeValue:(UISwitch *)swi{
     self.layoutModel.customCrop = swi.on;
 }
+- (void)changePushTinyValue:(UISwitch *)swi{
+    self.layoutModel.isPushTiny = swi.on;
+}
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
+    
     // Configure the view for the selected state
 }
 

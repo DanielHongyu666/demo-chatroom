@@ -35,10 +35,10 @@
         case RCCRLiveLayoutTypeCustom:
             [self.settingTableView reloadDataWithType:RCCRSwitchTypeCustom];
             break;
-            case RCCRLiveLayoutTypeAdaptive:
+        case RCCRLiveLayoutTypeAdaptive:
             [self.settingTableView reloadDataWithType:RCCRSwitchTypeAdaptive];
             break;
-            case RCCRLiveLayoutTypeSuspension:
+        case RCCRLiveLayoutTypeSuspension:
             [self.settingTableView reloadDataWithType:RCCRSwitchTypeSuspension];
             break;
         default:

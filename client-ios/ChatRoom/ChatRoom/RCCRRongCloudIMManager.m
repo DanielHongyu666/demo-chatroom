@@ -143,15 +143,17 @@ dispatch_queue_t __RCDLive_ConversationList_refresh_queue = NULL;
                           success:(void (^)(NSString *userId))successBlock
                             error:(void (^)(RCConnectErrorCode status))errorBlock
                    tokenIncorrect:(void (^)(void))tokenIncorrectBlock {
-    [[RCIMClient sharedRCIMClient] connectWithToken:token dbOpened:^(RCDBErrorCode code) {
+    
+    [[RCIMClient sharedRCIMClient] connectWithToken:token timeLimit:30 dbOpened:^(RCDBErrorCode code) {
         
     } success:^(NSString *userId) {
         if (successBlock!=nil) {
             successBlock(userId);
         }
     } error:^(RCConnectErrorCode errorCode) {
-        if(errorBlock!=nil)
+        if(errorBlock!=nil){
             errorBlock(errorCode);
+        }
     }];
     
 }

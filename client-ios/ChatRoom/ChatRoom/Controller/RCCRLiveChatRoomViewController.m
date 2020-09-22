@@ -50,8 +50,10 @@ static NSString * const portraitCollectionViewCell = @"portraitCollectionViewCel
 #import "RCCRSettingViewController.h"
 #import "RCCRButtonBar.h"
 #import "Masonry.h"
-#import "RCCRFileCapture.h"
+#import "RCRTCFileSource.h"
 #import "RCCRCDNViewController.h"
+#import "RCCRObserverExchangeView.h"
+#import "RCCRObserverDataView.h"
 static NSString * const banNotifyContent = @"您已被管理员禁言";
 
 #define kRandomColor [UIColor colorWithRed:arc4random_uniform(256) / 255.0 green:arc4random_uniform(256) / 255.0 blue:arc4random_uniform(256) / 255.0 alpha:1]
@@ -70,7 +72,7 @@ static NSString *const textCellIndentifier = @"textCellIndentifier";
 
 static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier";
 
-@interface RCCRLiveChatRoomViewController () <UICollectionViewDelegate, UICollectionViewDataSource, RCCRInputBarControlDelegate, UIGestureRecognizerDelegate, RCCRLoginViewDelegate, RCCRGiftViewDelegate, RCCRHostInformationViewDelegate , RCCRLiveModuleDelegate , RCCRAudienceDelegate , RCCRRemoteViewDelegate,RCCRButtonBarDelegate,RongRTCFileCapturerDelegate,RCCRCDNProtocol>
+@interface RCCRLiveChatRoomViewController () <UICollectionViewDelegate, UICollectionViewDataSource, RCCRInputBarControlDelegate, UIGestureRecognizerDelegate, RCCRLoginViewDelegate, RCCRGiftViewDelegate, RCCRHostInformationViewDelegate , RCCRLiveModuleDelegate , RCCRAudienceDelegate , RCCRRemoteViewDelegate,RCCRButtonBarDelegate,RCRTCFileCapturerDelegate,RCCRCDNProtocol,RCCRExchangeProtocol>
 
 /**
  连麦数量
@@ -323,13 +325,22 @@ static NSString *const startAndEndCellIndentifier = @"startAndEndCellIndentifier
 /**
  file capture
  */
-@property(nonatomic , strong)RCCRFileCapture *fileCapture;
-@property (nonatomic, strong) RCRTCLocalVideoView *localFileVideoView;
+@property (nonatomic, strong) RCRTCFileSource *fileCapture;
 
 /**
  fileModel
  */
 @property(nonatomic , strong)RCCRRemoteModel *fileModel;
+
+/**
+ 切换大小流view
+ */
+@property (nonatomic , strong) RCCRObserverExchangeView *exchangeView;
+
+/**
+ 观众展示view
+ */
+@property (nonatomic , strong) RCCRObserverDataView *dataView;
 
 @end
 
@@ -373,6 +384,8 @@ static int clickPraiseBtnTimes  = 0 ;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    // 用于弹框测试
+    [RCCRLiveHttpManager sharedManager].chatVC = self;
     if (self.model.liveMode == RCCRLiveModeHost) {
         self.isOwer = YES;
     } else {
@@ -525,8 +538,15 @@ static int clickPraiseBtnTimes  = 0 ;
         NSLog(@"退出失败:%@",@(status));
     }];
     
+    if (self.fileCapture) {
+        [self.fileCapture stop];
+        self.fileCapture.delegate = nil;
+        self.fileCapture = nil;
+    }
+    
     if (self.model.liveMode == RCCRLiveModeHost) {
         if ([[RCIMClient sharedRCIMClient].currentUserInfo.userId isEqualToString:self.model.pubUserId]) {
+            
             [[RCCRLiveHttpManager sharedManager] unpublish:self.roomID completion:^(BOOL success) {
                 NSLog(@"取消主播资源成功？%@",@(success));
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -987,6 +1007,7 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.liveModuleManager quitLive:^(BOOL isSuccess, RCRTCCode code) {
         NSLog(@"退出观众身份成功？%@",@(isSuccess));
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self removeObserverViews];
             self.remoteVideoView.hidden = YES;
             self.localView.hidden = NO;
             self.model.liveMode = RCCRLiveModeHost;
@@ -1020,11 +1041,22 @@ static int clickPraiseBtnTimes  = 0 ;
     RCMessageContent *content = rcMessage.content;
     RCUserInfo *userInfo = content.senderUserInfo;
     if ([content isKindOfClass:[RCChatroomWelcome class]] && ![userInfo.userId isEqualToString:[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager].currentUserInfo.userId]) {
-        RCCRAudienceModel *audienceModel = [[RCCRAudienceModel alloc] init];
-        audienceModel.audienceName = userInfo.name;
-        audienceModel.audiencePortrait = [NSString stringWithFormat:@"audience%@",userInfo.portraitUri];
-        audienceModel.userId = userInfo.userId;;
-        [self.audienceList addObject:audienceModel];
+        RCCRAudienceModel *audienceModel = nil;
+        for (RCCRAudienceModel *audience in self.audienceList) {
+            if ([audience.userId isEqualToString:userInfo.userId]) {
+                audienceModel = audience;
+                break;
+            }
+        }
+        if (!audienceModel) {
+            audienceModel = [[RCCRAudienceModel alloc] init];
+            [self.audienceList addObject:audienceModel];
+        }
+        if (audienceModel) {
+            audienceModel.audienceName = userInfo.name;
+            audienceModel.audiencePortrait = [NSString stringWithFormat:@"audience%@",userInfo.portraitUri];
+            audienceModel.userId = userInfo.userId;
+        }
         [self.audienceListView setModelArray:self.audienceList];
         [self.portraitCollectionView reloadData];
         if (self.model.liveMode == RCCRLiveModeHost) {
@@ -1032,7 +1064,7 @@ static int clickPraiseBtnTimes  = 0 ;
         }
         
     } else if([content isKindOfClass:[RCChatroomUserQuit class]]){
-        for (RCCRAudienceModel *model  in self.audienceList) {
+        for (RCCRAudienceModel *model in self.audienceList) {
             if ([model.userId isEqualToString:userInfo.userId]) {
                 [self.audienceList removeObject:model];
                 break;
@@ -1548,11 +1580,19 @@ static int clickPraiseBtnTimes  = 0 ;
     }];
 }
 - (void)startPublishVideoFile{
-    RCRTCVideoStreamConfig *param = [[RCRTCVideoStreamConfig alloc] init];
-    param.videoSizePreset = RCRTCVideoSizePreset640x360;
     NSString *tag = @"RongRTCFileVideo";
     self.fileStream = [[RCRTCVideoOutputStream alloc] initVideoOutputStreamWithTag:tag];
+    
+    RCRTCVideoStreamConfig *param = [[RCRTCVideoStreamConfig alloc] init];
+    param.videoSizePreset = RCRTCVideoSizePreset640x360;
     [self.fileStream setVideoConfig:param];
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"video_demo2_low" ofType:@"mp4"];
+    self.fileCapture = [[RCRTCFileSource alloc] initWithFilePath:path];
+    self.fileCapture.delegate = self;
+    self.fileStream.videoSource = self.fileCapture;
+    [self.fileCapture setObserver:self.fileStream];
+    
     __weak typeof(self)weakSelf = self;
     [self.liveModuleManager publishAVStream:self.fileStream completiom:^(BOOL isSuccess, RCRTCCode desc) {
         __strong typeof(self)strongSelf = weakSelf;
@@ -1567,29 +1607,35 @@ static int clickPraiseBtnTimes  = 0 ;
         model.userName =  @"视频文件";
         self.fileModel = model;
         [self.remoteView pushBackDatas:@[model]];
-        strongSelf.fileCapture = [[RCCRFileCapture alloc]init];
-        strongSelf.fileCapture.delegate = self;
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"video_demo2_low" ofType:@"mp4"];
-        [strongSelf.fileCapture startCapturingFromFilePath:path ];
     }];
 }
 - (void)stopPublishVideoFile{
-    [self.fileCapture stopCapture];
-    self.fileCapture = nil;
+    if (self.fileCapture) {
+        [self.fileCapture stop];
+        self.fileCapture.delegate = nil;
+        self.fileCapture = nil;
+    }
     [self.liveModuleManager unpublishAVStream:self.fileStream completiom:^(BOOL isSuccess, RCRTCCode desc) {
         [self.remoteView deleteDataWithUserIds:@[self.fileModel.inputStream.userId]];
     }];
     self.fileStream = nil;
     
 }
-- (void)didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer {
-    [self.fileStream write:sampleBuffer error:nil];
-    CFRelease(sampleBuffer);
+
+- (void)didWillStartRead{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RCCRRemoteViewCellCollectionViewCell *cell = [self.remoteView cellWithModel:self.fileModel];
+        [(RCRTCLocalVideoView *)(cell.remoteView) flushVideoView];
+    });
 }
+
 -(void)didReadCompleted{
-    RCCRRemoteViewCellCollectionViewCell *cell = [self.remoteView cellWithModel:self.fileModel];
-    [(RCRTCLocalVideoView *)(cell.remoteView) flushVideoView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RCCRRemoteViewCellCollectionViewCell *cell = [self.remoteView cellWithModel:self.fileModel];
+        [(RCRTCLocalVideoView *)(cell.remoteView) flushVideoView];
+    });
 }
+
 - (void)joinRoom:(NSString *)roomId url:(NSString *)url{
     NSLog(@"观众进来了");
     [[RCRTCEngine sharedInstance] useSpeaker:YES];
@@ -1949,15 +1995,12 @@ static int clickPraiseBtnTimes  = 0 ;
     self.localView.hidden = YES;
     
     //remoteView
-    
-    RCRTCRemoteVideoView *remoreView = [[RCRTCRemoteVideoView alloc] initWithFrame:CGRectMake(0, ([UIScreen mainScreen].bounds.size.height - height) / 2, width, height)];
-    self.remoteVideoView = remoreView;
-//    [self.remoteVideoView setBackgroundColor:[UIColor redColor]];
-    self.remoteVideoView.hidden = YES;
-    [self.remoteVideoView setFillMode:RCRTCVideoFillModeAspect];
     [self.liveView addSubview:self.localView];
-    [self.liveView setContentMode:UIViewContentModeScaleAspectFit];
     [self.liveView addSubview:self.remoteVideoView];
+    
+    
+    [self.liveView setContentMode:UIViewContentModeScaleAspectFit];
+    
     
     //  顶部
     [self.view addSubview:self.topContentView];
@@ -2085,10 +2128,45 @@ static int clickPraiseBtnTimes  = 0 ;
     [self.view addSubview:remoteView];
     if (self.model.liveMode == RCCRLiveModeAudience) {
         [self addButtonBar];
+        [self addObserverViews];
     }
     
     //    [remoteView setDataSources:dataSource];
     
+}
+- (void)addObserverViews{
+    self.exchangeView = [[RCCRObserverExchangeView alloc] init];
+    self.exchangeView.delegate = self;
+    self.exchangeView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.4];
+    self.exchangeView.layer.cornerRadius = 4;
+    self.exchangeView.layer.masksToBounds = YES;
+    [self.view addSubview:self.exchangeView];
+    [self.exchangeView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.view.mas_right).offset(-50);
+        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-100);
+        make.width.mas_equalTo(@(150));
+        make.height.mas_equalTo(@(160));
+
+    }];
+    self.dataView = [[RCCRObserverDataView alloc] init];
+    self.dataView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.4];
+    self.dataView.layer.cornerRadius = 4;
+    self.dataView.layer.masksToBounds = YES;
+    [self.view addSubview:self.dataView];
+    [self.dataView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.view.mas_left).offset(50);
+        make.top.mas_equalTo(self.view.mas_top).offset(100);
+        make.width.mas_equalTo(@(100));
+        make.height.mas_equalTo(@(100));
+
+    }];
+}
+- (void)removeObserverViews{
+    [self.exchangeView removeFromSuperview];
+    self.exchangeView = nil;
+    
+    [self.dataView removeFromSuperview];
+    self.dataView = nil;
 }
 - (void)addButtonBar{
     RCCRButtonBar *bar = [[RCCRButtonBar alloc] init];
@@ -2367,27 +2445,47 @@ static int clickPraiseBtnTimes  = 0 ;
     cdn.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     [self.navigationController presentViewController:cdn animated:YES completion:nil];
 }
--(void)didAddCDN:(NSString *)cdn{
-
+-(void)didAddCDN:(NSString *)cdn controller:(nonnull UIViewController *)vc{
+    
     [self.liveModuleManager addCdn:cdn completion:^(BOOL isSuccess, RCRTCCode code, NSArray * _Nonnull arr) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (isSuccess) {
                 [RCActiveWheel showPromptHUDAddedTo:self.view text:@"设置成功"];
             } else {
-                [RCActiveWheel showPromptHUDAddedTo:self.view text:@"设置失败"];
-
+                
+                // 测试
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"cdn 设置错误" message:[NSString stringWithFormat:@"错误码:%@",@(code)] preferredStyle:(UIAlertControllerStyleAlert)];
+                UIAlertAction *action = [UIAlertAction actionWithTitle:@"好的" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alert addAction:action];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [vc presentViewController:alert animated:YES completion:^{
+                        
+                    }];
+                });
             }
         });
     }];
 }
--(void)didRemoveCDN:(NSString *)cdn{
+-(void)didRemoveCDN:(NSString *)cdn controller:(nonnull UIViewController *)vc{
     [self.liveModuleManager removeCdn:cdn completion:^(BOOL isSuccess, RCRTCCode code, NSArray * _Nonnull arr) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (isSuccess) {
                 [RCActiveWheel showPromptHUDAddedTo:self.view text:@"移除成功"];
             } else {
-                [RCActiveWheel showPromptHUDAddedTo:self.view text:@"移除失败"];
-
+                // 测试
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"cdn 设置错误" message:[NSString stringWithFormat:@"错误码:%@",@(code)] preferredStyle:(UIAlertControllerStyleAlert)];
+                UIAlertAction *action = [UIAlertAction actionWithTitle:@"好的" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alert addAction:action];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [vc presentViewController:alert animated:YES completion:^{
+                        
+                    }];
+                });
+                
             }
         });
     }];
@@ -2422,5 +2520,35 @@ static int clickPraiseBtnTimes  = 0 ;
         default:
             break;
     }
+}
+-(void)didReportVideoResolution:(NSString *)resolution frame:(NSString *)frame bitrate:(NSString *)bitrate{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.dataView setVideoResolution:resolution videoBitrate:bitrate videoFrame:frame];
+    });
+}
+-(void)didExchange:(RCCRExchangeType)type{
+    if (type == RCCRExchangeTypeAudio ) {
+        
+    }
+    [self.liveModuleManager exchangeSubscribeLiveStreamType:type liveUrl:self.model.liveUrl completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
+        if (inputStream.mediaType == RTCMediaTypeVideo) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [(RCRTCVideoInputStream *)inputStream setVideoView:self.remoteVideoView];
+            });
+        }
+    }];
+}
+-(RCRTCRemoteVideoView *)remoteVideoView{
+    if (!_remoteVideoView) {
+        CGFloat width = [UIScreen mainScreen].bounds.size.width;
+        CGFloat f = (16.0/9.0 );
+        CGFloat height = width * f;
+        RCRTCRemoteVideoView *remoreView = [[RCRTCRemoteVideoView alloc] initWithFrame:CGRectMake(0, ([UIScreen mainScreen].bounds.size.height - height) / 2, width, height)];
+        _remoteVideoView = remoreView;
+        //    [self.remoteVideoView setBackgroundColor:[UIColor redColor]];
+        _remoteVideoView.hidden = YES;
+        [_remoteVideoView setFillMode:RCRTCVideoFillModeAspect];
+    }
+    return _remoteVideoView;
 }
 @end

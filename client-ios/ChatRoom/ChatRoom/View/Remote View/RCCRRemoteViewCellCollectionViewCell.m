@@ -28,6 +28,11 @@
     return self;
 }
 -(void)setRemoteModel:(RCCRRemoteModel *)remoteModel{
+    if (self.remoteVideoView ) {
+        [self.remoteVideoView removeFromSuperview];
+        self.remoteVideoView = nil;
+        [self addSubview:self.remoteVideoView];
+    }
     if ([remoteModel.inputStream isKindOfClass:[RCRTCInputStream class]]) {
         self.localVideoView.hidden = YES;
         self.remoteVideoView.hidden = NO;

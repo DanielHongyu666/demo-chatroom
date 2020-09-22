@@ -20,15 +20,15 @@
     RCCRSettingBaseTableViewCell *cell = nil;
     switch (type) {
         case RCCRSwitchTypeAdaptive:
-            {
-                cell = (RCCRAdaptiveTableViewCell *)[tableView dequeueReusableCellWithIdentifier:ADAPTIVECELLID];
-            }
+        {
+            cell = (RCCRAdaptiveTableViewCell *)[tableView dequeueReusableCellWithIdentifier:ADAPTIVECELLID];
+        }
             break;
         case RCCRSwitchTypeSuspension:{
             cell = (RCCRSuspensionTableViewCell *)[tableView dequeueReusableCellWithIdentifier:SUSPENSIONCELLID];
         }
             break;
-            case RCCRSwitchTypeCustom:
+        case RCCRSwitchTypeCustom:
         {
             cell = (RCCRCustomTableViewCell *)[tableView dequeueReusableCellWithIdentifier:CUSTOMCELLID];
         }

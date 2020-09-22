@@ -11,6 +11,7 @@
 #import "RCCRLiveLayoutModel.h"
 #import "RCCRLiveModuleManager.h"
 #import "RCCRLiveChatRoomViewController.h"
+#import "RCCRUtilities.h"
 NS_ASSUME_NONNULL_BEGIN
 @protocol RCCRLiveModuleDelegate;
 @interface RCCRLiveModuleManager : NSObject
@@ -21,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic , weak)id <RCCRLiveModuleDelegate> delegate;
 
 /**
- vc
+ vc用于弹框
  */
 @property(nonatomic , weak)RCCRLiveChatRoomViewController *chatVC;
 
@@ -77,6 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param cdn cdn地址
 /// @param completion 回调
 - (void)removeCdn:(NSString *)cdn completion:(void (^)(BOOL, RCRTCCode, NSArray *))completion;
+
+/// 观众切换订阅类型
+/// @param type 要订阅的类型
+/// @param liveUrl 订阅url
+/// @param completion 完成回调
+- (void)exchangeSubscribeLiveStreamType:(RCCRExchangeType)type liveUrl:(NSString *)liveUrl completion:(void (^)(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream))completion;
 @end
 @protocol RCCRLiveModuleDelegate <NSObject>
 
@@ -99,6 +106,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// 当远端人为空的代理
 - (void)remoteUsersIsNull;
 
+/// 汇报分辨率，码率，帧率
+/// @param resolution 分辨率
+/// @param frame 帧率
+/// @param bitrate 比特率
+- (void)didReportVideoResolution:(NSString *)resolution frame:(NSString *)frame bitrate:(NSString *)bitrate;
 
 @end
 NS_ASSUME_NONNULL_END

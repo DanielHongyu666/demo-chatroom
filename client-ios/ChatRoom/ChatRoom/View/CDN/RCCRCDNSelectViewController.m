@@ -27,6 +27,8 @@
 -(void)viewDidLoad{
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    // 用于弹框测试
+    [RCCRLiveHttpManager sharedManager].chatVC = self;
     [self addSubview];
     [self getSelectList];
 }

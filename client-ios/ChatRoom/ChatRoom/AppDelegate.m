@@ -3,7 +3,7 @@
 //  ChatRoom
 //
 //  Created by RongCloud on 2018/5/9.
-//  Copyright © 2018年 RongCloud. All rights reserved.
+//  Copyright © 2018年 rongcloud. All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -37,6 +37,14 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    if (RTCMEDIASERVERURL.length > 0) {
+        [[RCRTCEngine sharedInstance] setMediaServerUrl:RTCMEDIASERVERURL];
+    }
+    if (RCNAVI.length > 0) {
+        [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] initRongCloud:RCIMAPPKey navi:RCNAVI];
+    }
+    
+
      BuglyConfig *config = [[BuglyConfig alloc] init];
     #ifdef DEBUG
         config.channel = @"Debug";
@@ -44,10 +52,9 @@
         config.channel = @"Release";
     #endif
         
-        [Bugly startWithAppId:@"" config:config];
+        [Bugly startWithAppId:@"6a70b5f85e" config:config];
         [Bugly setUserIdentifier:[UIDevice currentDevice].name];
-    // 配置自己的 appkey 和 navi
-        [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] initRongCloud:RCIMAPPKey navi:@""];
+        // 自动化测试取消重定向
     //注册自定义消息
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomWelcome class]];
     [[RCCRRongCloudIMManager sharedRCCRRongCloudIMManager] registerRongCloudMessageType:[RCChatroomGift class]];

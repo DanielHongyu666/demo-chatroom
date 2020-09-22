@@ -87,7 +87,7 @@
             self.preView = self.adaptiveSwitchView;
         }
             break;
-            case RCCRSwitchTypeCustom:
+        case RCCRSwitchTypeCustom:
         {
             [self.customSwitchView regain:NO];
             self.preView = self.customSwitchView;

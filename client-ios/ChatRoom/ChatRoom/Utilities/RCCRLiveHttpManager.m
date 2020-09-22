@@ -2,7 +2,7 @@
 //  RCCRLiveHttpManager.m
 //  SealRTC
 //
-//  Created by 孙承秀 on 2019/8/31.
+//  Created by RongCloud on 2019/8/31.
 //  Copyright © 2019 RongCloud. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
 #import <RongIMLib/RongIMLib.h>
 #import "RCCRRoomModel.h"
 #define kDeviceUUID [[[[UIDevice currentDevice] identifierForVendor] UUIDString] substringToIndex:4]
-#define RCCDNSERVER @"自己服务器，获取 CDN 地址"
+
 @interface NSString (CC)
 @property (nonatomic,copy,readonly)NSString *sha1;
 @end
@@ -78,15 +78,20 @@
     NSData* data = [NSJSONSerialization dataWithJSONObject:dic options:kNilOptions error:nil];
     request.HTTPBody = data;
     NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
-        NSInteger code = [dic[@"code"] integerValue];
-        if (!error) {
+        
+        if (!error && data != nil) {
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
+            NSInteger code = [dic[@"code"] integerValue];
             if (completion) {
                 completion(YES,code);
             }
+            if (code != 0) {
+                [self alert:code];
+            }
         } else {
+            [self alert:[self getCode:response error:error]];
             if (completion) {
-                completion(NO,code);
+                completion(NO,[self getCode:response error:error]);
             }
         }
     }];
@@ -110,18 +115,24 @@
     NSData* data = [NSJSONSerialization dataWithJSONObject:dic options:kNilOptions error:nil];
     request.HTTPBody = data;
     NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
-        NSInteger code = [dic[@"code"] integerValue];
-        if (code == 0 && error == nil) {
+        
+        if (error == nil && data != nil) {
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
+            NSInteger code = [dic[@"code"] integerValue];
             if (completion) {
                 NSArray *list = dic[@"cdnSupplyList"];
                 completion(YES ,list);
             }
+            if (code != 0) {
+                [self alert: code];
+            }
         } else {
+            [self alert:[self getCode:response error:error]];
             if (completion) {
                 completion(NO,@[]);
             }
         }
+        
     }];
     [task  resume];
 }
@@ -143,18 +154,23 @@
     NSData* data = [NSJSONSerialization dataWithJSONObject:dic options:kNilOptions error:nil];
     request.HTTPBody = data;
     NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
-        NSInteger code = [dic[@"code"] integerValue];
-        if (code == 0 && error == nil) {
+        if ( error == nil && data != nil) {
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingMutableContainers) error:nil];
+            NSInteger code = [dic[@"code"] integerValue];
             if (completion) {
                 NSArray *list = dic[@"cdnList"];
                 completion(YES ,list);
             }
+            if (code != 0) {
+                [self alert:code];
+            }
         } else {
+            [self alert:[self getCode:response error:error]];
             if (completion) {
                 completion(NO,@[]);
             }
         }
+       
     }];
     [task  resume];
 }
@@ -177,11 +193,15 @@
     NSURLSessionTask *task = [self.defaultSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (data != nil) {
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            NSInteger code = [dict[@"code"] integerValue];
             BOOL success = [dict[@"code"] boolValue];
             if (error || success) {
                 if (completion) {
                     completion(NO,nil);
                 }
+             
+                [self alert:code > 0 ? code : error.code ];
+                
             } else {
                 NSArray *arr= dict[@"roomList"];
                 if ([arr containsObject:[NSNull null]]) {
@@ -193,9 +213,10 @@
                         completion(YES,arr);
                     }
                 }
-                
             }
+            
         } else {
+            [self alert:[self getCode:response error:error]];
             if (completion) {
                 completion(NO ,nil);
             }
@@ -229,6 +250,7 @@
             if (completion) {
                 completion(NO);
             }
+            [self alert:[self getCode:response error:error]];
         }
     }];
     [task  resume];
@@ -270,10 +292,12 @@
                 completion(YES,result[@"result"][@"token"]);
             }
             else{
+                [self alert:[self getCode:response error:error]];
                 completion(NO,nil);
             }
         }
         else{
+            [self alert:[self getCode:response error:error]];
             completion(NO,nil);
         }
     }];
@@ -320,5 +344,20 @@
         completionHandler(NSURLSessionAuthChallengeUseCredential,card);
     }
 }
-
+- (void)alert:(NSInteger)code{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *str = [NSString stringWithFormat:@"http 层错误码:%@",@(code)];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"错误提示" message:str preferredStyle:(UIAlertControllerStyleAlert)];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        [alert addAction:action];
+        [self.chatVC presentViewController:alert animated:YES completion:nil];
+    });
+    
+}
+- (NSInteger)getCode:(NSURLResponse *)response error:(NSError *)error{
+    NSInteger code = ((NSHTTPURLResponse *)response).statusCode ;
+    return code > 0 ? code : error.code;
+}
 @end
