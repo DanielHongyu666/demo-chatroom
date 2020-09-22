@@ -7,19 +7,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.orzangleli.xdanmuku.DanmuContainerView;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -106,9 +105,10 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
 
 
     protected ChatroomInfo mInfo;
-
-
-
+    //
+    private RadioGroup radioGroup_Stream;
+    private TextView tv_localVideo_FPS,tv_localVideo_bitrate,tv_localVide_resolution;
+    private LinearLayout linear_statusReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +216,12 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
             }
         });
         findViewById(R.id.iv_back).setOnClickListener(this);
+
+        radioGroup_Stream=findViewById(R.id.radioGroup_Stream);
+        linear_statusReport=findViewById(R.id.linear_statusReport);
+        tv_localVideo_FPS=findViewById(R.id.tv_localVideo_FPS);
+        tv_localVideo_bitrate=findViewById(R.id.tv_localVideo_bitrate);
+        tv_localVide_resolution=findViewById(R.id.tv_localVide_resolution);
     }
 
     protected void onClickHlvMember() {
@@ -515,6 +521,38 @@ public class LiveShowActivity extends BaseActivity implements View.OnClickListen
     public void onEventMainThread(NeedLoginEvent event) {
         if (event.isNeedLogin()) {
             loginPanel.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * 是否显示 拉取流类型控制视图
+     * @param visibility View.VISIBLE 默认隐藏
+     */
+    public RadioGroup showStreamTypeControlView(int visibility){
+        if(radioGroup_Stream!=null){
+            radioGroup_Stream.setVisibility(visibility);
+            return radioGroup_Stream;
+        }
+        return null;
+    }
+
+    public void setLocalVideoStreamInfo(String resolution,long bitRate,int FPS){
+        try {
+            tv_localVide_resolution.setText(resolution);
+            tv_localVideo_bitrate.setText(String.valueOf(bitRate));
+            tv_localVideo_FPS.setText(String.valueOf(FPS));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 显示观众查看的分辨率 帧率等信息视频
+     * @param visibility View.VISIBLE,默认隐藏
+     */
+    public void showStatusReportView(int visibility){
+        if(linear_statusReport!=null){
+            linear_statusReport.setVisibility(visibility);
         }
     }
 }

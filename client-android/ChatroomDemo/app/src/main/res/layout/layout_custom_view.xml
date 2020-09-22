@@ -24,6 +24,21 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:theme="@style/MySwitch"/>
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="14sp"
+          android:layout_marginLeft="15dp"
+          android:textColor="@color/blink_text_grey"
+          android:text="推小流"/>
+
+        <android.support.v7.widget.SwitchCompat
+          android:id="@+id/sc_tinyStream"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="16dp"
+          android:theme="@style/MySwitch"/>
     </LinearLayout>
 
     <LinearLayout

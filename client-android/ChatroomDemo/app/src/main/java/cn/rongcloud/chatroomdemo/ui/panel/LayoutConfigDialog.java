@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.SwitchCompat;
@@ -47,8 +46,8 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
     private FrameLayout mFlContent;
     private CustomLayoutView mCustomLayout;
     private ConfigChangeListener mConfigChangeListener;
-    private SwitchCompat mScAdaptiveCrop;
-    private SwitchCompat mScSuspendCrop;
+    private SwitchCompat mScAdaptiveCrop,mScAdaptiveTinyStream;
+    private SwitchCompat mScSuspendCrop,mScSuspendTinyStream;
 
     @Nullable
     @Override
@@ -58,7 +57,9 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
         mFlContent = view.findViewById(R.id.fl_content);
         mCustomLayout = view.findViewById(R.id.customview);
         mScAdaptiveCrop = view.findViewById(R.id.sc_adaptive_crop);
+        mScAdaptiveTinyStream =view.findViewById(R.id.sc_adaptive_tinyStream);
         mScSuspendCrop = view.findViewById(R.id.sc_suspend_crop);
+        mScSuspendTinyStream=view.findViewById(R.id.sc_suspend_tinyStream);
         setListener(view);
         return view;
     }
@@ -100,11 +101,13 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
             case 2:
                 ((RadioButton)getView().findViewById(R.id.rd_02)).setChecked(true);
                 mScSuspendCrop.setChecked(params.isCrop);
+                mScSuspendTinyStream.setChecked(params.isEnableTinyStream);
                 break;
             default:
             case 3:
                 ((RadioButton)getView().findViewById(R.id.rd_01)).setChecked(true);
                 mScAdaptiveCrop.setChecked(params.isCrop);
+                mScAdaptiveTinyStream.setChecked(params.isEnableTinyStream);
                 break;
         }
 
@@ -153,6 +156,7 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
             case R.id.rd_02:
                 params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.SUSPENSION);
                 params.isCrop = mScSuspendCrop.isChecked();
+                params.isEnableTinyStream = mScSuspendTinyStream.isChecked();
                 break;
             case R.id.rd_03:
                 params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.CUSTOM);
@@ -161,11 +165,13 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
                 params.x = mCustomLayout.getVideoX();
                 params.y = mCustomLayout.getVideoY();
                 params.isCrop = mCustomLayout.isCropVideo();
+                params.isEnableTinyStream = mCustomLayout.isEnableTinyStream();
                 break;
                 default:
             case R.id.rd_01:
                 params = new ConfigParams(RCRTCMixConfig.MixLayoutMode.ADAPTIVE);
                 params.isCrop = mScAdaptiveCrop.isChecked();
+                params.isEnableTinyStream = mScAdaptiveTinyStream.isChecked();
                 break;
         }
         if (mConfigChangeListener != null){
@@ -195,6 +201,7 @@ public class LayoutConfigDialog extends DialogFragment implements View.OnClickLi
         public int width;
         public int height;
         public boolean isCrop;  // 1:crop裁剪填充 ；2:whole
+        public boolean isEnableTinyStream;//是否打开小流
 
         public ConfigParams(RCRTCMixConfig.MixLayoutMode model) {
             this.model = model;

@@ -3,6 +3,8 @@ package cn.rongcloud.chatroomdemo;
 import android.content.Context;
 import android.os.Handler;
 
+import cn.rongcloud.chatroomdemo.http.SelfSSLUtils;
+import io.rong.common.utils.SSLUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -110,8 +112,15 @@ public class ChatroomKit {
      */
     public static void init(Context context, String appKey) {
 
+        //TODO 使用小乔环境,真实上线时一定删除
+
+//        RongIMClient.init(context, DataInterface.APP_KEY, false);
+
+        RongIMClient.setServerInfo(DataInterface.NAV_SERVER, DataInterface.FILE_SERVER);
         RongIMClient.init(context, appKey);
         EmojiManager.init(context);
+        SSLUtils.setSSLContext(SelfSSLUtils.getSSLContext());
+        SSLUtils.setHostnameVerifier(SelfSSLUtils.DO_NOT_VERIFY);
 
         RongIMClient.setOnReceiveMessageListener(onReceiveMessageListener);
 

@@ -156,10 +156,10 @@ public class HttpHelper {
         if (request.url().toLowerCase().startsWith("https")) {
             url = new URL(request.url());
             if (mEnableSelfCertificate) {
-                SSLContext sslContext = SSLUtils.getSSLContext();
+                SSLContext sslContext = SelfSSLUtils.getSSLContext();
                 HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
                 c.setSSLSocketFactory(sslContext.getSocketFactory());
-                c.setHostnameVerifier(new SSLUtils.TrustAnyHostnameVerifier());
+                c.setHostnameVerifier(new SelfSSLUtils.TrustAnyHostnameVerifier());
                 conn = c;
             } else {
                 conn = (HttpsURLConnection) url.openConnection();

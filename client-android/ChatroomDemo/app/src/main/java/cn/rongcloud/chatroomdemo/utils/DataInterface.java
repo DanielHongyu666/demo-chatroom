@@ -10,24 +10,19 @@ import android.util.Log;
 import cn.rongcloud.chatroomdemo.http.HttpHelper;
 import cn.rongcloud.chatroomdemo.http.Request;
 import cn.rongcloud.chatroomdemo.http.RequestMethod;
-import cn.rongcloud.rtc.api.RCRTCConfig;
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import io.rong.imlib.RongIMClient.ConnectionErrorCode;
 import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-
-import cn.rongcloud.chatroomdemo.BuildConfig;
 import cn.rongcloud.chatroomdemo.ChatroomApp;
 import cn.rongcloud.chatroomdemo.ChatroomKit;
 import cn.rongcloud.chatroomdemo.R;
 import cn.rongcloud.chatroomdemo.model.Gift;
-import cn.rongcloud.rtc.media.RongMediaSignalClient;
 import cn.rongcloud.rtc.utils.FinLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
@@ -46,7 +41,10 @@ import static io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStat
  * */
 public class DataInterface {
     private static final String TAG = "DataInterface";
-    public static String APP_VERSION = "2.0.0";
+    public static String APP_VERSION = "2.2.0";
+
+    public static final String NAV_SERVER = "https://nav.cn.ronghub.com";
+    public static final String FILE_SERVER = "up.qbox.me";
 
     //ToDO 改为您自己 BuglyKey
     public static final String BuglyKey = "ead5321317";
@@ -120,7 +118,7 @@ public class DataInterface {
     public static void init(Context context){
         if (!TextUtils.isEmpty(RONG_RTC_CONFIG_SERVER_URL) &&
                 RONG_RTC_CONFIG_SERVER_URL.startsWith("http")) {
-            RongMediaSignalClient.setMediaServerUrl(RONG_RTC_CONFIG_SERVER_URL);
+            RCRTCEngine.getInstance().setMediaServerUrl(RONG_RTC_CONFIG_SERVER_URL);
         }
         if (!TextUtils.isEmpty(RONG_RTC_APP_SERVER_URL) &&
                 RONG_RTC_APP_SERVER_URL.startsWith("http")) {
@@ -239,8 +237,9 @@ public class DataInterface {
                     setLogin(mUserName);
                 }
                 Log.i(TAG, "connectSuccess");
-                if (callback != null)
+                if (callback != null){
                     callback.onSuccess(s);
+                }
             }
 
             @Override
@@ -337,8 +336,9 @@ public class DataInterface {
      * @return
      */
     public static Uri getAvatarUri(Uri uri){
-        if (uri == null || TextUtils.isEmpty(uri.toString()))
+        if (uri == null || TextUtils.isEmpty(uri.toString())){
             return getUri(ChatroomApp.getContext(),AVATARS[0]);
+        }
         int index = 0;
         try {
            index = Integer.valueOf(uri.toString());

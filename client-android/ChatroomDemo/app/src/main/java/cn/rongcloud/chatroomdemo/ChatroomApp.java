@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 
 import cn.rongcloud.chatroomdemo.utils.CommonUtils;
 import cn.rongcloud.chatroomdemo.utils.DataInterface;
-import cn.rongcloud.rtc.media.RongMediaSignalClient;
 
 /**
  * Created by duanliuyi on 2018/5/10.
@@ -51,8 +50,9 @@ public class ChatroomApp extends MultiDexApplication {
      * 反射 禁止弹窗
      */
     private void disableAPIDialog() {
-        if (Build.VERSION.SDK_INT < 28)
+        if (Build.VERSION.SDK_INT < 28){
             return;
+        }
         try {
             Class clazz = Class.forName("android.app.ActivityThread");
             Method currentActivityThread = clazz.getDeclaredMethod("currentActivityThread");

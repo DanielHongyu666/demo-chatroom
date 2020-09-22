@@ -28,6 +28,7 @@ public class VideoViewMagr {
     private LinearLayout.LayoutParams mSmallLayoutParams;
     private List<UserInfo> mUserInfos;
     private View.OnClickListener mOnClickListener;
+    private static final String AUDIO_ONLY_VIEW_TAG="AudioOnlyView_tag";
 
     public VideoViewMagr(Context context) {
         mContext = context;
@@ -194,4 +195,27 @@ public class VideoViewMagr {
         return null;
     }
 
+    public void addAudioOnlyView(View view){
+        if (mLargeViewContainer == null)
+            return;
+//        mLargeViewContainer.removeAllViews();
+        view.setTag(AUDIO_ONLY_VIEW_TAG);
+        mLargeViewContainer.addView(view);
+    }
+
+    public void removeAudioOnlyView(){
+        if (mLargeViewContainer == null)
+            return;
+        int childCount = mLargeViewContainer.getChildCount();
+        View view = null;
+        for (int i = 0; i < childCount; i++) {
+            view = mLargeViewContainer.getChildAt(i);
+            if(view!=null &&
+                view.getTag()!=null &&
+                !TextUtils.isEmpty((CharSequence) view.getTag()) &&
+                TextUtils.equals((CharSequence) view.getTag(),AUDIO_ONLY_VIEW_TAG)){
+                mLargeViewContainer.removeViewAt(i);
+            }
+        }
+    }
 }

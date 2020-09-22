@@ -10,7 +10,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 /** Created by weiqinxiao on 2017/11/15. */
-public class SSLUtils {
+public class SelfSSLUtils {
     public static SSLContext getSSLContext() {
         SSLContext sslContext = null;
         try {

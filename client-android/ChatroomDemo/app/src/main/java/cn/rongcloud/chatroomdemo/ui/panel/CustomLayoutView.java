@@ -19,7 +19,7 @@ public class CustomLayoutView extends LinearLayout {
 
     private static final float RATIO = 3*1.0f/4;
     private static final int MAX_NUM = 6;
-    private SwitchCompat mScCrop;
+    private SwitchCompat mScCrop,sc_tinyStream;
     private EditText mEvX;
     private TextView mTvY;
     private TextView mTvWidth;
@@ -55,6 +55,7 @@ public class CustomLayoutView extends LinearLayout {
 
     public void setViews(LayoutConfigDialog.ConfigParams params) {
         mScCrop.setChecked(params.isCrop);
+        sc_tinyStream.setChecked(params.isEnableTinyStream);
         mEvHeight.setText(params.height+"");
         mEvX.setText(params.x+"");
     }
@@ -120,6 +121,7 @@ public class CustomLayoutView extends LinearLayout {
         mTvY = (TextView)findViewById( R.id.tv_y );
         mTvWidth = (TextView)findViewById( R.id.tv_width );
         mEvHeight = (EditText)findViewById( R.id.ev_height );
+        sc_tinyStream = (SwitchCompat)findViewById(R.id.sc_tinyStream);
     }
 
     public int getVideoX(){
@@ -151,5 +153,7 @@ public class CustomLayoutView extends LinearLayout {
         return mScCrop.isChecked();
     }
 
-
+    public boolean isEnableTinyStream(){
+        return sc_tinyStream.isChecked();
+    }
 }

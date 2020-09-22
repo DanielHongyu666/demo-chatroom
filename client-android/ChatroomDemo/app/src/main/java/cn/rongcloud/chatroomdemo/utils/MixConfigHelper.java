@@ -32,6 +32,10 @@ public class MixConfigHelper {
     private LayoutConfigDialog.ConfigParams mConfigParams;
     private IRCRTCResultCallback mCallback;
     private RCRTCLiveInfo mLiveInfo;
+    private static final int TINY_VIDEOSTREAM_WIDTH=144;
+    private static final int TINY_VIDEOSTREAM_HEIGHT=176;
+    private static final int TINY_VIDEOSTREAM_FPS=15;
+    private static final int TINY_VIDEOSTREAM_BITRATE=120;
 
     public MixConfigHelper(RCRTCLiveInfo rongRTCLiveInfo, RCRTCRoom rtcRoom) {
         mLiveInfo = rongRTCLiveInfo;
@@ -102,6 +106,17 @@ public class MixConfigHelper {
         normal.setHeight(videoHeight);
         normal.setFps(vc.getVideoFps().getFps());
         videoConfig.setVideoLayout(normal);
+
+        if(configParams.isEnableTinyStream){
+            //设置 MCU 输出小流视频的 输出分辨率 ，码率，帧率
+            RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout tinyVideoLayout = new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
+            tinyVideoLayout.setWidth(TINY_VIDEOSTREAM_WIDTH);
+            tinyVideoLayout.setHeight(TINY_VIDEOSTREAM_HEIGHT);
+            tinyVideoLayout.setFps(TINY_VIDEOSTREAM_FPS);
+            tinyVideoLayout.setBitrate(TINY_VIDEOSTREAM_BITRATE);
+            videoConfig.setTinyVideoLayout(tinyVideoLayout);
+        }
+
         //设置渲染模式
         videoConfig.setExtend(new RCRTCMixConfig.MediaConfig.VideoConfig.VideoExtend(configParams.isCrop ? RCRTCMixConfig.VideoRenderMode.CROP : RCRTCMixConfig.VideoRenderMode.WHOLE));
         //设置视频合流布局输出参数配置

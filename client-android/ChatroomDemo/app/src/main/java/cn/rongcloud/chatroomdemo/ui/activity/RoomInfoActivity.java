@@ -1,6 +1,7 @@
 package cn.rongcloud.chatroomdemo.ui.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,12 +18,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 
+import cn.rongcloud.chatroomdemo.ChatroomApp;
 import cn.rongcloud.chatroomdemo.ui.panel.SetCDNPushDialog;
 import cn.rongcloud.chatroomdemo.utils.HeadsetReceiver;
 import cn.rongcloud.chatroomdemo.utils.HeadsetReceiver.HeadsetListener;
@@ -36,6 +41,11 @@ import cn.rongcloud.rtc.api.callback.IRCRTCOnStreamSendListener;
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
 import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
 import cn.rongcloud.rtc.api.callback.IRCRTCRoomEventsListener;
+import cn.rongcloud.rtc.api.callback.IRCRTCStatusReportListener;
+import cn.rongcloud.rtc.api.callback.RCRTCLiveCallback;
+import cn.rongcloud.rtc.api.report.StatusBean;
+import cn.rongcloud.rtc.api.report.StatusReport;
+import cn.rongcloud.rtc.api.stream.RCRTCAudioInputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCCameraOutputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCFileVideoOutputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
@@ -45,6 +55,7 @@ import cn.rongcloud.rtc.api.stream.RCRTCVideoOutputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig.Builder;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.rtc.base.RCRTCAVStreamType;
 import cn.rongcloud.rtc.base.RCRTCMediaType;
 import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoFps;
 import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
@@ -52,10 +63,9 @@ import cn.rongcloud.rtc.base.RCRTCRoomType;
 import cn.rongcloud.rtc.base.RCRTCStream;
 import cn.rongcloud.rtc.base.RCRTCStreamType;
 import cn.rongcloud.rtc.base.RTCErrorCode;
-import cn.rongcloud.rtc.custom.OnSendListener;
-import cn.rongcloud.rtc.stream.local.RongRTCAVOutputStream;
 import com.google.gson.Gson;
 
+import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,6 +108,7 @@ import io.rong.imlib.model.UserInfo;
 public class RoomInfoActivity extends LiveShowActivity {
 
     private static final String TAG = "RoomInfoActivity";
+    private RCRTCAVStreamType mAVStreamType=null;
 
     /**
      * @param context
@@ -137,6 +148,7 @@ public class RoomInfoActivity extends LiveShowActivity {
     private AppCompatCheckBox mCameraView;
     private AppCompatCheckBox mSpeakerView;
     private AppCompatCheckBox mCustomView;
+    private View mCDNPushView;
     private RCRTCLiveInfo mLiveInfo;
     private SetCDNPushDialog mSetCDNPushDialog;
     private RCRTCFileVideoOutputStream mFileVideoOutputStream;
@@ -178,11 +190,17 @@ public class RoomInfoActivity extends LiveShowActivity {
         mReceiver.registerReceiver(this);
         RCRTCConfig config = RCRTCConfig.Builder.create()
             .build();
-        RCRTCEngine.getInstance().init(this,config);
+        RCRTCEngine.getInstance().init(ChatroomApp.getContext(),config);
         if (isViewer()) {
             //普通观众
             LogUtils.d(TAG, "观众身份加入：开始订阅资源");
             subscribeLiveAVStream();
+            RadioGroup radioGroup_Stream=showStreamTypeControlView(View.VISIBLE);
+            if(radioGroup_Stream!=null){
+                radioGroup_Stream.setOnCheckedChangeListener(checkedChangeListener);
+            }
+            showStatusReportView(View.VISIBLE);
+            RCRTCEngine.getInstance().registerStatusReportListener(statusReportListener);
         } else if (mRoleType.get() == RoleType.HOST) {
             //房主
             LogUtils.d(TAG, "直播身份加入：开始join room");
@@ -202,11 +220,11 @@ public class RoomInfoActivity extends LiveShowActivity {
     /**
      * 防止直播过程中锁屏
      */
+    @SuppressLint("InvalidWakeLockTag")
     private void createPowerManager() {
         if (powerManager == null) {
             powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            wakeLock = powerManager
-                .newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+            wakeLock = powerManager.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
             wakeLock.setReferenceCounted(false);
         }
     }
@@ -262,6 +280,9 @@ public class RoomInfoActivity extends LiveShowActivity {
         mSpeakerView.setEnabled(!(mReceiver.isWiredHeadsetOn() || mReceiver.hasBluetoothA2dpConnected()));
         mCustomView = findViewById(R.id.menu_custom_stream);
         mCustomView.setOnClickListener(this);
+        mCDNPushView = findViewById(R.id.menu_cdn);
+        mCDNPushView.setOnClickListener(this);
+        mCDNPushView.setVisibility(mRoleType.get() == RoleType.HOST ? View.VISIBLE : View.GONE);
     }
 
     private void resetView() {
@@ -295,6 +316,18 @@ public class RoomInfoActivity extends LiveShowActivity {
                     unPublishCustomStream(mCustomView);
                 } else {
                     publishCustomStream("file:///android_asset/video_2.mp4", mCustomView);
+                }
+                break;
+            case R.id.menu_cdn:
+                if (mLiveInfo != null) {
+                    if (mSetCDNPushDialog == null) {
+                        mSetCDNPushDialog = SetCDNPushDialog
+                            .newInstance(mLiveInfo, mRtcRoom.getSessionId());
+                    }
+                    mSetCDNPushDialog
+                        .show(getFragmentManager(), "SetCDNPushDialog");
+                } else {
+                    showToast("正在加入房间或发布资源中...");
                 }
                 break;
             default:
@@ -498,73 +531,78 @@ public class RoomInfoActivity extends LiveShowActivity {
         }
         write("subscribeLiveAVStream-T", "RoomId|UserId|McuUrl", roomId, DataInterface.getUserId(), mInfo.getMcuUrl());
         resetView();
-        RCRTCEngine.getInstance()
-            .subscribeLiveStream(mInfo.getMcuUrl(), RCRTCRoomType.LIVE_AUDIO_VIDEO,
-                new IRCRTCResultDataCallback<List<RCRTCInputStream>>() {
-
+        setAVStreamType(RCRTCAVStreamType.AUDIO_VIDEO);
+        RCRTCEngine.getInstance().subscribeLiveStream(mInfo.getMcuUrl(), RCRTCAVStreamType.AUDIO_VIDEO, new RCRTCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtils.i(TAG, "订阅直播成功！");
+                write("subscribeLiveAVStream-R", "RoomId|UserId|McuUrl", roomId, DataInterface.getUserId(),
+                    mInfo.getMcuUrl());
+                postUIThread(new Runnable() {
                     @Override
-                    public void onSuccess(final List<RCRTCInputStream> streams) {
-                        LogUtils.i(TAG, "订阅直播成功！");
-                        write("subscribeLiveAVStream-R", "RoomId|UserId|McuUrl", roomId, DataInterface.getUserId(),
-                            mInfo.getMcuUrl());
-                        postUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                closeLoading();
-                                joinChatRoom();
-                                for (RCRTCInputStream stream : streams) {
-                                    if (stream instanceof RCRTCVideoInputStream) {
-                                        //创建RongRTCVideoView
-                                        RCRTCVideoView remoteView = new RCRTCVideoView(RoomInfoActivity.this);
-                                        //将RongRTCVideoView添加到Layout父容器中
-                                        mVideoMagr.setLargeView(remoteView, mInfo.getPubUserId(), "live");
-                                        //将RongRTCVideoView对象和RongRTCLiveAVInputStream对象绑定
-                                        ((RCRTCVideoInputStream) stream).setVideoView(remoteView);
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailed(RTCErrorCode rtcErrorCode) {
-                        write("subscribeLiveAVStream-E", "RoomId|UserId|McuUrl|ErroCode", roomId,
-                            DataInterface.getUserId(), mInfo.getMcuUrl(), rtcErrorCode.getValue());
-                        if (isFinish() || rtcErrorCode == RTCErrorCode.RongRTCCodeJoinRepeatedRoom) {
-                            return;
-                        }
+                    public void run() {
                         closeLoading();
-                        String msgStr = "观看直播失败:";
-                        if (rtcErrorCode == RTCErrorCode.RongRTCCodeNoMatchedRoom) {
-                            msgStr = "直播房间已不存在:";
-                        }
-                        StringBuilder msg = new StringBuilder(msgStr);
-                        msg.append("\n")
-                            .append("ErrorCode: ")
-                            .append(rtcErrorCode.getValue())
-                            .append("\n")
-                            .append("ClientId: ")
-                            .append(RCRTCEngine.getInstance().getClientId())
-                            .append("\n")
-                            .append("RoomId: ")
-                            .append(roomId)
-                            .append("\n")
-                            .append("LocalUserId: ")
-                            .append(DataInterface.getUserId())
-                            .append("\n")
-                            .append("MCU: ")
-                            .append(mInfo.getMcuUrl());
-                        DialogUtils.showDialog(RoomInfoActivity.this, msg.toString(), "确定",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    finish();
-                                }
-                            });
+                        joinChatRoom();
                     }
                 });
+            }
 
+            @Override
+            public void onFailed(RTCErrorCode rtcErrorCode) {
+
+                write("subscribeLiveAVStream-E", "RoomId|UserId|McuUrl|ErroCode", roomId,
+                    DataInterface.getUserId(), mInfo.getMcuUrl(), rtcErrorCode.getValue());
+                if (isFinish() || rtcErrorCode == RTCErrorCode.RongRTCCodeJoinRepeatedRoom) {
+                    return;
+                }
+                closeLoading();
+                String msgStr = "观看直播失败:";
+                if (rtcErrorCode == RTCErrorCode.RongRTCCodeNoMatchedRoom) {
+                    msgStr = "直播房间已不存在:";
+                }
+                StringBuilder msg = new StringBuilder(msgStr);
+                msg.append("\n")
+                    .append("ErrorCode: ")
+                    .append(rtcErrorCode.getValue())
+                    .append("\n")
+                    .append("RoomId: ")
+                    .append(roomId)
+                    .append("\n")
+                    .append("LocalUserId: ")
+                    .append(DataInterface.getUserId())
+                    .append("\n")
+                    .append("MCU: ")
+                    .append(mInfo.getMcuUrl());
+                DialogUtils.showDialog(RoomInfoActivity.this, msg.toString(), "确定",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            finish();
+                        }
+                    });
+            }
+
+            @Override
+            public void onVideoStreamReceived(final RCRTCVideoInputStream rcrtcVideoInputStream) {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //创建RongRTCVideoView
+                        RCRTCVideoView remoteView = new RCRTCVideoView(RoomInfoActivity.this);
+                        //将RongRTCVideoView添加到Layout父容器中
+                        mVideoMagr.setLargeView(remoteView, mInfo.getPubUserId(), "live");
+                        //将RongRTCVideoView对象和RongRTCLiveAVInputStream对象绑定
+                        rcrtcVideoInputStream.setVideoView(remoteView);
+                    }
+                });
+            }
+
+            @Override
+            public void onAudioStreamReceived(RCRTCAudioInputStream rcrtcAudioInputStream) {
+
+            }
+        });
     }
 
     /**
@@ -644,9 +682,6 @@ public class RoomInfoActivity extends LiveShowActivity {
                             msg.append("\n")
                                 .append("ErrorCode: ")
                                 .append(rtcErrorCode.getValue())
-                                .append("\n")
-                                .append("ClientId: ")
-                                .append(RCRTCEngine.getInstance().getClientId())
                                 .append("\n")
                                 .append("RoomId: ")
                                 .append(roomId)
@@ -742,9 +777,6 @@ public class RoomInfoActivity extends LiveShowActivity {
                                 .append("ErrorCode: ")
                                 .append(errorCode.getValue())
                                 .append("\n")
-                                .append("ClientId: ")
-                                .append(RCRTCEngine.getInstance().getClientId())
-                                .append("\n")
                                 .append("RoomId: ")
                                 .append(roomId)
                                 .append("\n")
@@ -831,7 +863,13 @@ public class RoomInfoActivity extends LiveShowActivity {
                 write("publishDefaultLiveAVStream-R", "RoomId|LocalUserId", roomId, DataInterface.getUserId());
                 if (isFinish())
                     return;
-                onPublishLiveSuccess(rongRTCLiveRoom);
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onPublishLiveSuccess(rongRTCLiveRoom);
+                    }
+                });
+
             }
 
             @Override
@@ -846,9 +884,6 @@ public class RoomInfoActivity extends LiveShowActivity {
                         msg.append("\n")
                             .append("ErrorCode: ")
                             .append(rtcErrorCode.getValue())
-                            .append("\n")
-                            .append("ClientId: ")
-                            .append(RCRTCEngine.getInstance().getClientId())
                             .append("\n")
                             .append("RoomId: ")
                             .append(roomId)
@@ -976,9 +1011,14 @@ public class RoomInfoActivity extends LiveShowActivity {
 //                        if (mRoleType.get() == RoleType.ANCHOR){    //升级为主播
 //                            joinRtcRoom();
 //                        }else
-                    if (resubscribe) { //降级为观众
-                        subscribeLiveAVStream();
-                    }
+                    postUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (resubscribe) { //降级为观众
+                                subscribeLiveAVStream();
+                            }
+                        }
+                    });
                 }
 
                 @Override
@@ -1020,7 +1060,9 @@ public class RoomInfoActivity extends LiveShowActivity {
             mConfigHelper.release();
         }
         mSetCDNPushDialog = null;
+        RCRTCEngine.getInstance().unregisterStatusReportListener();
         RCRTCEngine.getInstance().unInit();
+        setAVStreamType(null);
     }
 
     public IRCRTCRoomEventsListener mRoomEventsListener = new IRCRTCRoomEventsListener() {
@@ -1037,7 +1079,13 @@ public class RoomInfoActivity extends LiveShowActivity {
 
             write("subscribeAVStream-T", "RoomId|LocalUserId|remoteUser", roomId, DataInterface.getUserId(),
                 rongRTCRemoteUser.getUserId());
-            addNewRemoteView(rongRTCRemoteUser);
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    addNewRemoteView(rongRTCRemoteUser);
+                }
+            });
+
             mRtcRoom.getLocalUser().subscribeStreams(list, new IRCRTCResultCallback() {
                 @Override
                 public void onSuccess() {
@@ -1056,9 +1104,6 @@ public class RoomInfoActivity extends LiveShowActivity {
                             msg.append("\n")
                                 .append("ErrorCode: ")
                                 .append(errorCode)
-                                .append("\n")
-                                .append("ClientId: ")
-                                .append(RCRTCEngine.getInstance().getClientId())
                                 .append("\n")
                                 .append("RoomId: ")
                                 .append(roomId)
@@ -1096,14 +1141,18 @@ public class RoomInfoActivity extends LiveShowActivity {
         }
 
         @Override
-        public void onRemoteUserUnpublishResource(RCRTCRemoteUser rongRTCRemoteUser, List<RCRTCInputStream> list) {
-            for (RCRTCInputStream rongRTCAVInputStream : list) {
-                if (rongRTCAVInputStream.getMediaType() == RCRTCMediaType.VIDEO) {
-                    if (mVideoMagr != null)
-                        mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), rongRTCAVInputStream.getTag());
+        public void onRemoteUserUnpublishResource(final RCRTCRemoteUser rongRTCRemoteUser, final List<RCRTCInputStream> list) {
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (RCRTCInputStream rongRTCAVInputStream : list) {
+                        if (rongRTCAVInputStream.getMediaType() == RCRTCMediaType.VIDEO) {
+                            if (mVideoMagr != null)
+                                mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), rongRTCAVInputStream.getTag());
+                        }
+                    }
                 }
-            }
-
+            });
         }
 
         /**
@@ -1127,24 +1176,34 @@ public class RoomInfoActivity extends LiveShowActivity {
          * @param rongRTCRemoteUser
          */
         @Override
-        public void onUserLeft(RCRTCRemoteUser rongRTCRemoteUser) {
-            if (!isFinish()) {
-                mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), null);
-            }
-            if (mConfigHelper != null) {
-                mConfigHelper.updateMixConfig();
-            }
+        public void onUserLeft(final RCRTCRemoteUser rongRTCRemoteUser) {
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isFinish()) {
+                        mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), null);
+                    }
+                    if (mConfigHelper != null) {
+                        mConfigHelper.updateMixConfig();
+                    }
+                }
+            });
         }
 
 
         @Override
-        public void onUserOffline(RCRTCRemoteUser rongRTCRemoteUser) {
-            if (!isFinish()) {
-                mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), null);
-            }
-            if (mConfigHelper != null) {
-                mConfigHelper.updateMixConfig();
-            }
+        public void onUserOffline(final RCRTCRemoteUser rongRTCRemoteUser) {
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isFinish()) {
+                        mVideoMagr.removeVideoView(rongRTCRemoteUser.getUserId(), null);
+                    }
+                    if (mConfigHelper != null) {
+                        mConfigHelper.updateMixConfig();
+                    }
+                }
+            });
         }
 
         @Override
@@ -1159,15 +1218,20 @@ public class RoomInfoActivity extends LiveShowActivity {
         @Override
         public void onLeaveRoom(int var1) {
             Log.e(TAG, "onLeaveRoom: " + roomId);
-            if (isFinish())
-                return;
-            AlertDialog.Builder builder = new AlertDialog.Builder(RoomInfoActivity.this);
-            builder.setTitle("网络连接异常，退出房间！").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            postUIThread(new Runnable() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
+                public void run() {
+                    if (isFinish())
+                        return;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RoomInfoActivity.this);
+                    builder.setTitle("网络连接异常，退出房间！").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).show();
                 }
-            }).show();
+            });
         }
 
         @Override
@@ -1366,12 +1430,17 @@ public class RoomInfoActivity extends LiveShowActivity {
             "FileVideo", RCRTCVideoStreamConfig.Builder.create().setVideoResolution(RCRTCVideoResolution.RESOLUTION_360_640).setVideoFps(RCRTCVideoFps.Fps_24).build());
         mFileVideoOutputStream.setOnSendListener(new IRCRTCOnStreamSendListener() {
             @Override
-            public void onStart(RCRTCVideoOutputStream stream) {
-                if (mConfigHelper != null)
-                    mConfigHelper.updateMixConfig();
-                RCRTCVideoView videoView = new RCRTCVideoView(RoomInfoActivity.this);
-                stream.setVideoView(videoView);
-                mVideoMagr.addSmallView(videoView,mRtcRoom.getLocalUser().getUserId(),stream.getTag());
+            public void onStart(final RCRTCVideoOutputStream stream) {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mConfigHelper != null)
+                            mConfigHelper.updateMixConfig();
+                        RCRTCVideoView videoView = new RCRTCVideoView(RoomInfoActivity.this);
+                        stream.setVideoView(videoView);
+                        mVideoMagr.addSmallView(videoView,mRtcRoom.getLocalUser().getUserId(),stream.getTag());
+                    }
+                });
             }
 
             @Override
@@ -1412,5 +1481,139 @@ public class RoomInfoActivity extends LiveShowActivity {
                 });
             }
         });
+    }
+
+    private OnCheckedChangeListener checkedChangeListener=new OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            if (checkedId == R.id.radioBtn_NomalVideoStream) {
+                pullStream(RCRTCAVStreamType.AUDIO_VIDEO);
+            } else if (checkedId == R.id.radioBtn_TinyVideoStream) {
+                pullStream(RCRTCAVStreamType.AUDIO_VIDEO_TINY);
+            } else if (checkedId == R.id.radioBtn_AudioStream) {
+                pullStream(RCRTCAVStreamType.AUDIO);
+            }
+        }
+    };
+
+    /**
+     * 拉流切换
+     * @param streamType 需要拉取的流类型
+     */
+    private void pullStream(final RCRTCAVStreamType streamType){
+        if (mInfo == null || TextUtils.isEmpty(mInfo.getMcuUrl())) {
+            showToast("数据异常无法观看直播");
+            return;
+        }
+        showLoading("正在切换");
+        RCRTCEngine.getInstance().subscribeLiveStream(mInfo.getMcuUrl(), streamType, new RCRTCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(RCRTCAVStreamType.AUDIO == streamType){
+                            LayoutInflater inflater = LayoutInflater.from(RoomInfoActivity.this);
+                            View view = inflater.inflate(R.layout.layout_audionly, null);
+                            mVideoMagr.addAudioOnlyView(view);
+                            setAVStreamType(streamType);//仅音频切换时，如果在onAudioStreamReceived 中更新缓存，下一次切换onAudioStreamReceived回调可能比video回调快
+                        }
+                        closeLoading();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("拉流失败："+rtcErrorCode.getReason());
+                        closeLoading();
+                    }
+                });
+            }
+
+            @Override
+            public void onVideoStreamReceived(final RCRTCVideoInputStream rcrtcVideoInputStream) {
+                Log.e("BUGTAGS","onVideoStreamReceived");
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(needToAddView(streamType)){
+                            Log.e("BUGTAGS","addView-------------");
+                            //创建RongRTCVideoView
+                            RCRTCVideoView remoteView = new RCRTCVideoView(RoomInfoActivity.this);
+                            //将RongRTCVideoView添加到Layout父容器中
+                            mVideoMagr.setLargeView(remoteView, mInfo.getPubUserId(), "live");
+                            //将RongRTCVideoView对象和RongRTCLiveAVInputStream对象绑定
+                            rcrtcVideoInputStream.setVideoView(remoteView);
+                        }else{
+                            Log.e("BUGTAGS","removeAudioOnlyView-------------");
+                            mVideoMagr.removeAudioOnlyView();
+                        }
+                        closeLoading();
+                    }
+                });
+            }
+
+            @Override
+            public void onAudioStreamReceived(RCRTCAudioInputStream rcrtcAudioInputStream) {
+                Log.e("BUGTAGS","onAudioStreamReceived");
+            }
+        });
+    }
+
+    private StatusBean statusBean;
+    private StringBuffer stringBuffer=new StringBuffer();
+    private static final String ASTERISK=" * ";
+    private IRCRTCStatusReportListener statusReportListener=new IRCRTCStatusReportListener() {
+        @Override
+        public void onConnectionStats(final StatusReport statusReport) {
+            super.onConnectionStats(statusReport);
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Map.Entry<String, StatusBean> entry : statusReport.statusVideoRcvs.entrySet()) {
+                        statusBean = entry.getValue();
+                        if(statusBean == null){
+                            return;
+                        }
+                        if(!TextUtils.isEmpty(statusBean.mediaType) && TextUtils.equals(statusBean.mediaType,"video")){
+                            stringBuffer.setLength(0);
+                            stringBuffer.append(statusBean.frameWidth);
+                            stringBuffer.append(ASTERISK);
+                            stringBuffer.append(statusBean.frameHeight);
+                            setLocalVideoStreamInfo(stringBuffer.toString(),statusBean.bitRate,statusBean.frameRate);
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    private boolean needToAddView(RCRTCAVStreamType streamType){
+        boolean val = true;
+        if(mAVStreamType == null){
+            setAVStreamType(streamType);
+            return val;
+        }
+        //缓存为音频 ， 需要切换为非音频 ， 需要通知创建 SurfaceView
+        if(mAVStreamType == RCRTCAVStreamType.AUDIO && (streamType!=RCRTCAVStreamType.AUDIO)){
+            setAVStreamType(streamType);
+            return val;
+        }
+        setAVStreamType(streamType);
+        //其他场景 不需要重新添加视图
+        val = false;
+        return val;
+    }
+
+    /**
+     * 缓存一份 RCRTCAVStreamType
+     * @param streamType
+     */
+    private void setAVStreamType(RCRTCAVStreamType streamType){
+        mAVStreamType = streamType;
     }
 }

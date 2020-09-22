@@ -3,15 +3,13 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/background"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  >
+  android:layout_height="match_parent">
 
   <FrameLayout
     android:id="@+id/fl_largeview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_bg"/>
-
+    android:background="@drawable/shape_bg" />
   <ImageView
     android:id="@+id/fake"
     android:layout_width="wrap_content"
@@ -157,6 +155,12 @@
       android:gravity="center_horizontal"
       android:orientation="vertical">
 
+      <Button
+        android:id="@+id/menu_cdn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CDN推流"/>
+
       <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/menu_custom_stream"
         android:layout_width="36dp"
@@ -216,4 +220,118 @@
     android:layout_height="match_parent"
     android:layout_alignParentRight="true"
     android:layout_marginBottom="4dp" />
+
+  <RadioGroup
+    android:id="@+id/radioGroup_Stream"
+    android:layout_width="wrap_content"
+    android:visibility="gone"
+    android:layout_alignParentRight="true"
+    android:layout_marginRight="14dp"
+    android:layout_marginTop="15dp"
+    android:layout_below="@+id/ll_options"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+
+    <RadioButton
+      android:id="@+id/radioBtn_NomalVideoStream"
+      android:layout_width="wrap_content"
+      android:text="拉大流"
+      android:layout_marginTop="15dp"
+      android:layoutDirection="rtl"
+      android:textColor="#FFFF00"
+      android:textDirection="ltr"
+      android:layout_height="wrap_content"/>
+
+    <RadioButton
+      android:id="@+id/radioBtn_TinyVideoStream"
+      android:layout_width="wrap_content"
+      android:layoutDirection="rtl"
+      android:textDirection="ltr"
+      android:textColor="#FFFF00"
+      android:text="拉小流"
+      android:layout_height="wrap_content"/>
+
+    <RadioButton
+      android:id="@+id/radioBtn_AudioStream"
+      android:layout_width="wrap_content"
+      android:text="拉音频"
+      android:layoutDirection="rtl"
+      android:textDirection="ltr"
+      android:textColor="#FFFF00"
+      android:layout_height="wrap_content"/>
+
+  </RadioGroup>
+
+  <LinearLayout
+    android:id="@+id/linear_statusReport"
+    android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:visibility="gone"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_below="@+id/layout_host"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginBottom="5dp"
+      android:layout_height="wrap_content">
+      <TextView
+        android:layout_width="wrap_content"
+        android:text="视频分辨率："
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+
+      <TextView
+        android:id="@+id/tv_localVide_resolution"
+        android:layout_width="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginBottom="5dp"
+      android:layout_height="wrap_content">
+      <TextView
+        android:layout_width="wrap_content"
+        android:text="视频码率："
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+
+      <TextView
+        android:id="@+id/tv_localVideo_bitrate"
+        android:layout_width="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginBottom="5dp"
+      android:layout_height="wrap_content">
+      <TextView
+        android:layout_width="wrap_content"
+        android:text="视频帧率："
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+
+      <TextView
+        android:id="@+id/tv_localVideo_FPS"
+        android:layout_width="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+  </LinearLayout>
+
 </RelativeLayout>
